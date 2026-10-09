@@ -7,6 +7,7 @@ const KEY = '***'
 export function currentTheme(): ThemeName {
   const saved = localStorage.getItem(KEY)
   if (saved === 'stanford') return 'academic' // migrate older saved value
+  if (saved === 'default') return 'vps' // docs-only mode ("stock Swagger"); app falls back to its own default
   return saved === 'light' || saved === 'academic' || saved === 'vps' ? saved : 'vps'
 }
 

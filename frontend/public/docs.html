@@ -5,14 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>VPS Anatomy · API Reference</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css" />
-<link rel="stylesheet" href="/docs-theme.css" />
+<link rel="stylesheet" href="/docs-theme.css" id="docs-css" />
 <script>
-  // Apply the saved theme before paint, shared with the app via localStorage key vps.theme
+  // Theme model for the docs page: vps (token theme, default), light, or
+  // 'default' = the stock Swagger UI look with no overrides at all.
+  // Persisted in the same key as the app ('vps.theme'); the app maps
+  // 'default' to its own vps look.
   (function () {
     var t = localStorage.getItem('vps.theme') || 'vps';
-    if (t === 'stanford') t = 'academic';
-    if (t === 'vps') document.documentElement.removeAttribute('data-theme');
-    else document.documentElement.setAttribute('data-theme', t);
+    if (t === 'stanford' || t === 'academic') t = 'vps'; // old values no longer offered here
+    if (t === 'default') document.getElementById('docs-css').setAttribute('disabled', '');
+    if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
   })();
 </script>
 </head>
@@ -26,7 +29,7 @@
     <div class="docs-theme-toggle" role="group" aria-label="Theme">
       <button data-set-theme="vps">VPS</button>
       <button data-set-theme="light">Light</button>
-      <button data-set-theme="academic">Academic</button>
+      <button data-set-theme="default">Default</button>
     </div>
   </div>
 </div>
@@ -40,17 +43,25 @@
     displayRequestDuration: true,
     presets: [SwaggerUIBundle.presets.apis],
   });
+  function applyDocsTheme(t) {
+    const css = document.getElementById('docs-css');
+    if (t === 'default') css.setAttribute('disabled', '');
+    else css.removeAttribute('disabled');
+    if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    else document.documentElement.removeAttribute('data-theme');
+    document.querySelectorAll('[data-set-theme]').forEach((b) =>
+      b.classList.toggle('on', b.getAttribute('data-set-theme') === t));
+  }
   document.querySelectorAll('[data-set-theme]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const t = btn.getAttribute('data-set-theme');
       localStorage.setItem('vps.theme', t);
-      if (t === 'vps') document.documentElement.removeAttribute('data-theme');
-      else document.documentElement.setAttribute('data-theme', t);
-      document.querySelectorAll('[data-set-theme]').forEach((b) => b.classList.toggle('on', b === btn));
+      applyDocsTheme(t);
     });
   });
-  const cur = document.documentElement.getAttribute('data-theme') || 'vps';
-  document.querySelectorAll('[data-set-theme]').forEach((b) => b.classList.toggle('on', b.getAttribute('data-set-theme') === cur));
+  let cur = localStorage.getItem('vps.theme') || 'vps';
+  if (cur === 'stanford' || cur === 'academic') cur = 'vps';
+  applyDocsTheme(cur);
 </script>
 </body>
 </html>
