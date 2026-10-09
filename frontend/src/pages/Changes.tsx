@@ -46,7 +46,7 @@ export default function Changes() {
     <div>
       <div className="page-head">
         <h1>Changes</h1>
-        <p className="sub">The machine's diary: every listener that appeared or disappeared, every module that flipped state. Written by the scanner, not by hand.</p>
+        <p className="sub">Every listener that appeared or disappeared, every module that changed state. Written by the scanner, not by hand.</p>
       </div>
 
       <div className="pills">

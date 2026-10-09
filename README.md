@@ -1,9 +1,9 @@
 # VPS Anatomy
 
 A self-observing educational app for a live AI-agent server. A background
-scanner reads the machine every 30 seconds — CPU, memory, disk, uptime, TCP
+scanner reads the server every 30 seconds — CPU, memory, disk, uptime, TCP
 listeners, running processes — and stores each scan in SQLite. The site then
-teaches the architecture of the machine using that data, not screenshots of
+teaches the architecture of the server using that data, not screenshots of
 someone's memory: what's listening on each port, which agents are alive, and
 what changed between scans.
 

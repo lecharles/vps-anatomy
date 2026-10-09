@@ -20,7 +20,7 @@ lab notebook: each endpoint is a lens on one layer of the system.
 - **machine** — hardware and OS facts (cores, RAM, disk, uptime).
 - **services** — TCP listeners, labeled by the port catalog.
 - **modules** — the residents: agents, runtimes, containers, scheduler.
-- **changes** — the diff between successive scans; the machine's diary.
+- **changes** — the diff between successive scans.
 
 Scans run every 30 seconds. Timestamps are UTC, written by the scanner.
 """

@@ -19,12 +19,12 @@ export default function Home() {
   return (
     <>
       <div className="hero">
-        <h1>A live AI-agent machine,<br />explained.</h1>
+        <h1>A live AI agent server,<br />explained.</h1>
         <p className="lede">
           <strong className="mono" style={{ color: 'var(--text-bright)' }}>{machine?.hostname ?? 'this server'}</strong> is a
           {' '}{machine?.cpus ?? '—'}-core Ubuntu server running two AI agents, a fleet of web services,
-          containers, schedulers and stores. This site reads the machine itself — every fact on these
-          pages is scanned live, not hard-coded.
+          containers, schedulers and stores. Every fact on these pages
+          is read from the live server, not hard-coded.
         </p>
         <p className="stamp">
           {live.length > 0 ? <>data as of <b>last scan</b> · <span className="live-label">● auto-refresh 30s</span></> : 'first scan pending…'}
@@ -40,20 +40,20 @@ export default function Home() {
       </div>
 
       <section>
-        <h2 className="sec">What this machine does</h2>
+        <h2 className="sec">What this server does</h2>
         <p className="sec-sub">Four roles, stacked. Each one is a lesson in the course.</p>
         <div className="card-grid">
           <a className="card" href="/lessons">
-            <h3><span className="num-tag">L1</span> The substrate</h3>
+            <h3><span className="num-tag">L1</span> Hardware & OS</h3>
             <p className="desc">Ubuntu 24.04 on {machine?.cpus ?? '—'} cores, {machine?.ram_gb ?? '—'} GB RAM, {machine?.uptime_days ?? '—'} days of uptime. Hardware and OS as the floor everything else stands on.</p>
           </a>
           <a className="card" href="/lessons">
-            <h3><span className="num-tag">L2</span> The agents</h3>
-            <p className="desc">Two agent runtimes and a shared coding engine. Software that reads, decides, and acts on this machine through messaging lanes and terminals. Their names come from the live scanner.</p>
+            <h3><span className="num-tag">L2</span> Agents</h3>
+            <p className="desc">Two agent runtimes and a shared coding engine. Software that reads, decides, and acts on this server through messaging lanes and terminals. Their names come from the live scanner.</p>
           </a>
           <a className="card" href="/lessons">
-            <h3><span className="num-tag">L3</span> The plumbing</h3>
-            <p className="desc">{live.length} TCP listeners right now: web apps, a model runtime, databases, schedulers — each named by the scanner. Ports as the machine’s vocabulary.</p>
+            <h3><span className="num-tag">L3</span> Services & ports</h3>
+            <p className="desc">{live.length} TCP listeners right now: web apps, a model runtime, databases, schedulers — each named by the scanner.</p>
           </a>
           <a className="card" href="/lessons">
             <h3><span className="num-tag">L4</span> Boundaries</h3>
@@ -76,7 +76,7 @@ export default function Home() {
             <div className="row" key={s.port}>
               <span className={s.public ? 'dot g' : 'dot n'} />
               <span className="name mono" style={{ fontSize: 12.5 }}>{s.name} <span className="chip port">:{s.port}</span></span>
-              <span className="detail">{s.owner !== 'unknown' ? <>process <span className="mono">{s.owner}</span></> : 'root-owned · invisible to this scanner’s user'}</span>
+              <span className="detail">{s.owner !== 'unknown' ? <>process <span className="mono">{s.owner}</span></> : 'root-owned · name not visible to this scanner'}</span>
               <span className="right">{s.public ? 'public' : s.bind}</span>
             </div>
           ))}
@@ -86,7 +86,7 @@ export default function Home() {
 
       <section>
         <p className="muted">
-          New here? Start with <a href="/lessons">Lesson 1 — What is this machine?</a> ·
+          New here? Start with <a href="/lessons">Lesson 1 — What is this server?</a> ·
           Curious what changed? <a href="/changes">Changes feed</a> ·
           Full system map: <a href="/architecture">Architecture</a>
         </p>

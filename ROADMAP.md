@@ -7,9 +7,13 @@ real machine, shipped as **v1.0 on December 18**. Reference bar:
 Standing rules:
 - Public artifact only: no secrets, env values, handoff files, person names,
   or brand claims in tracked content. `scripts/hygiene.sh` enforces.
-- The repo moves every day. Baseline: `scripts/daily-train.sh` (system crontab,
-  05:00 local ≈ 12:00 UTC) commits `data/snapshots/YYYY-MM-DD.json`. Zero LLM.
-- Slice days add a real code/docs commit on top of the snapshot.
+- Security first, every commit: no hostname, public IP, port map, service
+  inventory or provider identity in git — tree, messages, or history. Only the
+  runtime scanner sees host facts; `scripts/hygiene.sh` enforces.
+- The repo moves with real slice commits. `scripts/daily-train.sh` (system
+  crontab, 05:00 local ≈ 12:00 UTC) runs a LOCAL-ONLY smoke check
+  (`scripts/smoke.sh`); it never writes to git. Scanned data stays on the host
+  in `data/`, which is gitignored. Zero LLM tokens.
 - Pause switch: `PAUSE` file at repo root. Holiday freeze: Dec 19 – Jan 4.
 
 ## Big rocks
@@ -21,16 +25,27 @@ Standing rules:
 | R3 · Depth | lessons cite real code; flows measured live | Oct 28 – Nov 27 |
 | R4 · Bar | CI, screenshots, installer, v1.0 release | Dec 1 – Dec 18 |
 
+## Testing
+
+- Smoke: `scripts/smoke.sh` — endpoints + schema + build freshness. Runs on
+  every daily-train (05:00) and before any manual deploy. Local output only.
+- Unit: pytest fixtures over the scanner — S11a–c (Oct 21–23).
+- End-to-end: full user path in a real browser (load page, live data renders,
+  theme switch, `/docs`). Carlos runs these manually against the staging URL;
+  a written E2E checklist lands with S18a (Nov 30) so CI can adopt it later.
+
 ## Day-by-day calendar
 
 Every date, October 10 through December 31. Slice letters under R1/R2/R3/R4.
-"snapshot" = automated data commit only. Weekends marked (light) are small work.
+Unassigned days are buffer/soak. Weekends marked (light) are small work.
 
 ### October
 
 | Date | Item |
 |------|------|
-| Fri Oct 9 | train infra: hygiene gate, LICENSE, daily-train script, calendar (done today) |
+| Fri Oct 9 | train infra: hygiene gate, LICENSE, daily-train script, calendar — done |
+| Fri Oct 9 | SD1 · SVG diagram pass (Architecture / Signal Flow / Data Flow) + plain-voice copy pass — done |
+| Fri Oct 9 | SD2 · security scrub: host facts → gitignored files, history rewritten, daily-train made local-only — done |
 | Sat Oct 10 (light) | S7a · `/api/trends/` — hourly rollup query + schema |
 | Sun Oct 11 (light) | S7b · trends metric params (services, modules, ram, disk) |
 | Mon Oct 12 | S7 merge · docs note, ROADMAP tick |
@@ -48,7 +63,7 @@ Every date, October 10 through December 31. Slice letters under R1/R2/R3/R4.
 | Sat Oct 24 (light) | S12a · trends UI polish, hover detail |
 | Sun Oct 25 (light) | S12b · bar labels + legend copy |
 | Mon Oct 26 | **M1 · tag v0.4 (History + Trust complete)** |
-| Tue Oct 27 | soak / snapshot only |
+| Tue Oct 27 | soak / buffer |
 | Wed Oct 28 | S13a · Lesson 3 rows link to live `/api/services/` data |
 | Thu Oct 29 | S13b · every port row cites real source or config path on disk |
 | Fri Oct 30 | S14a · localhost hop-latency probes: design + first numbers |
@@ -72,20 +87,20 @@ Every date, October 10 through December 31. Slice letters under R1/R2/R3/R4.
 | Thu Nov 12 | S23 · Architecture tier live counts (services/modules per tier) |
 | Fri Nov 13 | S24 · module detail mini-sparkline per resident |
 | Sat Nov 14 (light) | **M2 · tag v0.5 (Trust complete)** |
-| Sun Nov 15 | soak / snapshot only |
+| Sun Nov 15 | soak / buffer |
 | Mon Nov 16 | S25 · docs audit: README claims vs behavior, fix deltas |
 | Tue Nov 17 | S26 · OpenAPI cleanup: examples per endpoint |
 | Wed Nov 18 | S27 · trends CSV export endpoint |
 | Thu Nov 19 | S28 · tiny client-side lesson search |
 | Fri Nov 20 | S29 · prev/next lesson navigation |
 | Sat Nov 21 (light) | S30 · `?theme=` deep-link shared by site + docs |
-| Sun Nov 22 | snapshot only |
+| Sun Nov 22 | buffer |
 | Mon Nov 23 | S31 · bundle size + gzip report; first optimization |
 | Tue Nov 24 | S32 · automated a11y check script (no tokens) |
 | Wed Nov 25 | S33 · mobile layout pass (375px) |
-| Thu Nov 26 | Thanksgiving — snapshot only |
+| Thu Nov 26 | Thanksgiving — buffer |
 | Fri Nov 27 | **G2 · tag v0.6 (Depth complete)** + release notes stub |
-| Sat Nov 28 – Sun Nov 29 | snapshot only |
+| Sat Nov 28 – Sun Nov 29 | buffer |
 | Mon Nov 30 | S18a · GitHub Actions: typecheck + build + pytest |
 
 ### December
@@ -97,14 +112,14 @@ Every date, October 10 through December 31. Slice letters under R1/R2/R3/R4.
 | Thu Dec 3 | S19a · README screenshots (VPS / Light / Academic) |
 | Fri Dec 4 | S19b · `install.sh` one-command quickstart |
 | Sat Dec 5 (light) | S19c · quickstart verified on clean venv |
-| Sun Dec 6 | snapshot only |
+| Sun Dec 6 | buffer |
 | Mon Dec 7 | S20a · CHANGELOG.md from commit history |
 | Tue Dec 8 | S20b · tag v0.7 (Bar-up-to-now) |
 | Wed Dec 9 | S34 · signal-flow: today vs yesterday medians |
 | Thu Dec 10 | S35 · machine events: uptime resets, reboots into Changes |
-| Fri Dec 11 | snapshot only (buffer) |
+| Fri Dec 11 | buffer |
 | Sat Dec 12 (light) | buffer: fix whatever broke |
-| Sun Dec 13 | snapshot only |
+| Sun Dec 13 | buffer |
 | Mon Dec 14 | S36 · final sweep part 1: links + copy |
 | Tue Dec 15 | S37 · final sweep part 2: schema + Swagger examples |
 | Wed Dec 16 | S38 · v1.0 release notes draft |
@@ -117,7 +132,9 @@ Every date, October 10 through December 31. Slice letters under R1/R2/R3/R4.
 - [x] S1 v0.2 baseline · S2 design system (3 themes) · S3 scanner reliability
 - [x] S4 content pass · S5 public-info hygiene · S6 themed Swagger at `/docs`
 - [x] S6b docs third theme = stock Swagger Default · MIT LICENSE
-- [x] T0 train infra: hygiene gate + daily-train (zero-LLM) + deploy-static
+- [x] T0 train infra: hygiene gate + daily-train (zero-LLM, local-only) + deploy-static
+- [x] SD1 SVG diagrams: Architecture tiers, Signal Flow pipeline, Data Flow sequence
+- [x] SD2 security scrub: host data out of tree and history; smoke-based cadence
 
 ## Backlog (2027)
 
