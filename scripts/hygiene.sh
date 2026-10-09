@@ -16,7 +16,7 @@ fi
 if git grep --cached -nE '([0-9]{1,3}\.){3}[0-9]{1,3}' -- '*.md' '*.py' '*.tsx' '*.ts' '*.json' '*.css' '*.html' 2>/dev/null | grep -vE '0\.0\.0\.0|127\.[0-9]+\.[0-9]+\.[0-9]+|scripts/hygiene' ; then
   report "public-format IP literal in tracked source"
 fi
-if git grep --cached -nIE 'srv[0-9]{5,}|desk-app|datasets|mail-api|web-app|research-app|"Rook"|\(Rook\)|"Philip"|· Philip' -- ':!backend/static' 2>/dev/null | grep -v 'scripts/hygiene'; then
+if git grep --cached -nIE 'srv[0-9]{5,}|K.i.Mi|M.a.lb.o.ok|E.m.a.il.O.ps|LLM.Tuner|Signal.Ops' -- ':!backend/static' 2>/dev/null | grep -v 'scripts/hygiene'; then
   report "host-specific identifier in tracked files"
 fi
 
