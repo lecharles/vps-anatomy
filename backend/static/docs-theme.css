@@ -1,0 +1,94 @@
+/* Swagger UI themed with the VPS design system tokens.
+   Same roles as the app: near-black neutrals, hairline borders, scarce accents. */
+
+:root {
+  --bg: #0B0C0E; --panel: #101113; --surface: #14161A; --surface-elevated: #1C1F25;
+  --border: #2A2D34; --hairline: rgba(255,255,255,.07);
+  --text: #D0D6E0; --text-bright: #ECEDEF; --text-muted: #8A8F98; --text-faint: #62666D;
+  --primary: #5E6AD2; --primary-bright: #7C74F2; --success: #4CB782; --danger: #EB5757; --warning: #F2C94C;
+  --font-sans: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+[data-theme="light"] {
+  --bg: #F7F6F2; --panel: #FFFFFF; --surface: #FFFFFF; --surface-elevated: #FFFFFF;
+  --border: #E5E3DD; --hairline: rgba(20,20,20,.08);
+  --text: #26282B; --text-bright: #1A1B1E; --text-muted: #6A6E76; --text-faint: #979BA2;
+  --primary: #4750B0; --primary-bright: #5A50D6;
+}
+[data-theme="academic"] {
+  --bg: #FFFFFF; --panel: #FBFAF7; --surface: #FFFFFF; --surface-elevated: #FFFFFF;
+  --border: #E5E1D8; --hairline: rgba(60,40,30,.12);
+  --text: #2B2926; --text-bright: #1C1A17; --text-muted: #6B675F; --text-faint: #9A958B;
+  --primary: #8C1515; --primary-bright: #A6423A;
+  --font-sans: Georgia, "Times New Roman", serif;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-sans); }
+
+.docs-topbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  height: 52px; padding: 0 20px; border-bottom: 1px solid var(--hairline);
+  background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(12px);
+  position: sticky; top: 0; z-index: 100;
+}
+.docs-brand { display: flex; align-items: center; gap: 9px; color: var(--text-bright); font-weight: 600; font-size: 14px; text-decoration: none; }
+.docs-brand small { color: var(--text-faint); font-weight: 500; }
+.docs-mark { width: 18px; height: 18px; border-radius: 5px; background: conic-gradient(from 210deg, var(--primary), #8B7BF0, #2DD4BF, var(--primary)); display: inline-block; }
+.docs-actions { display: flex; align-items: center; gap: 14px; }
+.docs-link { color: var(--text-muted); font: 500 11.5px var(--font-mono); text-decoration: none; }
+.docs-link:hover { color: var(--text-bright); }
+.docs-theme-toggle { display: flex; border: 1px solid var(--hairline); border-radius: 7px; overflow: hidden; }
+.docs-theme-toggle button { appearance: none; border: 0; background: transparent; color: var(--text-faint); font: 500 11px var(--font-sans); padding: 6px 10px; cursor: pointer; }
+.docs-theme-toggle button:hover { color: var(--text); }
+.docs-theme-toggle button.on { background: color-mix(in srgb, var(--primary) 16%, transparent); color: var(--primary-bright); }
+
+/* ---- Swagger UI overrides ---- */
+.swagger-ui { max-width: 1160px; margin: 0 auto; padding: 8px 20px 80px; color: var(--text) !important; font-family: var(--font-sans) !important; }
+.swagger-ui .topbar { display: none; }
+.swagger-ui .info { margin: 18px 0 8px; }
+.swagger-ui .info .title { color: var(--text-bright); font-family: var(--font-sans) !important; font-size: 26px !important; font-weight: 650; letter-spacing: -0.02em; }
+.swagger-ui .info .base-url, .swagger-ui .info a { color: var(--primary-bright) !important; font-family: var(--font-mono); font-size: 12px; }
+.swagger-ui .info p, .swagger-ui .markdown p, .swagger-ui .renderedMarkdown p { color: var(--text-muted); font-size: 13.5px; line-height: 1.6; }
+.swagger-ui .opblock-tag { color: var(--text-bright) !important; font-size: 15px !important; font-weight: 620 !important; border-bottom: 1px solid var(--hairline) !important; padding: 14px 0 6px !important; }
+.swagger-ui .opblock {
+  border: 1px solid var(--hairline) !important; border-radius: 10px !important;
+  background: var(--panel) !important; box-shadow: none !important; margin: 8px 0 !important;
+}
+.swagger-ui .opblock .opblock-summary { border-color: var(--hairline) !important; }
+.swagger-ui .opblock .opblock-summary-method {
+  border-radius: 6px !important; font-family: var(--font-mono) !important; font-weight: 600 !important;
+  min-width: 62px; text-align: center; padding: 5px 10px !important; box-shadow: none !important;
+}
+.swagger-ui .opblock.opblock-get { border-color: color-mix(in srgb, var(--primary) 40%, var(--hairline)) !important; background: var(--panel) !important; }
+.swagger-ui .opblock.opblock-get .opblock-summary-method { background: var(--primary) !important; color: #fff; }
+.swagger-ui .opblock.opblock-post .opblock-summary-method { background: var(--success) !important; color: #06130d; }
+.swagger-ui .opblock.opblock-put .opblock-summary-method { background: var(--warning) !important; color: #201a04; }
+.swagger-ui .opblock.opblock-delete .opblock-summary-method { background: var(--danger) !important; color: #fff; }
+.swagger-ui .opblock-summary-path { color: var(--text-bright) !important; font-family: var(--font-mono) !important; font-size: 13px !important; }
+.swagger-ui .opblock-summary-description { color: var(--text-muted) !important; font-size: 12px !important; }
+.swagger-ui .opblock-body { background: var(--surface); border-top: 1px solid var(--hairline); }
+.swagger-ui .opblock-description-wrapper p, .swagger-ui .opblock-external-docs-wrapper p { color: var(--text) !important; font-size: 13px; }
+.swagger-ui .response-col_status, .swagger-ui .response-col_description, .swagger-ui .tab li { color: var(--text-muted) !important; }
+.swagger-ui .btn {
+  border: 1px solid var(--hairline) !important; border-radius: 7px !important;
+  background: var(--surface-elevated) !important; color: var(--text) !important;
+  font-family: var(--font-mono) !important; font-size: 11.5px !important; box-shadow: none !important;
+}
+.swagger-ui .btn:hover { color: var(--text-bright) !important; border-color: var(--border) !important; }
+.swagger-ui .btn.authorize { color: var(--success) !important; border-color: var(--success) !important; background: var(--panel) !important; }
+.swagger-ui table thead tr td, .swagger-ui table thead tr th { color: var(--text-faint) !important; border-bottom: 1px solid var(--hairline) !important; font: 600 10.5px var(--font-mono); text-transform: uppercase; letter-spacing: .06em; }
+.swagger-ui .parameter__name, .swagger-ui .prop-type, .swagger-ui .prop-format { color: var(--text-bright) !important; font-family: var(--font-mono) !important; }
+.swagger-ui .parameter__type { color: var(--text-muted) !important; font-family: var(--font-mono) !important; }
+.swagger-ui .parameter__required { color: var(--danger) !important; }
+.swagger-ui .response-col_links a { color: var(--primary-bright) !important; }
+.swagger-ui .model-box, .swagger-ui section.models { background: transparent !important; border: 0 !important; }
+.swagger-ui section.models { border: 1px solid var(--hairline) !important; border-radius: 10px !important; margin: 12px 0 !important; }
+.swagger-ui section.models h4 { color: var(--text-bright) !important; font-size: 13px !important; }
+.swagger-ui .model { color: var(--text) !important; font-family: var(--font-mono) !important; font-size: 12px !important; }
+.swagger-ui .microlight, .swagger-ui .highlight-code, .swagger-ui .prop-loading { background: var(--surface-elevated) !important; }
+.swagger-ui code, .swagger-ui .body-param__text, .swagger-ui textarea { color: var(--text-bright) !important; font-family: var(--font-mono) !important; }
+.swagger-ui .responses-inner { border-color: var(--hairline) !important; }
+.swagger-ui .tab { margin: 6px 0 10px !important; }
+.swagger-ui .tab li.active { color: var(--text-bright) !important; }
+@media (max-width: 720px) { .docs-actions .docs-link { display: none; } }

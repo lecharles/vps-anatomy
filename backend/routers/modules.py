@@ -7,7 +7,7 @@ from typing import List
 
 router = APIRouter(prefix="/api/modules", tags=["modules"])
 
-@router.get("/", response_model=List[ModuleStateSchema])
+@router.get("/", response_model=List[ModuleStateSchema], summary="All residents with live status")
 def get_latest_modules(db: Session = Depends(get_db)):
     """Get latest module states"""
     # Get latest timestamp
@@ -17,7 +17,7 @@ def get_latest_modules(db: Session = Depends(get_db)):
     
     return db.query(ModuleState).filter(ModuleState.timestamp == latest[0]).all()
 
-@router.get("/{module_id}", response_model=ModuleStateSchema)
+@router.get("/{module_id}", response_model=ModuleStateSchema, summary="One resident's latest state")
 def get_module(module_id: str, db: Session = Depends(get_db)):
     """Get latest state for a specific module"""
     module = db.query(ModuleState).filter(
@@ -25,7 +25,7 @@ def get_module(module_id: str, db: Session = Depends(get_db)):
     ).order_by(ModuleState.timestamp.desc()).first()
     return module
 
-@router.get("/{module_id}/history", response_model=List[ModuleStateSchema])
+@router.get("/{module_id}/history", response_model=List[ModuleStateSchema], summary="One resident's scan history")
 def get_module_history(module_id: str, limit: int = 100, db: Session = Depends(get_db)):
     """Get module state history"""
     return db.query(ModuleState).filter(

@@ -7,12 +7,12 @@ from typing import List
 
 router = APIRouter(prefix="/api/changes", tags=["changes"])
 
-@router.get("/", response_model=List[ChangeSchema])
+@router.get("/", response_model=List[ChangeSchema], summary="Recent detected changes")
 def get_changes(limit: int = 50, db: Session = Depends(get_db)):
     """Get recent changes"""
     return db.query(Change).order_by(Change.timestamp.desc()).limit(limit).all()
 
-@router.get("/by-type/{change_type}", response_model=List[ChangeSchema])
+@router.get("/by-type/{change_type}", response_model=List[ChangeSchema], summary="Changes filtered by event type")
 def get_changes_by_type(change_type: str, limit: int = 50, db: Session = Depends(get_db)):
     """Get changes by type"""
     return db.query(Change).filter(

@@ -32,6 +32,7 @@ function Shell({ children }: { children: React.ReactNode }) {
                 {label}
               </NavLink>
             ))}
+            <a className="nav-link" href="/docs" target="_blank" rel="noreferrer">API ↗</a>
           </nav>
           <ThemeToggle />
         </div>
@@ -41,7 +42,7 @@ function Shell({ children }: { children: React.ReactNode }) {
         <div className="wrap">
           <p className="f-line">VPS Anatomy · an educational reader for a live AI-agent machine.</p>
           <p className="f-line">
-            Built by <span className="muted">Hermes</span> for <span className="muted">Carlos</span> · self-scanning every 30s ·{' '}
+            Self-scanning every 30s · <a href="/docs">API reference</a> ·{' '}
             <a href="https://github.com/lecharles/vps-anatomy">GitHub</a> · MIT · React + TypeScript + FastAPI
           </p>
         </div>

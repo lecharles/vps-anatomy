@@ -7,7 +7,7 @@ from typing import List
 
 router = APIRouter(prefix="/api/machine", tags=["machine"])
 
-@router.get("/", response_model=MachineStateSchema)
+@router.get("/", response_model=MachineStateSchema, summary="Current machine facts")
 def get_latest_machine(db: Session = Depends(get_db)):
     """Get latest machine state"""
     machine = db.query(MachineState).order_by(MachineState.timestamp.desc()).first()
@@ -27,7 +27,7 @@ def get_latest_machine(db: Session = Depends(get_db)):
         }
     return machine
 
-@router.get("/history", response_model=List[MachineStateSchema])
+@router.get("/history", response_model=List[MachineStateSchema], summary="Scan history of machine facts")
 def get_machine_history(limit: int = 100, db: Session = Depends(get_db)):
     """Get machine state history"""
     return db.query(MachineState).order_by(MachineState.timestamp.desc()).limit(limit).all()

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VPS Anatomy · API Reference</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css" />
+<link rel="stylesheet" href="/docs-theme.css" />
+<script>
+  // Apply the saved theme before paint, shared with the app via localStorage key vps.theme
+  (function () {
+    var t = localStorage.getItem('vps.theme') || 'vps';
+    if (t === 'stanford') t = 'academic';
+    if (t === 'vps') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme', t);
+  })();
+</script>
+</head>
+<body>
+<div class="docs-topbar">
+  <a class="docs-brand" href="/">
+    <span class="docs-mark"></span> VPS Anatomy <small>· API reference</small>
+  </a>
+  <div class="docs-actions">
+    <a class="docs-link" href="/openapi.json">openapi.json</a>
+    <div class="docs-theme-toggle" role="group" aria-label="Theme">
+      <button data-set-theme="vps">VPS</button>
+      <button data-set-theme="light">Light</button>
+      <button data-set-theme="academic">Academic</button>
+    </div>
+  </div>
+</div>
+<div id="swagger"></div>
+<script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+<script>
+  window.ui = SwaggerUIBundle({
+    url: '/openapi.json',
+    dom_id: '#swagger',
+    deepLinking: true,
+    displayRequestDuration: true,
+    presets: [SwaggerUIBundle.presets.apis],
+  });
+  document.querySelectorAll('[data-set-theme]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const t = btn.getAttribute('data-set-theme');
+      localStorage.setItem('vps.theme', t);
+      if (t === 'vps') document.documentElement.removeAttribute('data-theme');
+      else document.documentElement.setAttribute('data-theme', t);
+      document.querySelectorAll('[data-set-theme]').forEach((b) => b.classList.toggle('on', b === btn));
+    });
+  });
+  const cur = document.documentElement.getAttribute('data-theme') || 'vps';
+  document.querySelectorAll('[data-set-theme]').forEach((b) => b.classList.toggle('on', b.getAttribute('data-set-theme') === cur));
+</script>
+</body>
+</html>

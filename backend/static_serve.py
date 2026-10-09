@@ -11,7 +11,7 @@ def mount_spa(app: FastAPI, static_dir: str = "static"):
     # Serve static assets
     app.mount("/assets", StaticFiles(directory=os.path.join(static_dir, "assets")), name="assets")
     
-    @app.get("/{full_path:path}")
+    @app.get("/{full_path:path}", include_in_schema=False)
     async def spa_fallback(full_path: str):
         # Try to serve the exact file
         file_path = os.path.join(static_dir, full_path)
