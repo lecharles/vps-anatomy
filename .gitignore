@@ -1,0 +1,14 @@
+.DS_Store
+_internal/
+
+# Python
+__pycache__/
+*.pyc
+.env
+.venv/
+
+# Training artifacts (adapters, GGUFs, JSONL, logs)
+backend/_training_runs/.venv-smoke/
+
+# Generated icon pipeline output (scripts/make_app_icon.sh)
+build/

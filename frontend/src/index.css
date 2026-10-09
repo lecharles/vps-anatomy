@@ -1,0 +1,378 @@
+/* VPS Anatomy — Stanford CS Grade */
+
+:root {
+  --cardinal: #8C1515;
+  --cardinal-dark: #6B0F0F;
+  --bg: #FAFAFA;
+  --surface: #FFFFFF;
+  --text: #2E2D29;
+  --text-muted: #6B6B6B;
+  --border: #E0E0E0;
+  --code-bg: #F5F5F5;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Source Serif', 'Georgia', serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+header {
+  background: var(--cardinal);
+  color: white;
+  padding: 3rem 0 2rem;
+  border-bottom: 4px solid var(--cardinal-dark);
+}
+
+header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+header .subtitle {
+  font-size: 1.3rem;
+  font-weight: 400;
+  opacity: 0.95;
+  margin-bottom: 0.5rem;
+}
+
+header .meta {
+  font-size: 0.95rem;
+  opacity: 0.8;
+  font-style: italic;
+}
+
+nav {
+  background: var(--surface);
+  border-bottom: 2px solid var(--border);
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+nav .container {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.nav-link {
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.nav-link:hover {
+  color: var(--cardinal);
+}
+
+.nav-link.active {
+  color: var(--cardinal);
+  border-bottom-color: var(--cardinal);
+}
+
+main {
+  padding: 3rem 0;
+  min-height: 60vh;
+}
+
+footer {
+  background: var(--surface);
+  border-top: 2px solid var(--border);
+  padding: 2rem 0;
+  margin-top: 4rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+footer a {
+  color: var(--cardinal);
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+/* Lessons */
+.lesson-list {
+  list-style: none;
+  counter-reset: lesson;
+}
+
+.lesson-list li {
+  counter-increment: lesson;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.lesson-list li::before {
+  content: "Lesson " counter(lesson);
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--cardinal);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.lesson-list li h3 {
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.lesson-list li p {
+  color: var(--text-muted);
+}
+
+/* Modules */
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.module-card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  padding: 1.5rem;
+  transition: all 0.2s;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.module-card:hover {
+  border-color: var(--cardinal);
+  box-shadow: 0 4px 12px rgba(140, 21, 21, 0.1);
+  transform: translateY(-2px);
+}
+
+.module-card h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+  color: var(--cardinal);
+}
+
+.module-card p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.module-card .status {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 3px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 0.75rem;
+}
+
+.status-live {
+  background: #E8F5E9;
+  color: #2E7D32;
+}
+
+.status-stopped {
+  background: #FFEBEE;
+  color: #C62828;
+}
+
+.status-partial {
+  background: #FFF3E0;
+  color: #E65100;
+}
+
+/* Module detail */
+.module-detail {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  padding: 2rem;
+}
+
+.module-detail h2 {
+  font-size: 2rem;
+  color: var(--cardinal);
+  margin-bottom: 0.5rem;
+}
+
+.module-detail .subtitle {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+  font-style: italic;
+}
+
+.module-detail section {
+  margin-bottom: 2rem;
+}
+
+.module-detail h3 {
+  font-size: 1.3rem;
+  color: var(--cardinal);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.module-detail p {
+  margin-bottom: 1rem;
+}
+
+.module-detail ul {
+  list-style: none;
+  margin-left: 0;
+}
+
+.module-detail li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.module-detail li:last-child {
+  border-bottom: none;
+}
+
+.module-detail .key {
+  font-weight: 600;
+  color: var(--text);
+  display: inline-block;
+  min-width: 120px;
+}
+
+.module-detail .value {
+  color: var(--text-muted);
+}
+
+/* Diagrams */
+.diagram-container {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  padding: 2rem;
+  margin-top: 2rem;
+  overflow-x: auto;
+}
+
+.diagram-container svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Changes feed */
+.changes-feed {
+  list-style: none;
+}
+
+.change-item {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.change-item:last-child {
+  border-bottom: none;
+}
+
+.change-item .timestamp {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.change-item .description {
+  font-weight: 600;
+}
+
+.change-item .change-type {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
+}
+
+.type-service_started {
+  background: #E8F5E9;
+  color: #2E7D32;
+}
+
+.type-service_stopped {
+  background: #FFEBEE;
+  color: #C62828;
+}
+
+.type-module_updated {
+  background: #E3F2FD;
+  color: #1976D2;
+}
+
+/* Code */
+code {
+  background: var(--code-bg);
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-family: 'Source Code Pro', 'Consolas', monospace;
+  font-size: 0.9em;
+}
+
+pre {
+  background: var(--code-bg);
+  padding: 1rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+pre code {
+  background: none;
+  padding: 0;
+}
+
+/* Loading */
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-muted);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  header h1 {
+    font-size: 2rem;
+  }
+  
+  nav .container {
+    gap: 1rem;
+  }
+  
+  .module-grid {
+    grid-template-columns: 1fr;
+  }
+}
