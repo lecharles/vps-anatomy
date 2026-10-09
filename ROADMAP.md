@@ -1,39 +1,56 @@
-# Roadmap
+# VPS Anatomy — Roadmap & Ship Plan (Oct 9 – Dec 31, 2026)
 
-Work happens in slices. One slice per commit or small commit series, always
-pushed. Quality bar: a page is done when a newcomer could learn from it and
-a skeptic couldn't roll their eyes.
+Goal: a public engineering artifact that teaches live-server architecture on a
+real machine, shipped as **v1.0 by December 19**. Reference bar:
+`lecharles/llm-fine-tuner-agent-tester`.
 
-## Done
+Standing rules for every commit:
+- Public artifact only. No secrets, env dumps, handoff files, names of people,
+  or brand claims in tracked content. `scripts/hygiene.sh` enforces it.
+- One slice per commit or small series. Committed, pushed, same day.
 
-- S1 · v0.2 baseline: React+TS+FastAPI, live scanner concept, seven pages.
-- S2 · Design system: adopt the VPS-wide token system (Linear-grounded dark
-  by default) with Light and Academic variants; theme switch in the header.
-- S3 · Scanner reliability: /proc-based facts, one shared timestamp per scan,
-  service catalog, honest root-owned attribution, baseline-safe change diff.
-- S4 · Content pass: real course prose, live modules, vertical data-flow
-  diagram, day-grouped change feed.
-- S5 · Public-info hygiene: university branding removed from repo, personal
-  narration stripped from docs; README as real documentation.
-- S6 · Swagger: `/docs` themed with the same tokens and theme switch;
-  OpenAPI descriptions, tags, and per-endpoint summaries.
+## Big rocks
 
-## Next
+| Rock | Outcome | Window |
+|------|---------|--------|
+| R1 · History | the scanner DB becomes charts: trends over days/weeks | Oct 10 – Oct 23 |
+| R2 · Trust | the app survives reboots and its scanner is tested | Oct 24 – Nov 6 |
+| R3 · Depth | lessons cite real code on the box; signal flow measured live | Nov 9 – Nov 27 |
+| R4 · Bar | CI, README screenshots, v1.0 release | Nov 30 – Dec 19 |
 
-- S7 · Histogram slice: usage-style bars (per-scan service/module counts over
-  time, RAM/disk trend) in the VPS-dashboard visual language.
-- S8 · Resilience: systemd unit so the app survives reboots; health check;
-  log rotation for /tmp scan logs.
-- S9 · Test the scanner: pure functions for catalog mapping, ss parsing,
-  change diffing; pytest covering the failure modes that bit v0.2.
-- S10 · Reader polish: keyboard nav between lessons, prev/next, a tiny
-  search across page content.
-- S11 · Signal-flow animation: replay the Telegram→gateway→agent→tool→reply
-  loop with the actual current latency of each hop (localhost probes).
+## Slices
 
-## Backlog
+### October — R1 History, open R2
 
-- Auth for any endpoint that should not be world-readable, if the catalog
-  ever grows past public facts.
-- Export: `/api/machine/report.md` for pasting machine state into chats.
-- Themes per URL (`?theme=`) so docs can deep-link a mode.
+- [ ] S7  Service-count + RAM/disk trend endpoint (`/api/trends/`) reading scan history
+- [ ] S8  Histogram bars on Home/Architecture in dashboard style (sqrt scale, value labels)
+- [ ] S9  Retention policy: prune raw scans older than 60 days, keep hourly rollups
+- [ ] S10 systemd unit `vps-anatomy.service` + `/healthz`; retire tmux launch
+- [ ] S11 pytest: ss parser, catalog mapping, change diff, empty-DB baseline
+- [ ] S12 Trends UI polish: period toggles (day/week/month), hover detail
+
+### November — R3 Depth
+
+- [ ] S13 Lesson 3 rewrite: each port row links to the real source file on disk
+- [ ] S14 Signal-flow live probe: measure localhost hop latencies, render actual ms
+- [ ] S15 "Build your own scanner" doc: distill `core/__init__.py` into a guide
+- [ ] S16 Changes feed: filter chips by entity/type; link to affected module
+- [ ] S17 Accessibility pass: contrast tokens under AA in all three themes, focus rings
+
+### December — R4 Bar, v1.0
+
+- [ ] S18 GitHub Actions CI: typecheck + build + pytest + hygiene scan on push
+- [ ] S19 README screenshots (per theme) + one-paragraph quickstart install script
+- [ ] S20 Versioned releases: tag v0.4 (R1), v0.5 (R2), v0.6 (R3), v1.0.0
+- [ ] S21 Final sweep: broken links, stale copy, schema cleanup; freeze
+
+## Done so far
+
+- [x] S1 v0.2 baseline · S2 design system (3 themes) · S3 scanner reliability
+- [x] S4 content pass · S5 public-info hygiene · S6 themed Swagger at `/docs`
+- [x] S6b docs third theme = stock Swagger Default · MIT LICENSE · hygiene script
+
+## Backlog (unscheduled)
+
+Auth for non-public endpoints · `?theme=` deep link · report.md export ·
+multi-host compare · dark-mode screenshots for og:image.

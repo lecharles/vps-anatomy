@@ -87,6 +87,10 @@ rm -rf ../backend/static/* && cp -r dist/* ../backend/static/
 
 ## Notes on public data
 
+Run `scripts/hygiene.sh` before pushing (CI runs it too): it fails the build on
+secret-like strings, private working files, brand claims, or personal
+narration in tracked content.
+
 This repo documents a specific real server: hostname, IP, open ports, and
 service names appear in the scanner output because the site's purpose is
 showing them. Keep secrets, tokens, and private file contents out of the
