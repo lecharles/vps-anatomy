@@ -1,61 +1,87 @@
-import { useState, useEffect } from 'react'
+import { useApi, relTime } from '../hooks/useApi'
 
-interface Change {
-  id: number
-  timestamp: string
-  change_type: string
-  entity_type: string
-  entity_id: string
-  description: string
+type Change = {
+  id: number; timestamp: string; change_type: string
+  entity_type: string; entity_id: string; description: string
+}
+
+const TYPE_CLASS: Record<string, string> = {
+  service_started: 'started', module_started: 'started',
+  service_stopped: 'stopped', module_stopped: 'stopped',
+  module_updated: 'updated', machine_changed: 'updated',
+}
+const TYPE_LABEL: Record<string, string> = {
+  service_started: 'up', service_stopped: 'down',
+  module_started: 'live', module_stopped: 'stopped',
+  module_updated: 'update', machine_changed: 'change',
+}
+
+function dayLabel(iso: string): string {
+  const d = new Date(iso.endsWith('Z') ? iso : iso + 'Z')
+  const today = new Date()
+  const yest = new Date(Date.now() - 86400000)
+  const f = (x: Date) => x.toDateString()
+  if (f(d) === f(today)) return 'Today'
+  if (f(d) === f(yest)) return 'Yesterday'
+  return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })
 }
 
 export default function Changes() {
-  const [changes, setChanges] = useState<Change[]>([])
-  const [loading, setLoading] = useState(true)
+  const { data: changes, error } = useApi<Change[]>('/api/changes/?limit=100', 10000)
+  const list = changes ?? []
 
-  useEffect(() => {
-    const fetchChanges = () => {
-      fetch('/api/changes/?limit=50')
-        .then(res => res.json())
-        .then(data => {
-          setChanges(data)
-          setLoading(false)
-        })
-        .catch(() => setLoading(false))
-    }
-    
-    fetchChanges()
-    const interval = setInterval(fetchChanges, 10000) // Refresh every 10s
-    return () => clearInterval(interval)
-  }, [])
+  const last24 = list.filter((c) => Date.now() - new Date(c.timestamp + (c.timestamp.endsWith('Z') ? '' : 'Z')).getTime() < 86400000)
+  const ups = last24.filter((c) => (TYPE_CLASS[c.change_type] ?? '') === 'started').length
+  const downs = last24.filter((c) => (TYPE_CLASS[c.change_type] ?? '') === 'stopped').length
 
-  if (loading) return <div className="loading">Loading changes...</div>
+  const groups: { day: string; items: Change[] }[] = []
+  for (const c of list) {
+    const day = dayLabel(c.timestamp)
+    const g = groups[groups.length - 1]
+    if (g && g.day === day) g.items.push(c)
+    else groups.push({ day, items: [c] })
+  }
 
   return (
-    <section>
-      <h2>Changes — The VPS Story, Live</h2>
-      <p>Every change the VPS makes is recorded here. This is the living story of the machine: services starting, stopping, modules updating. Refreshes every 10 seconds.</p>
-      
-      {changes.length === 0 ? (
-        <p style={{padding: '2rem', textAlign: 'center', color: 'var(--text-muted)'}}>
-          No changes detected yet. The scanner is watching. Check back in a minute.
-        </p>
-      ) : (
-        <ul className="changes-feed">
-          {changes.map(c => (
-            <li key={c.id} className="change-item">
-              <div className="timestamp">{new Date(c.timestamp).toLocaleString()}</div>
-              <div className="description">
-                {c.description}
-                <span className={`change-type type-${c.change_type}`}>{c.change_type}</span>
+    <div>
+      <div className="page-head">
+        <h1>Changes</h1>
+        <p className="sub">The machine's diary: every listener that appeared or disappeared, every module that flipped state. Written by the scanner, not by hand.</p>
+      </div>
+
+      <div className="pills">
+        <div className="pill"><div className="v">{list.length}</div><div className="k">Events recorded</div><div className="s">since the scanner started</div></div>
+        <div className="pill"><div className="v g">+{ups}</div><div className="k">Started · 24h</div></div>
+        <div className="pill"><div className="v r">−{downs}</div><div className="k">Stopped · 24h</div></div>
+        <div className="pill"><div className="v p">{groups.length}</div><div className="k">Active days</div></div>
+      </div>
+
+      {groups.map((g) => (
+        <section key={g.day}>
+          <div className="eyebrow">{g.day} · {g.items.length} event{g.items.length === 1 ? '' : 's'}</div>
+          <div className="feed">
+            {g.items.map((c) => (
+              <div className="feed-item" key={c.id}>
+                <span className="f-dot" style={{ background: (TYPE_CLASS[c.change_type] ?? '') === 'started' ? 'var(--success)' : (TYPE_CLASS[c.change_type] ?? '') === 'stopped' ? 'var(--danger)' : 'var(--warning)' }} />
+                <div className="f-body">
+                  <div className="f-desc">{c.description}</div>
+                  <div className="f-meta">{relTime(c.timestamp)} · {c.entity_type}/{c.entity_id}</div>
+                </div>
+                <span className={`f-type ${TYPE_CLASS[c.change_type] ?? 'updated'}`}>{TYPE_LABEL[c.change_type] ?? c.change_type}</span>
               </div>
-              <div style={{fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.25rem'}}>
-                {c.entity_type}: {c.entity_id}
-              </div>
-            </li>
-          ))}
-        </ul>
+            ))}
+          </div>
+        </section>
+      ))}
+
+      {list.length === 0 && !error && (
+        <div className="feed" style={{ marginTop: 18 }}>
+          <div className="empty"><span className="pulse" />The scanner is watching. A quiet machine is a healthy machine — events will appear here when anything starts, stops or changes.</div>
+        </div>
       )}
-    </section>
+      {error && <div className="feed" style={{ marginTop: 18 }}><div className="empty">API unreachable.</div></div>}
+
+      <p className="seealso">How this works: <a href="/lessons#lesson-6">Lesson 6</a> · <a href="/modules">Modules</a></p>
+    </div>
   )
 }

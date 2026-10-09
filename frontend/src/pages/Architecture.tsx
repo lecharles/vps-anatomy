@@ -1,117 +1,98 @@
-import { useState, useEffect } from 'react'
+import { useApi } from '../hooks/useApi'
 
-interface Service {
-  port: number
-  bind: string
-  name: string
-  protocol: string
-  public: boolean
-  status: string
+type Service = { port: number; name: string }
+type Module = { module_id: string; name: string; status: string }
+
+function Node({ name, sub, accent, live }: { name: string; sub?: string; accent?: string; live?: boolean | null }) {
+  return (
+    <div className={`node ${accent ? `accent-${accent}` : ''}`}>
+      <div className="n-name">{live !== undefined && <span className={live ? 'dot g' : 'dot r'} style={{ marginRight: 7 }} />}{name}</div>
+      {sub && <div className="n-sub">{sub}</div>}
+    </div>
+  )
 }
 
 export default function Architecture() {
-  const [services, setServices] = useState<Service[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    fetch('/api/services/')
-      .then(res => res.json())
-      .then(data => {
-        setServices(data)
-        setLoading(false)
-      })
-      .catch(() => setLoading(false))
-  }, [])
+  const { data: services } = useApi<Service[]>('/api/services/')
+  const { data: modules } = useApi<Module[]>('/api/modules/')
+  const ports = new Set((services ?? []).map((s) => s.port))
+  const mod = (id: string) => (modules ?? []).find((m) => m.module_id === id)?.status === 'live'
 
   return (
-    <section>
-      <h2>Architecture Diagram</h2>
-      <p>Full system overview: agents, services, lanes, and external dependencies. Services are scanned live.</p>
-      
-      <div className="diagram-container">
-        <svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
-          <rect width="800" height="600" fill="#FAFAFA"/>
-          <text x="400" y="30" textAnchor="middle" fontSize="20" fontWeight="bold" fill="#8C1515">VPS Architecture</text>
-          
-          <rect x="50" y="60" width="700" height="500" fill="none" stroke="#8C1515" strokeWidth="2" strokeDasharray="5,5"/>
-          <text x="60" y="80" fontSize="14" fill="#8C1515">VPS 0.0.0.0</text>
-          
-          {/* Agents */}
-          <rect x="100" y="120" width="150" height="80" fill="#E8F5E9" stroke="#2E7D32" strokeWidth="2" rx="4"/>
-          <text x="175" y="150" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#2E2D29">Hermes</text>
-          <text x="175" y="170" textAnchor="middle" fontSize="11" fill="#6B6B6B">(Rook)</text>
-          <text x="175" y="185" textAnchor="middle" fontSize="10" fill="#6B6B6B">Primary agent</text>
-          
-          <rect x="300" y="120" width="150" height="80" fill="#E8F5E9" stroke="#2E7D32" strokeWidth="2" rx="4"/>
-          <text x="375" y="150" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#2E2D29">OpenClaw</text>
-          <text x="375" y="170" textAnchor="middle" fontSize="11" fill="#6B6B6B">(Philip)</text>
-          <text x="375" y="185" textAnchor="middle" fontSize="10" fill="#6B6B6B">Second agent</text>
-          
-          <rect x="500" y="120" width="150" height="80" fill="#E8F5E9" stroke="#2E7D32" strokeWidth="2" rx="4"/>
-          <text x="575" y="150" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#2E2D29">OpenCode</text>
-          <text x="575" y="170" textAnchor="middle" fontSize="11" fill="#6B6B6B">Root ops</text>
-          
-          {/* Services */}
-          <rect x="100" y="250" width="120" height="60" fill="#FFF3E0" stroke="#E65100" strokeWidth="2" rx="4"/>
-          <text x="160" y="275" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#2E2D29">Ollama</text>
-          <text x="160" y="290" textAnchor="middle" fontSize="10" fill="#6B6B6B">:11434</text>
-          
-          <rect x="250" y="250" width="120" height="60" fill="#FFF3E0" stroke="#E65100" strokeWidth="2" rx="4"/>
-          <text x="310" y="275" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#2E2D29">Docker</text>
-          <text x="310" y="290" textAnchor="middle" fontSize="10" fill="#6B6B6B">containers</text>
-          
-          <rect x="400" y="250" width="120" height="60" fill="#FFF3E0" stroke="#E65100" strokeWidth="2" rx="4"/>
-          <text x="460" y="275" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#2E2D29">Cron</text>
-          <text x="460" y="290" textAnchor="middle" fontSize="10" fill="#6B6B6B">scheduler</text>
-          
-          <rect x="550" y="250" width="120" height="60" fill="#FFF3E0" stroke="#E65100" strokeWidth="2" rx="4"/>
-          <text x="610" y="275" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#2E2D29">Secrets</text>
-          <text x="610" y="290" textAnchor="middle" fontSize="10" fill="#6B6B6B">vault</text>
-          
-          {/* Lanes */}
-          <rect x="100" y="360" width="150" height="60" fill="#E3F2FD" stroke="#1976D2" strokeWidth="2" rx="4"/>
-          <text x="175" y="385" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#2E2D29">web-app</text>
-          <text x="175" y="400" textAnchor="middle" fontSize="10" fill="#6B6B6B">coding-1 :8090</text>
-          
-          <rect x="280" y="360" width="150" height="60" fill="#E3F2FD" stroke="#1976D2" strokeWidth="2" rx="4"/>
-          <text x="355" y="385" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#2E2D29">research-app</text>
-          <text x="355" y="400" textAnchor="middle" fontSize="10" fill="#6B6B6B">coding-2 :8091</text>
-          
-          {/* External */}
-          <rect x="100" y="470" width="120" height="60" fill="#FCE4EC" stroke="#C2185B" strokeWidth="2" rx="4"/>
-          <text x="160" y="495" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#2E2D29">Telegram</text>
-          <text x="160" y="510" textAnchor="middle" fontSize="10" fill="#6B6B6B">Bot API</text>
-          
-          <rect x="250" y="470" width="120" height="60" fill="#FCE4EC" stroke="#C2185B" strokeWidth="2" rx="4"/>
-          <text x="310" y="495" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#2E2D29">GitHub</text>
-          <text x="310" y="510" textAnchor="middle" fontSize="10" fill="#6B6B6B">API + git</text>
-          
-          <rect x="400" y="470" width="120" height="60" fill="#FCE4EC" stroke="#C2185B" strokeWidth="2" rx="4"/>
-          <text x="460" y="495" textAnchor="middle" fontSize="12" fontWeight="bold" fill="#2E2D29">X/Twitter</text>
-          <text x="460" y="510" textAnchor="middle" fontSize="10" fill="#6B6B6B">API + Chromium</text>
-          
-          <defs>
-            <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#6B6B6B"/>
-            </marker>
-          </defs>
-        </svg>
+    <div>
+      <div className="page-head">
+        <h1>Architecture</h1>
+        <p className="sub">Five tiers, top to bottom. Green dots are live right now — pulled from the scanner, not drawn from memory.</p>
       </div>
 
-      <h3 style={{marginTop: '2rem', color: 'var(--cardinal)'}}>Live Services ({services.length} detected)</h3>
-      {loading ? (
-        <p className="loading">Scanning...</p>
-      ) : (
-        <ul style={{listStyle: 'none', marginTop: '1rem'}}>
-          {services.map((s, i) => (
-            <li key={i} style={{padding: '0.5rem 0', borderBottom: '1px solid var(--border)'}}>
-              <strong>:{s.port}</strong> ({s.bind}) — {s.name} [{s.protocol}] {s.public ? '🌐 public' : '🔒 localhost'}
-            </li>
-          ))}
-        </ul>
-      )}
-      
-      <p style={{marginTop: '2rem'}}>See also: <a href="/signal-flow">Signal Flow</a> · <a href="/data-flow">Data Flow</a> · <a href="/changes">Changes</a></p>
-    </section>
+      <div className="diagram" style={{ marginTop: 18 }}>
+        <div className="diagram-title">thehost · {services ? `${services.length} listeners` : 'scanning…'}</div>
+        <div className="diagram-sub">data sources on top · storage on the bottom · everything in between is a process</div>
+
+        <div className="tier">
+          <div className="tier-label">Access — outside world</div>
+          <div className="tier-row">
+            <Node name="Telegram" sub="Bot API · users" accent="x" live={null} />
+            <Node name="Browser" sub="you, right now" accent="x" live={null} />
+            <Node name="SSH :22" sub="operator" accent="x" live={ports.has(22)} />
+            <Node name="Model APIs" sub="rented reasoning" accent="x" live={null} />
+          </div>
+        </div>
+
+        <div className="flow-row"><span className="arrow">↓</span><span className="arrow" style={{ marginLeft: 60 }}>↓</span><span className="arrow" style={{ marginLeft: 60 }}>↓</span></div>
+
+        <div className="tier">
+          <div className="tier-label">Agents — the players</div>
+          <div className="tier-row">
+            <Node name="Hermes" sub="gateway · memory · skills" accent="s" live={mod('hermes')} />
+            <Node name="OpenClaw" sub=":18789 · Philip" accent="s" live={mod('openclaw')} />
+            <Node name="OpenCode" sub="shared coding engine" accent="s" live={mod('opencode')} />
+            <Node name="Pi" sub="minimal lane" accent="s" live={null} />
+          </div>
+        </div>
+
+        <div className="flow-row"><span className="arrow">↓</span></div>
+
+        <div className="tier">
+          <div className="tier-label">Runtime — how things stay alive</div>
+          <div className="tier-row">
+            <Node name="systemd" sub="services + user units" accent="w" live={null} />
+            <Node name="Docker" sub="containers" accent="w" live={mod('docker')} />
+            <Node name="Cron" sub="schedules" accent="w" live={mod('cron')} />
+            <Node name="Ollama" sub=":11434 local models" accent="w" live={mod('ollama')} />
+          </div>
+        </div>
+
+        <div className="flow-row"><span className="arrow">↓</span></div>
+
+        <div className="tier">
+          <div className="tier-label">Apps — surfaces you open</div>
+          <div className="tier-row">
+            <Node name="web-app" sub=":8090 coding-1" accent="i" live={ports.has(8090)} />
+            <Node name="research-app" sub=":8091 coding-2" accent="i" live={ports.has(8091)} />
+            <Node name="VPS Anatomy" sub=":8093 this app" accent="i" live={ports.has(8093)} />
+            <Node name="Mini-sites" sub=":8080 dashboards" accent="i" live={ports.has(8080)} />
+            <Node name="desk-app" sub=":3080" accent="i" live={ports.has(3080)} />
+          </div>
+        </div>
+
+        <div className="flow-row"><span className="arrow">↓</span></div>
+
+        <div className="tier">
+          <div className="tier-label">Storage — what persists</div>
+          <div className="tier-row">
+            <Node name="Git repos" sub="code + history" accent="p" live={null} />
+            <Node name="sqlite" sub="sessions · scanner" accent="p" live={null} />
+            <Node name="Postgres / Redis" sub="via Docker" accent="p" live={null} />
+            <Node name="Markdown" sub="memory · skills" accent="p" live={null} />
+            <Node name="Secrets" sub="env · 700 perms" accent="p" live={null} />
+          </div>
+        </div>
+      </div>
+
+      <div className="seealso">
+        See also: <a href="/signal-flow">Signal Flow</a> · <a href="/data-flow">Data Flow</a> · <a href="/modules">Modules</a>
+      </div>
+    </div>
   )
 }

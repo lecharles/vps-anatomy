@@ -1,58 +1,84 @@
+type Lane = { id: string; name: string; sub: string }
+type Msg = { from: number; to: number; label: string; ret?: boolean; note?: string }
+
+const LANES: Lane[] = [
+  { id: 'tg', name: 'Telegram', sub: 'user' },
+  { id: 'gw', name: 'Gateway', sub: 'lane router' },
+  { id: 'ag', name: 'Agent', sub: 'Hermes · OpenClaw' },
+  { id: 'llm', name: 'Model API', sub: 'remote · HTTPS' },
+  { id: 'st', name: 'Stores', sub: 'disk · sqlite · git' },
+]
+
+const MESSAGES: Msg[] = [
+  { from: 0, to: 1, label: 'new message (update)' },
+  { from: 1, to: 2, label: 'route to lane + build context' },
+  { from: 4, to: 2, label: 'memory · skills · history', ret: true },
+  { from: 2, to: 3, label: 'prompt → completion request' },
+  { from: 3, to: 2, label: 'reply · or tool call', ret: true },
+  { from: 2, to: 4, label: 'execute tool · read/write files' },
+  { from: 4, to: 2, label: 'tool output', ret: true },
+  { from: 2, to: 4, label: 'log turn (session JSONL)' },
+  { from: 2, to: 1, label: 'final answer' },
+  { from: 1, to: 0, label: 'message sent', ret: true },
+]
+
 export default function DataFlow() {
+  const W = 940, H = 560, TOP = 64, ROW = 46
+  const x = (i: number) => 90 + i * ((W - 180) / (LANES.length - 1))
+
   return (
-    <section>
-      <h2>Data Flow</h2>
-      <p>How data persists: repos, databases, logs, memory, secrets, skills, and queues.</p>
-      <div className="diagram-container">
-        <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
-          <rect width="800" height="400" fill="#FAFAFA"/>
-          <text x="400" y="30" textAnchor="middle" fontSize="20" fontWeight="bold" fill="#8C1515">Data Flow</text>
-          <text x="400" y="50" textAnchor="middle" fontSize="12" fill="#6B6B6B">How data persists in the system</text>
-          
-          <rect x="50" y="100" width="120" height="60" fill="#E3F2FD" stroke="#1976D2" strokeWidth="2" rx="4"/>
-          <text x="110" y="125" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#2E2D29">Git Repos</text>
-          <text x="110" y="140" textAnchor="middle" fontSize="10" fill="#6B6B6B">Code + commits</text>
-          
-          <rect x="220" y="100" width="120" height="60" fill="#E3F2FD" stroke="#1976D2" strokeWidth="2" rx="4"/>
-          <text x="280" y="125" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#2E2D29">Databases</text>
-          <text x="280" y="140" textAnchor="middle" fontSize="10" fill="#6B6B6B">SQLite, JSON</text>
-          
-          <rect x="390" y="100" width="120" height="60" fill="#E3F2FD" stroke="#1976D2" strokeWidth="2" rx="4"/>
-          <text x="450" y="125" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#2E2D29">Logs</text>
-          <text x="450" y="140" textAnchor="middle" fontSize="10" fill="#6B6B6B">Sessions, cron</text>
-          
-          <rect x="560" y="100" width="120" height="60" fill="#E3F2FD" stroke="#1976D2" strokeWidth="2" rx="4"/>
-          <text x="620" y="125" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#2E2D29">Memory</text>
-          <text x="620" y="140" textAnchor="middle" fontSize="10" fill="#6B6B6B">Agent context</text>
-          
-          <rect x="220" y="220" width="120" height="60" fill="#FCE4EC" stroke="#C2185B" strokeWidth="2" rx="4"/>
-          <text x="280" y="245" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#2E2D29">Secrets</text>
-          <text x="280" y="260" textAnchor="middle" fontSize="10" fill="#6B6B6B">Vault (700)</text>
-          
-          <rect x="390" y="220" width="120" height="60" fill="#FFF3E0" stroke="#E65100" strokeWidth="2" rx="4"/>
-          <text x="450" y="245" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#2E2D29">Skills</text>
-          <text x="450" y="260" textAnchor="middle" fontSize="10" fill="#6B6B6B">Procedures</text>
-          
-          <rect x="560" y="220" width="120" height="60" fill="#FFF3E0" stroke="#E65100" strokeWidth="2" rx="4"/>
-          <text x="620" y="245" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#2E2D29">Queue</text>
-          <text x="620" y="260" textAnchor="middle" fontSize="10" fill="#6B6B6B">Drafts, digests</text>
-          
-          <circle cx="400" cy="340" r="30" fill="#E8F5E9" stroke="#2E7D32" strokeWidth="2"/>
-          <text x="400" y="345" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#2E2D29">Agent</text>
-          
+    <div>
+      <div className="page-head">
+        <h1>Data Flow</h1>
+        <p className="sub">The same moment as Signal Flow, read vertically: participants keep their lifelines, and every arrow is a hop between services — out and back. Blue is a call, green dashed is a return.</p>
+      </div>
+
+      <div className="diagram" style={{ marginTop: 18 }}>
+        <svg className="seq" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Data flow sequence diagram">
           <defs>
-            <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#6B6B6B"/>
+            <marker id="arr-call" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L7,3 L0,6" fill="none" stroke="var(--primary-bright)" strokeWidth="1.2" />
+            </marker>
+            <marker id="arr-ret" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L7,3 L0,6" fill="none" stroke="var(--success)" strokeWidth="1.2" />
             </marker>
           </defs>
-          
-          <line x1="400" y1="310" x2="110" y2="160" stroke="#6B6B6B" strokeWidth="1" markerEnd="url(#arrow)"/>
-          <line x1="400" y1="310" x2="280" y2="160" stroke="#6B6B6B" strokeWidth="1" markerEnd="url(#arrow)"/>
-          <line x1="400" y1="310" x2="450" y2="160" stroke="#6B6B6B" strokeWidth="1" markerEnd="url(#arrow)"/>
-          <line x1="400" y1="310" x2="620" y2="160" stroke="#6B6B6B" strokeWidth="1" markerEnd="url(#arrow)"/>
+
+          {LANES.map((l, i) => (
+            <g key={l.id}>
+              <rect className="lane-box" x={x(i) - 62} y={14} width={124} height={34} rx={6} />
+              <text className="lane-head" x={x(i)} y={31} textAnchor="middle">{l.name}</text>
+              <text className="lane-sub" x={x(i)} y={43} textAnchor="middle">{l.sub}</text>
+              <line className="lifeline" x1={x(i)} y1={54} x2={x(i)} y2={H - 18} />
+            </g>
+          ))}
+
+          {MESSAGES.map((m, i) => {
+            const y = TOP + i * ROW + 18
+            const x1 = x(m.from), x2 = x(m.to)
+            const mid = (x1 + x2) / 2
+            return (
+              <g key={i} style={{ color: m.ret ? 'var(--success)' : 'var(--primary-bright)' }}>
+                <line className={m.ret ? 'msg ret' : 'msg'} x1={x1} y1={y} x2={x2} y2={y}
+                  markerEnd="url(#arr)" stroke={m.ret ? 'var(--success)' : 'var(--primary-bright)'} strokeWidth={1.4} strokeDasharray={m.ret ? '4 3' : undefined} />
+                <text className="msg-label" x={mid} y={y - 6} textAnchor="middle" fill="var(--text)">{m.label}</text>
+              </g>
+            )
+          })}
         </svg>
       </div>
-      <p style={{marginTop: '2rem'}}>See also: <a href="/architecture">Architecture</a> · <a href="/signal-flow">Signal Flow</a> · <a href="/changes">Changes</a></p>
-    </section>
+
+      <section>
+        <div className="eyebrow">What each crossing leaves behind</div>
+        <div className="rows">
+          <div className="row"><span className="name mono" style={{ fontSize: 12 }}>Gateway → Agent</span><span className="detail">the lane's conversation file gains a turn. Append-only: history is never rewritten.</span></div>
+          <div className="row"><span className="name mono" style={{ fontSize: 12 }}>Agent ↔ Model API</span><span className="detail">tokens in, tokens out — logged with exact counts. That log is what the usage dashboard on :8080 sums.</span></div>
+          <div className="row"><span className="name mono" style={{ fontSize: 12 }}>Agent → Stores</span><span className="detail">every tool call touches disk: files edited, commands captured, sqlite rows committed. This scanner's own database is one of them.</span></div>
+          <div className="row"><span className="name mono" style={{ fontSize: 12 }}>Agent → Memory</span><span className="detail">the rare, deliberate write: a memory markdown file updated so the *next* wake-up starts smarter.</span></div>
+        </div>
+      </section>
+
+      <p className="seealso">See also: <a href="/signal-flow">Signal Flow</a> · <a href="/changes">Changes</a> · <a href="/lessons#lesson-6">Lesson 6</a></p>
+    </div>
   )
 }

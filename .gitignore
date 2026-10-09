@@ -12,3 +12,6 @@ backend/_training_runs/.venv-smoke/
 
 # Generated icon pipeline output (scripts/make_app_icon.sh)
 build/
+
+# runtime scanner database
+backend/vps_anatomy.db

@@ -1,4 +1,3 @@
-import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
 import Home from './pages/Home'
 import Lessons from './pages/Lessons'
 import Modules from './pages/Modules'
@@ -7,31 +6,54 @@ import Architecture from './pages/Architecture'
 import SignalFlow from './pages/SignalFlow'
 import DataFlow from './pages/DataFlow'
 import Changes from './pages/Changes'
+import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
+import ThemeToggle from './components/ThemeToggle'
+
+function Shell({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <div className="topbar">
+        <div className="topbar-inner">
+          <NavLink to="/" className="brand">
+            <span className="mark" /> VPS Anatomy <small>· thehost</small>
+          </NavLink>
+          <nav className="main-nav">
+            {([
+              ['/', 'Home', true],
+              ['/lessons', 'Lessons', false],
+              ['/modules', 'Modules', false],
+              ['/architecture', 'Architecture', false],
+              ['/signal-flow', 'Signal Flow', false],
+              ['/data-flow', 'Data Flow', false],
+              ['/changes', 'Changes', false],
+            ] as [string, string, boolean][]).map(([to, label, end]) => (
+              <NavLink key={to} to={to} end={end}
+                className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
+                {label}
+              </NavLink>
+            ))}
+          </nav>
+          <ThemeToggle />
+        </div>
+      </div>
+      <main className="content wrap">{children}</main>
+      <footer className="site">
+        <div className="wrap">
+          <p className="f-line">VPS Anatomy · an educational reader for a live AI-agent machine.</p>
+          <p className="f-line">
+            Built by <span className="muted">Hermes</span> for <span className="muted">Carlos</span> · self-scanning every 30s ·{' '}
+            <a href="https://github.com/lecharles/vps-anatomy">GitHub</a> · MIT · React + TypeScript + FastAPI
+          </p>
+        </div>
+      </footer>
+    </>
+  )
+}
 
 function App() {
   return (
     <BrowserRouter>
-      <header>
-        <div className="container">
-          <h1>VPS Anatomy</h1>
-          <p className="subtitle">The Architecture of a Live AI-Agent Machine</p>
-          <p className="meta">An educational reader for computer science — Stanford CS grade · Live monitoring</p>
-        </div>
-      </header>
-
-      <nav>
-        <div className="container">
-          <NavLink to="/" className={({isActive}) => isActive ? 'nav-link active' : 'nav-link'} end>Home</NavLink>
-          <NavLink to="/lessons" className={({isActive}) => isActive ? 'nav-link active' : 'nav-link'}>Lessons</NavLink>
-          <NavLink to="/modules" className={({isActive}) => isActive ? 'nav-link active' : 'nav-link'}>Modules</NavLink>
-          <NavLink to="/architecture" className={({isActive}) => isActive ? 'nav-link active' : 'nav-link'}>Architecture</NavLink>
-          <NavLink to="/signal-flow" className={({isActive}) => isActive ? 'nav-link active' : 'nav-link'}>Signal Flow</NavLink>
-          <NavLink to="/data-flow" className={({isActive}) => isActive ? 'nav-link active' : 'nav-link'}>Data Flow</NavLink>
-          <NavLink to="/changes" className={({isActive}) => isActive ? 'nav-link active' : 'nav-link'}>Changes</NavLink>
-        </div>
-      </nav>
-
-      <main className="container">
+      <Shell>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/lessons" element={<Lessons />} />
@@ -42,15 +64,7 @@ function App() {
           <Route path="/data-flow" element={<DataFlow />} />
           <Route path="/changes" element={<Changes />} />
         </Routes>
-      </main>
-
-      <footer>
-        <div className="container">
-          <p>Built by Hermes (Rook) for Carlos (lecharles) on a live AI-agent VPS.</p>
-          <p>Live monitoring: the app scans the VPS every 30 seconds and updates itself autonomously.</p>
-          <p><a href="https://github.com/lecharles/vps-anatomy">GitHub</a> · MIT License · React + TypeScript + FastAPI</p>
-        </div>
-      </footer>
+      </Shell>
     </BrowserRouter>
   )
 }

@@ -1,57 +1,60 @@
+import { useApi } from '../hooks/useApi'
+
+type Module = { module_id: string; status: string }
+
 export default function SignalFlow() {
+  const { data: modules } = useApi<Module[]>('/api/modules/', 15000)
+  const hermesLive = (modules ?? []).find((m) => m.module_id === 'hermes')?.status === 'live'
+
+  const steps = [
+    { n: '01', title: 'Message', sub: 'Telegram Bot API push', tone: 'x' },
+    { n: '02', title: 'Gateway', sub: 'route to a lane', tone: 's' },
+    { n: '03', title: 'Context', sub: 'memory + files + history', tone: 's' },
+    { n: '04', title: 'Model call', sub: 'HTTPS · rented reasoning', tone: 'w' },
+    { n: '05', title: 'Tools', sub: 'terminal · files · browser', tone: 'i' },
+    { n: '06', title: 'Reply', sub: 'back down the same path', tone: 'x' },
+  ]
+  const toneClass: Record<string, string> = { x: 'accent-x', s: 'accent-s', w: 'accent-w', i: 'accent-i' }
+
   return (
-    <section>
-      <h2>Signal Flow</h2>
-      <p>How messages move: from Telegram user → gateway → agent → tool → result → response → back to user.</p>
-      <div className="diagram-container">
-        <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
-          <rect width="800" height="400" fill="#FAFAFA"/>
-          <text x="400" y="30" textAnchor="middle" fontSize="20" fontWeight="bold" fill="#8C1515">Signal Flow</text>
-          <text x="400" y="50" textAnchor="middle" fontSize="12" fill="#6B6B6B">How messages move through the system</text>
-          
-          <rect x="50" y="100" width="120" height="60" fill="#FCE4EC" stroke="#C2185B" strokeWidth="2" rx="4"/>
-          <text x="110" y="125" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#2E2D29">Telegram</text>
-          <text x="110" y="140" textAnchor="middle" fontSize="10" fill="#6B6B6B">User message</text>
-          
-          <rect x="220" y="100" width="120" height="60" fill="#E8F5E9" stroke="#2E7D32" strokeWidth="2" rx="4"/>
-          <text x="280" y="125" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#2E2D29">Gateway</text>
-          <text x="280" y="140" textAnchor="middle" fontSize="10" fill="#6B6B6B">Route to lane</text>
-          
-          <rect x="390" y="100" width="120" height="60" fill="#E8F5E9" stroke="#2E7D32" strokeWidth="2" rx="4"/>
-          <text x="450" y="125" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#2E2D29">Agent</text>
-          <text x="450" y="140" textAnchor="middle" fontSize="10" fill="#6B6B6B">Hermes/OpenClaw</text>
-          
-          <rect x="560" y="100" width="120" height="60" fill="#FFF3E0" stroke="#E65100" strokeWidth="2" rx="4"/>
-          <text x="620" y="125" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#2E2D29">Tool</text>
-          <text x="620" y="140" textAnchor="middle" fontSize="10" fill="#6B6B6B">terminal/file/web</text>
-          
-          <rect x="560" y="220" width="120" height="60" fill="#E3F2FD" stroke="#1976D2" strokeWidth="2" rx="4"/>
-          <text x="620" y="245" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#2E2D29">Result</text>
-          <text x="620" y="260" textAnchor="middle" fontSize="10" fill="#6B6B6B">Tool output</text>
-          
-          <rect x="220" y="220" width="120" height="60" fill="#E8F5E9" stroke="#2E7D32" strokeWidth="2" rx="4"/>
-          <text x="280" y="245" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#2E2D29">Response</text>
-          <text x="280" y="260" textAnchor="middle" fontSize="10" fill="#6B6B6B">Agent reply</text>
-          
-          <rect x="50" y="220" width="120" height="60" fill="#FCE4EC" stroke="#C2185B" strokeWidth="2" rx="4"/>
-          <text x="110" y="245" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#2E2D29">Telegram</text>
-          <text x="110" y="260" textAnchor="middle" fontSize="10" fill="#6B6B6B">User sees reply</text>
-          
-          <defs>
-            <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L9,3 z" fill="#6B6B6B"/>
-            </marker>
-          </defs>
-          
-          <line x1="170" y1="130" x2="220" y2="130" stroke="#6B6B6B" strokeWidth="2" markerEnd="url(#arrow)"/>
-          <line x1="340" y1="130" x2="390" y2="130" stroke="#6B6B6B" strokeWidth="2" markerEnd="url(#arrow)"/>
-          <line x1="510" y1="130" x2="560" y2="130" stroke="#6B6B6B" strokeWidth="2" markerEnd="url(#arrow)"/>
-          <line x1="620" y1="160" x2="620" y2="220" stroke="#6B6B6B" strokeWidth="2" markerEnd="url(#arrow)"/>
-          <line x1="560" y1="250" x2="340" y2="250" stroke="#6B6B6B" strokeWidth="2" markerEnd="url(#arrow)"/>
-          <line x1="220" y1="250" x2="170" y2="250" stroke="#6B6B6B" strokeWidth="2" markerEnd="url(#arrow)"/>
-        </svg>
+    <div>
+      <div className="page-head">
+        <h1>Signal Flow</h1>
+        <p className="sub">One message, end to end: from a phone, through this machine, and back. Reasoning is rented over HTTPS — tools, memory and consequences are local.</p>
       </div>
-      <p style={{marginTop: '2rem'}}>See also: <a href="/architecture">Architecture</a> · <a href="/data-flow">Data Flow</a> · <a href="/changes">Changes</a></p>
-    </section>
+
+      <div className="diagram" style={{ marginTop: 18 }}>
+        <div className="diagram-title">The loop</div>
+        <div className="diagram-sub">{hermesLive ? '● both agent gateways are listening — this path is live right now' : 'scanning gateways…'}</div>
+        <div className="flow-row">
+          {steps.map((s, i) => (
+            <div key={s.n} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div className={`node ${toneClass[s.tone]}`} style={{ minWidth: 130 }}>
+                <div className="n-sub" style={{ color: 'var(--primary-bright)', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>{s.n}</div>
+                <div className="n-name">{s.title}</div>
+                <div className="n-sub">{s.sub}</div>
+              </div>
+              {i < steps.length - 1 && <span className="arrow">→</span>}
+            </div>
+          ))}
+        </div>
+        <div style={{ textAlign: 'center', color: 'var(--text-faint)', fontSize: 11.5, marginTop: 10 }}>
+          04 is the only hop that leaves the machine · everything else happens on this box
+        </div>
+      </div>
+
+      <section>
+        <div className="eyebrow">Read it carefully</div>
+        <div className="rows">
+          <div className="row"><span className="name mono" style={{ color: 'var(--primary-bright)' }}>01 → 02</span><span className="detail">Telegram delivers an update to the gateway process. The agent was asleep in a loop; the network wakes it.</span></div>
+          <div className="row"><span className="name mono" style={{ color: 'var(--primary-bright)' }}>02 → 03</span><span className="detail">The lane's context is assembled: recent turns, memory files, skills, file paths. Context is retrieved, not magical.</span></div>
+          <div className="row"><span className="name mono" style={{ color: 'var(--primary-bright)' }}>03 → 04</span><span className="detail">One HTTPS request to a model API. This is the rented half of the agent — stateless, remote, priced by token.</span></div>
+          <div className="row"><span className="name mono" style={{ color: 'var(--primary-bright)' }}>04 → 05</span><span className="detail">The model asks for a tool; the agent executes it locally. The box's real power is here — this is where care (and Lesson 4) matters.</span></div>
+          <div className="row"><span className="name mono" style={{ color: 'var(--primary-bright)' }}>05 → 06</span><span className="detail">Tool output is appended to context and the loop repeats until the model replies. The answer walks back down the chain.</span></div>
+        </div>
+      </section>
+
+      <p className="seealso">See also: <a href="/data-flow">Data Flow (what this writes)</a> · <a href="/architecture">Architecture</a> · <a href="/lessons#lesson-5">Lesson 5</a></p>
+    </div>
   )
 }
