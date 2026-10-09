@@ -12,6 +12,19 @@ if git grep --cached -nIE 'sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|github_pat_[
   report "secret-like token found in tracked files"
 fi
 
+# 1b. No host identifiers: public-format IPs, provider hostnames, product maps.
+if git grep --cached -nE '([0-9]{1,3}\.){3}[0-9]{1,3}' -- '*.md' '*.py' '*.tsx' '*.ts' '*.json' '*.css' '*.html' 2>/dev/null | grep -vE '0\.0\.0\.0|127\.[0-9]+\.[0-9]+\.[0-9]+|scripts/hygiene' ; then
+  report "public-format IP literal in tracked source"
+fi
+if git grep --cached -nIE 'srv[0-9]{5,}|desk-app|datasets|mail-api|web-app|research-app|"Rook"|\(Rook\)|"Philip"|· Philip' -- ':!backend/static' 2>/dev/null | grep -v 'scripts/hygiene'; then
+  report "host-specific identifier in tracked files"
+fi
+
+# 1c. Host-local configuration must stay untracked.
+for f in backend/service_catalog.json backend/host_modules.json; do
+  git ls-files --error-unmatch "$f" >/dev/null 2>&1 && report "host-local file tracked: $f"
+done
+
 # 2. No private working files tracked.
 for pat in '\.env$' '\.db$' 'handoff' '_local'; do
   hits=$(git ls-files | grep -iE "$pat" || true)

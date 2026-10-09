@@ -26,7 +26,7 @@ export default function Architecture() {
       </div>
 
       <div className="diagram" style={{ marginTop: 18 }}>
-        <div className="diagram-title">thehost · {services ? `${services.length} listeners` : 'scanning…'}</div>
+        <div className="diagram-title">live host · {services ? `${services.length} listeners` : 'scanning…'}</div>
         <div className="diagram-sub">data sources on top · storage on the bottom · everything in between is a process</div>
 
         <div className="tier">
@@ -45,7 +45,7 @@ export default function Architecture() {
           <div className="tier-label">Agents — the players</div>
           <div className="tier-row">
             <Node name="Hermes" sub="gateway · memory · skills" accent="s" live={mod('hermes')} />
-            <Node name="OpenClaw" sub=":18789 · Philip" accent="s" live={mod('openclaw')} />
+            <Node name="OpenClaw" sub="assistant runtime" accent="s" live={mod('openclaw')} />
             <Node name="OpenCode" sub="shared coding engine" accent="s" live={mod('opencode')} />
             <Node name="Pi" sub="minimal lane" accent="s" live={null} />
           </div>
@@ -66,13 +66,16 @@ export default function Architecture() {
         <div className="flow-row"><span className="arrow">↓</span></div>
 
         <div className="tier">
-          <div className="tier-label">Apps — surfaces you open</div>
+          <div className="tier-label">Apps — surfaces you open (live)</div>
           <div className="tier-row">
-            <Node name="web-app" sub=":8090 coding-1" accent="i" live={ports.has(8090)} />
-            <Node name="research-app" sub=":8091 coding-2" accent="i" live={ports.has(8091)} />
-            <Node name="VPS Anatomy" sub=":8093 this app" accent="i" live={ports.has(8093)} />
-            <Node name="Mini-sites" sub=":8080 dashboards" accent="i" live={ports.has(8080)} />
-            <Node name="desk-app" sub=":3080" accent="i" live={ports.has(3080)} />
+            {(services ?? [])
+              .filter((s) => s.port >= 3000 && s.port <= 9999 && ![3306, 5432, 6379, 9090, 9200].includes(s.port))
+              .sort((a, b) => a.port - b.port)
+              .slice(0, 8)
+              .map((s) => (
+                <Node key={s.port} name={s.name} sub={`:${s.port}${s.public ? ' · public' : ''}`} accent="i" live={ports.has(s.port)} />
+              ))}
+            {!services && <Node name="scanning…" sub="first pass pending" accent="i" live={false} />}
           </div>
         </div>
 

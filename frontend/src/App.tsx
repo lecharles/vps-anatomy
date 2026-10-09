@@ -15,7 +15,7 @@ function Shell({ children }: { children: React.ReactNode }) {
       <div className="topbar">
         <div className="topbar-inner">
           <NavLink to="/" className="brand">
-            <span className="mark" /> VPS Anatomy <small>· thehost</small>
+            <span className="mark" /> VPS Anatomy
           </NavLink>
           <nav className="main-nav">
             {([

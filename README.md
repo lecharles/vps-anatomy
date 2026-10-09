@@ -87,15 +87,15 @@ rm -rf ../backend/static/* && cp -r dist/* ../backend/static/
 
 ## Notes on public data
 
-Run `scripts/hygiene.sh` before pushing (CI runs it too): it fails the build on
-secret-like strings, private working files, brand claims, or personal
-narration in tracked content.
-
-This repo documents a specific real server: hostname, IP, open ports, and
-service names appear in the scanner output because the site's purpose is
-showing them. Keep secrets, tokens, and private file contents out of the
-catalog and scanner output; they would be published by the API the moment
-they land.
+This repository is a public engineering artifact: it ships the mechanism —
+scanner, server, UI, tests — and nothing about any specific machine.
+Host-local facts (port names, resident list, snapshots, databases) live in
+gitignored files on the server (`backend/service_catalog.json`,
+`backend/host_modules.json`, `data/`) and reach the UI only through the live
+API at runtime. `scripts/hygiene.sh` runs before every push and fails on
+secrets, IP literals, provider hostnames, product maps, and tracked
+host-local files. The daily scheduled job is a local smoke test
+(`scripts/smoke.sh`) that logs to the host and writes nothing to git.
 
 ## License
 

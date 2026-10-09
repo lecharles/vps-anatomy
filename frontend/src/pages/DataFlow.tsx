@@ -4,7 +4,7 @@ type Msg = { from: number; to: number; label: string; ret?: boolean; note?: stri
 const LANES: Lane[] = [
   { id: 'tg', name: 'Telegram', sub: 'user' },
   { id: 'gw', name: 'Gateway', sub: 'lane router' },
-  { id: 'ag', name: 'Agent', sub: 'Hermes · OpenClaw' },
+  { id: 'ag', name: 'Agent', sub: 'runtime + lanes' },
   { id: 'llm', name: 'Model API', sub: 'remote · HTTPS' },
   { id: 'st', name: 'Stores', sub: 'disk · sqlite · git' },
 ]
@@ -72,7 +72,7 @@ export default function DataFlow() {
         <div className="eyebrow">What each crossing leaves behind</div>
         <div className="rows">
           <div className="row"><span className="name mono" style={{ fontSize: 12 }}>Gateway → Agent</span><span className="detail">the lane's conversation file gains a turn. Append-only: history is never rewritten.</span></div>
-          <div className="row"><span className="name mono" style={{ fontSize: 12 }}>Agent ↔ Model API</span><span className="detail">tokens in, tokens out — logged with exact counts. That log is what the usage dashboard on :8080 sums.</span></div>
+          <div className="row"><span className="name mono" style={{ fontSize: 12 }}>Agent ↔ Model API</span><span className="detail">tokens in, tokens out — logged with exact counts. That log is what the host's usage dashboards sum.</span></div>
           <div className="row"><span className="name mono" style={{ fontSize: 12 }}>Agent → Stores</span><span className="detail">every tool call touches disk: files edited, commands captured, sqlite rows committed. This scanner's own database is one of them.</span></div>
           <div className="row"><span className="name mono" style={{ fontSize: 12 }}>Agent → Memory</span><span className="detail">the rare, deliberate write: a memory markdown file updated so the *next* wake-up starts smarter.</span></div>
         </div>

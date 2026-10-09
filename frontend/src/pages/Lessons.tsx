@@ -20,8 +20,8 @@ export default function Lessons() {
         <h2>What is this machine?</h2>
         <p className="thesis">Before agents, services or ports — there is a computer. Everything else in this course is a program running on it.</p>
         <p>
-          The machine is <span className="kbd">{m?.hostname ?? 'thehost'}</span>, a rented server at IP{' '}
-          <span className="kbd">{m?.ip_public ?? '0.0.0.0'}</span>. It has no monitor, no keyboard and no desk.
+          The machine is <span className="kbd">{m?.hostname ?? 'this server'}</span>, a rented server at IP{' '}
+          <span className="kbd">{m?.ip_public ?? '(reported live)'}</span>. It has no monitor, no keyboard and no desk.
           It sits in a datacenter, and every human interaction with it happens over a network: SSH for the operator,
           Telegram for the agents, HTTP for the dashboards. That is the first mental model: <strong>a computer you
           only ever touch through cables</strong>.
@@ -50,8 +50,8 @@ export default function Lessons() {
           credentials on this box, able to run commands, edit files and send messages.
         </p>
         <ul>
-          <li><strong>Hermes</strong> — the general-purpose agent lane ("Rook"). It runs a gateway process that keeps a Telegram conversation alive, spawns coding sessions, maintains its own memory files and skills, and wrote the app you're reading. It owns this user account (<span className="kbd">hermes</span>).</li>
-          <li><strong>OpenClaw</strong> — the second agent ("Philip"), the primary personal assistant. Its gateway listens on port <span className="kbd">18789</span> and drives its own Telegram lanes, session stores and model calls.</li>
+          <li><strong>Hermes</strong> — the general-purpose agent runtime. It runs a gateway process that keeps a Telegram conversation alive, spawns coding sessions, maintains its own memory files and skills, and wrote the app you're reading. It owns this user account (<span className="kbd">hermes</span>).</li>
+          <li><strong>OpenClaw</strong> — the second agent runtime, the personal assistant. Its gateway listens locally and drives its own Telegram lanes, session stores and model calls.</li>
           <li><strong>OpenCode</strong> — the shared coding engine. Both agents can invoke it; it records its sessions in a sqlite database on disk. One engine, many drivers.</li>
           <li><strong>Pi</strong> — a minimal coding agent, integrated as an alternative lane for terminal-first work.</li>
         </ul>
@@ -74,12 +74,10 @@ export default function Lessons() {
         </p>
         <ul>
           <li><span className="kbd">:22</span> SSH — the operator's door. Everything else is downstream of someone having had this.</li>
-          <li><span className="kbd">:8080</span> Mini-site server — static HTML dashboards, including the token/usage dashboard.</li>
-          <li><span className="kbd">:8090</span> web-app — coding lane 1: fine-tuning and agent-testing web app.</li>
-          <li><span className="kbd">:8091</span> research-app — coding lane 2: research dashboard.</li>
-          <li><span className="kbd">:8093</span> VPS Anatomy — <em>this app</em>, FastAPI serving a React build.</li>
-          <li><span className="kbd">:11434</span> Ollama — a local model runtime for embeddings and small models.</li>
-          <li><span className="kbd">:18789</span> agent-gateway · <span className="kbd">:8000</span> Hermes lane API — the agents' own control ports, deliberately bound to localhost.</li>
+          <li>A band of web apps (this one among them) on ports near <span className="kbd">:8000</span>–<span className="kbd">:9000</span>, each a FastAPI server on a React build.</li>
+          <li>A model runtime on <span className="kbd">:11434</span> for local inference.</li>
+          <li>The agents' own control ports — deliberately bound to localhost, never public.</li>
+          <li>The live census, with names and binds for this exact machine, is one call away: <a className="kbd" href="/api/services/">/api/services/</a>.</li>
         </ul>
         <p>
           How processes are kept alive matters too: <strong>systemd</strong> and <strong>systemd user services</strong>
@@ -97,12 +95,12 @@ export default function Lessons() {
         <p>Three boundary layers stack here:</p>
         <ul>
           <li><strong>Users.</strong> <span className="kbd">root</span> owns the system; <span className="kbd">hermes</span> owns the agent workspace and its files. The agents run as <em>you</em> (this user) — with your credentials, your limits. A beautiful demonstration of this lives in this app itself: the scanner, running as <span className="kbd">hermes</span>, sees its own processes' names but only port numbers for root-owned services. <strong>Observation is permissioned.</strong></li>
-          <li><strong>Containers.</strong> Temporal, Postiz, databases — packaged in Docker. A container is a boundary: its own filesystem view, its own network entry, restart policies, and a blast radius limited to itself when things break.</li>
+          <li><strong>Containers.</strong> Databases, queues and workflow engines — packaged in Docker. A container is a boundary: its own filesystem view, its own network entry, restart policies, and a blast radius limited to itself when things break.</li>
           <li><strong>Secrets.</strong> API keys and bot tokens live in env files and config dirs, never in git. Two rules follow from that: anything on GitHub is public; anything pasted into a model's context might be logged somewhere. Trust is scoped, not absolute.</li>
         </ul>
         <p>
-          Public vs local binds are boundaries too: <span className="kbd">0.0.0.0:8093</span> says "anyone on the
-          internet may connect", while <span className="kbd">127.0.0.1:18789</span> says "only this machine". The
+          Public vs local binds are boundaries too: a bind like <span className="kbd">0.0.0.0:PORT</span> says "anyone on the
+          internet may connect", while <span className="kbd">127.0.0.1:PORT</span> says "only this machine". The
           agents' private ports bind local on purpose — the public surface of this box is smaller than its interior.
         </p>
         <div className="takeaway"><b>Takeaway</b> On a headless box there is no "inside" the machine except Unix users, containers and bind addresses. Those are the walls, and agents live inside them honestly.</div>

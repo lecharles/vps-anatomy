@@ -21,7 +21,7 @@ export default function Home() {
       <div className="hero">
         <h1>A live AI-agent machine,<br />explained.</h1>
         <p className="lede">
-          <strong className="mono" style={{ color: 'var(--text-bright)' }}>{machine?.hostname ?? 'thehost'}</strong> is a
+          <strong className="mono" style={{ color: 'var(--text-bright)' }}>{machine?.hostname ?? 'this server'}</strong> is a
           {' '}{machine?.cpus ?? '—'}-core Ubuntu server running two AI agents, a fleet of web services,
           containers, schedulers and stores. This site reads the machine itself — every fact on these
           pages is scanned live, not hard-coded.
@@ -49,11 +49,11 @@ export default function Home() {
           </a>
           <a className="card" href="/lessons">
             <h3><span className="num-tag">L2</span> The agents</h3>
-            <p className="desc">Hermes (this runtime), OpenClaw “Philip”, OpenCode, Pi. Software that reads, decides, and acts on this machine through Telegram lanes and terminals.</p>
+            <p className="desc">Two agent runtimes and a shared coding engine. Software that reads, decides, and acts on this machine through messaging lanes and terminals. Their names come from the live scanner.</p>
           </a>
           <a className="card" href="/lessons">
             <h3><span className="num-tag">L3</span> The plumbing</h3>
-            <p className="desc">{live.length} TCP listeners right now: web apps on 8080–8093, model runtime on 11434, databases, schedulers. Ports as the machine’s vocabulary.</p>
+            <p className="desc">{live.length} TCP listeners right now: web apps, a model runtime, databases, schedulers — each named by the scanner. Ports as the machine’s vocabulary.</p>
           </a>
           <a className="card" href="/lessons">
             <h3><span className="num-tag">L4</span> Boundaries</h3>

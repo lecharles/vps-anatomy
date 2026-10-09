@@ -1,16 +1,11 @@
 """VPS scanner: collects machine facts, listening services, and module states.
 
-Rewritten 2026-10-09 to be robust:
-  * Native /proc and Python APIs instead of parsing shell tools that vary
-    between systems (uptime -d does not exist on this host; free/df regexes
-    broke on wrapped output).
-  * Every fact has a safe default; a single failing probe never poisons the
-    whole scan (the old scanner returned {"error": ...} which crashed
-    MachineState(**data) and left the DB permanently empty).
-  * Service catalog labels known ports the way the VPS dashboard does, so the
-    UI can show what each listener actually IS, not just a bare number.
-  * Change detection handles the empty-DB baseline and tracks module
-    live/stopped transitions.
+Design rule: this file ships in a PUBLIC repo and contains only mechanism.
+Host-specific facts live in gitignored local files:
+  - backend/service_catalog.json  port -> [name, kind, description]
+  - backend/host_modules.json     list of residents to probe
+When those files are absent the scanner still works: ports are labeled by
+generic meaning, and a minimal set of universal modules is probed.
 """
 import json
 import os
@@ -25,42 +20,34 @@ from models import MachineState, ServiceState, ModuleState, Change
 from database import SessionLocal
 import asyncio
 
-# ---------------------------------------------------------------------------
-# Facts about this specific machine (stable identifiers, used as fallbacks
-# only if a live probe fails).
-# ---------------------------------------------------------------------------
-FALLBACK_PUBLIC_IP = "0.0.0.0"
+BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Known listeners: port -> (name, kind, description). Mirrors the language of
-# the port-88 VPS dashboard so both apps tell the same story.
+
+def _load_json(name):
+    try:
+        with open(os.path.join(BACKEND_DIR, name)) as f:
+            return json.load(f)
+    except Exception:
+        return None
+
+
+# Generic port meanings (same on thousands of hosts; safe for the public repo)
 SERVICE_CATALOG = {
-    8080: ("Mini-site server", "static-http", "Serves dashboard and mini-site HTML pages to your browser."),
-    8090: ("web-app", "web-app", "Coding lane 1 — fine-tuner & agent tester web app."),
-    8091: ("research-app", "web-app", "Coding lane 2 — research signal dashboard."),
-    8093: ("VPS Anatomy", "web-app", "This app: the educational reader for the live machine."),
-    8765: ("datasets data", "static-http", "Serves collected datasets datasets to nodes and dashboards."),
-    11434: ("Ollama", "model-server", "Local model runtime for embeddings and small models."),
-    5432: ("PostgreSQL", "database", "Relational store (Temporal / Postiz backends)."),
-    6379: ("Redis", "queue", "In-flight job queue for Postiz posting."),
-    8081: ("Temporal UI", "ui", "Browser console for inspecting workflow runs."),
-    7233: ("Temporal", "workflow-engine", "Durable workflow engine with retries and state."),
-    9200: ("Elasticsearch", "index", "Search index powering workflow listing."),
-    3000: ("Next.js dev", "web-app", "A Next.js app in development."),
+    22: ("SSH", "system", "Remote administration."),
+    53: ("DNS resolver", "system", "Local stub resolver."),
+    80: ("HTTP", "web", "Unencrypted web traffic."),
+    443: ("HTTPS", "web", "Encrypted web traffic."),
+    3306: ("MySQL", "database", "Relational store."),
+    5432: ("PostgreSQL", "database", "Relational store."),
+    6379: ("Redis", "queue", "In-memory store / job queue."),
+    8080: ("HTTP app", "web-app", "Alternate web server or dev server."),
+    8765: ("HTTP app", "web-app", "Application server."),
     9090: ("Prometheus", "metrics", "Metrics endpoint."),
-    8000: ("agent-api", "agent-api", "Primary agent API (Hermes)."),
-    8010: ("lane-instance", "agent-api", "Isolated test instance of the Hermes app."),
-    8020: ("lane-instance", "agent-api", "Isolated test instance of the Hermes app."),
-    8040: ("Lane server", "agent-api", "Additional lane instance."),
-    18789: ("agent-gateway", "agent-gateway", "Second agent (OpenClaw) control gateway."),
-    18791: ("agent-browser", "agent-browser", "Browser-control endpoint for OpenClaw."),
-    22: ("SSH", "system", "Remote administration. The door the whole machine hangs on."),
-    53: ("systemd-resolved", "system", "Local DNS stub resolver."),
-    631: ("CUPS", "system", "Printing service — present on every stock Ubuntu."),
-    3080: ("desk-app Desktop", "web-app", "desk-app OS desktop app served through nginx."),
-    4007: ("Postiz", "web-app", "Social scheduler UI (register/login behind /auth)."),
-    8788: ("mail-api API", "api", "datasets/mail-api authenticated API (mail-api/2.0)."),
-    9876: ("files-app", "static-http", "Small file server for private datasets."),
+    11434: ("Ollama", "model-server", "Local model runtime."),
 }
+_local = _load_json("service_catalog.json")
+if _local:
+    SERVICE_CATALOG.update({int(k): tuple(v) for k, v in _local.items()})
 
 PROC_HINTS = {
     "node": "Node.js runtime",
@@ -76,6 +63,13 @@ PROC_HINTS = {
     "splitw": "Tmux session",
     "tmux": "Terminal multiplexer",
 }
+
+# Default residents probed when no local host_modules.json is present.
+DEFAULT_MODULES = [
+    {"module_id": "docker", "name": "Docker", "probe": {"pgrep": "dockerd"}},
+    {"module_id": "ollama", "name": "Ollama", "probe": {"port": 11434}},
+    {"module_id": "cron", "name": "Cron", "probe": {"pgrep": "cron"}},
+]
 
 
 def _probe(cmd, timeout=5):
@@ -110,7 +104,6 @@ def scan_machine() -> dict:
     except Exception:
         cpus = 0
 
-    # RAM from /proc/meminfo (KB), total
     ram_gb = 0.0
     try:
         with open("/proc/meminfo") as f:
@@ -130,12 +123,10 @@ def scan_machine() -> dict:
         pass
 
     uptime_days = 0
-    uptime_hours = 0.0
     try:
         with open("/proc/uptime") as f:
             secs = float(f.read().split()[0])
         uptime_days = int(secs // 86400)
-        uptime_hours = round(secs / 3600, 1)
     except Exception:
         pass
 
@@ -144,7 +135,7 @@ def scan_machine() -> dict:
     if out and re.match(r"^\d+\.\d+\.\d+\.\d+$", out):
         ip_public = out
     else:
-        ip_public = FALLBACK_PUBLIC_IP
+        ip_public = "unknown"
 
     return {
         "hostname": hostname,
@@ -165,7 +156,7 @@ def _label_service(port, proc_name):
         return SERVICE_CATALOG[port]
     if proc_name in PROC_HINTS:
         return (proc_name, "process", PROC_HINTS[proc_name] + ".")
-    return ("unattributed listener", "system", "Listener owned by another user (root) — the scanner sees the port but not the process. This is permissions, not a bug.")
+    return ("unattributed listener", "system", "Listener owned by another user — the scanner sees the port but not the process. This is permissions, not a bug.")
 
 
 def scan_services() -> list:
@@ -184,7 +175,6 @@ def scan_services() -> list:
             continue
         port = int(m.group(1))
         bind = addr[: addr.rfind(":")] or "*"
-        # process name: search the whole line, not a fixed column
         proc = None
         pm = re.search(r'users:\(\("([^"]+)"', line)
         if pm:
@@ -207,86 +197,68 @@ def scan_services() -> list:
 
 def _pgrep_running(pattern: str) -> bool:
     try:
-        out = subprocess.run(
-            ["pgrep", "-f", pattern], capture_output=True, text=True, timeout=5
-        )
+        out = subprocess.run(["pgrep", "-f", pattern], capture_output=True, text=True, timeout=5)
         return bool(out.stdout.strip())
     except Exception:
         return False
 
 
+def _port_open(p: int) -> bool:
+    try:
+        out = _probe(["bash", "-c", f"(echo > /dev/tcp/127.0.0.1/{p}) 2>/dev/null && echo yes"])
+        return out == "yes"
+    except Exception:
+        return False
+
+
 def _docker_names() -> list:
-    out = _probe(["docker", "ps", "--format", "{{.Names}}\t{{.Status}}"])
+    out = _probe(["docker", "ps", "--format", "{{.Names}}"])
     if not out:
         return []
-    return [line.split("\t")[0] for line in out.splitlines() if line.strip()]
+    return [line.strip() for line in out.splitlines() if line.strip()]
 
 
 def scan_modules() -> list:
-    """Status of the known residents of this machine."""
-    docker_running = _pgrep_running("dockerd")
-    containers = _docker_names() if docker_running else []
+    """Status of configured residents. Spec format (host_modules.json):
+    [{"module_id": "...", "name": "...", "role": "...",
+      "probe": {"pgrep": "pattern"} | {"port": N} | {"docker": "substr"}}]
+    """
+    specs = _load_json("host_modules.json") or DEFAULT_MODULES
+    containers_cache = None
 
-    def port_open(p):
-        out = _probe(["bash", "-c", f"(echo > /dev/tcp/127.0.0.1/{p}) 2>/dev/null && echo yes"])
-        return out == "yes"
+    def containers():
+        nonlocal containers_cache
+        if containers_cache is None:
+            containers_cache = _docker_names()
+        return containers_cache
 
-    modules = [
-        {
-            "module_id": "hermes",
-            "name": "Hermes (Rook)",
-            "status": "live" if _pgrep_running("hermes") else "stopped",
-            "data": {"role": "primary agent", "gateway": port_open(8000)},
-        },
-        {
-            "module_id": "openclaw",
-            "name": "OpenClaw (Philip)",
-            "status": "live" if _pgrep_running("openclaw") else "stopped",
-            "data": {"role": "second agent"},
-        },
-        {
-            "module_id": "opencode",
-            "name": "OpenCode",
-            "status": "live" if _pgrep_running("opencode") else "stopped",
-            "data": {"role": "shared coding engine"},
-        },
-        {
-            "module_id": "ollama",
-            "name": "Ollama",
-            "status": "live" if port_open(11434) else "stopped",
-            "data": {"port": 11434 if port_open(11434) else None},
-        },
-        {
-            "module_id": "docker",
-            "name": "Docker",
-            "status": "live" if docker_running else "stopped",
-            "data": {"containers": containers},
-        },
-        {
-            "module_id": "temporal",
-            "name": "Temporal",
-            "status": "live" if any("temporal" in c for c in containers) else "stopped",
-            "data": {"containers": [c for c in containers if "temporal" in c]},
-        },
-        {
-            "module_id": "postiz",
-            "name": "Postiz",
-            "status": "live" if any("postiz" in c for c in containers) else "stopped",
-            "data": {"containers": [c for c in containers if "postiz" in c]},
-        },
-        {
-            "module_id": "minisite",
-            "name": "Mini-site server",
-            "status": "live" if port_open(8080) else "stopped",
-            "data": {"port": 8080},
-        },
-        {
-            "module_id": "cron",
-            "name": "Cron",
-            "status": "live" if _pgrep_running("cron") else "stopped",
-            "data": {"role": "scheduler"},
-        },
-    ]
+    modules = []
+    for spec in specs:
+        probe = spec.get("probe", {})
+        status = "stopped"
+        data = {}
+        if "pgrep" in probe:
+            status = "live" if _pgrep_running(probe["pgrep"]) else "stopped"
+        if "port" in probe:
+            up = _port_open(int(probe["port"]))
+            status = "live" if up else "stopped"
+            if up:
+                data["port"] = int(probe["port"])
+        if "docker" in probe:
+            matched = [c for c in containers() if probe["docker"] in c]
+            status = "live" if matched else "stopped"
+            if matched:
+                data["containers"] = matched
+        if spec.get("module_id") == "docker" and containers():
+            data["containers"] = containers()
+        if spec.get("role"):
+            data["role"] = spec["role"]
+        modules.append({
+            "module_id": spec["module_id"],
+            "name": spec["name"],
+            "status": status,
+            "data": data,
+        })
     return modules
 
 

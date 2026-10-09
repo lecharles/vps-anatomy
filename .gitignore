@@ -15,3 +15,9 @@ build/
 
 # runtime scanner database
 backend/vps_anatomy.db
+
+# host-local facts: never public (catalog maps this machine ports)
+backend/service_catalog.json
+data/
+*.log
+backend/host_modules.json
