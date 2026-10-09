@@ -3,7 +3,7 @@ import { useTheme, type ThemeName } from '../hooks/useTheme'
 const THEMES: { id: ThemeName; label: string }[] = [
   { id: 'vps', label: 'VPS' },
   { id: 'light', label: 'Light' },
-  { id: 'stanford', label: 'Stanford' },
+  { id: 'academic', label: 'Academic' },
 ]
 
 export default function ThemeToggle() {

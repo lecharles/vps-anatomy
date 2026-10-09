@@ -3,7 +3,7 @@
    Grounded in the VPS-wide system (llm-fine-tuner-agent-tester/theme.css):
    Linear-style near-black neutrals, hairline borders, scarce semantic
    accents, tokens named by role so a theme flip swaps values, not components.
-   Themes: :root = VPS dark (default) · [data-theme="light"] · [data-theme="stanford"]
+   Themes: :root = VPS dark (default) · [data-theme="light"] · [data-theme="academic"]
    =========================================================================== */
 
 :root {
@@ -81,7 +81,7 @@
   --code-bg: #F1F0EB;
 }
 
-[data-theme="stanford"] {
+[data-theme="academic"] {
   --bg: #FFFFFF;
   --panel: #FBFAF7;
   --surface: #FFFFFF;

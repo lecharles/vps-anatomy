@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 
-export type ThemeName = 'vps' | 'light' | 'stanford'
+export type ThemeName = 'vps' | 'light' | 'academic'
 
 const KEY = '***'
 
 export function currentTheme(): ThemeName {
   const saved = localStorage.getItem(KEY)
-  return saved === 'light' || saved === 'stanford' || saved === 'vps' ? saved : 'vps'
+  if (saved === 'stanford') return 'academic' // migrate older saved value
+  return saved === 'light' || saved === 'academic' || saved === 'vps' ? saved : 'vps'
 }
 
 export function applyTheme(t: ThemeName) {
