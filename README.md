@@ -50,7 +50,7 @@ Start at `backend/core/__init__.py`. It is the whole domain:
    log), then persist machine/services/modules rows under one shared
    timestamp. The routers read "all rows at the latest timestamp."
 
-Frontend is one hook (`useApi`) polling four endpoints, and pages that render
+Frontend is one hook (`useApi`) polling five endpoints, and pages that render
 that state. The Data Flow page draws its own SVG sequence diagram; nothing
 here is a mock.
 

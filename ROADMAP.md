@@ -49,8 +49,8 @@ Unassigned days are buffer/soak. Weekends marked (light) are small work.
 | Sat Oct 10 (light) | S7a · `/api/trends/` — hourly rollup query + schema — done |
 | Sun Oct 11 (light) | S7b · trends metric params (services, modules, ram, disk) — done |
 | Mon Oct 12 | S7 merge · docs note, ROADMAP tick — done |
-| Tue Oct 13 | S8a · trend bars component — SVG, sqrt scale, value labels |
-| Wed Oct 14 | S8b · Home + Architecture get service/module series |
+| Tue Oct 13 | S8a · trend bars component — SVG, sqrt scale, value labels — done |
+| Wed Oct 14 | S8b · Home + Architecture get service/module series — done |
 | Thu Oct 15 | S8c · period toggles day/week/month (dashboard language) |
 | Fri Oct 16 | S9a · retention job: prune raw >60d, keep hourly rollups |
 | Sat Oct 17 (light) | S9b · trends endpoints documented in Swagger |
