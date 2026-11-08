@@ -14,6 +14,7 @@ One row per calendar slice from ROADMAP.md. Statuses:
 | Fri Oct 9 | SD1 · SVG diagram pass + plain-voice copy pass | EVIDENCED | 09509e4 | Oct 9 |
 | Fri Oct 9 | SD2 · security scrub (host facts → gitignored, local-only daily-train) | EVIDENCED | bfe6c6b, 7782bd7 | Oct 9 |
 | Sun Nov 8 | S7a · `/api/trends/` — hourly rollup query + schema | SHIPPED | 4a72860 | Nov 8 |
+| Sun Nov 8 | S7b · trends metric params (services, modules, ram, disk) | SHIPPED | 38b73dc | Nov 8 |
 
 ## Audit — Nov 8 (first ledger run)
 

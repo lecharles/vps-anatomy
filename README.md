@@ -23,7 +23,7 @@ honest inventory of everything the site knows.
 backend/
   main.py            app factory, OpenAPI metadata, /docs, SPA mount
   core/__init__.py   the scanner: machine facts, ss parsing, module probes, change diffing
-  routers/           /api/machine /api/services /api/modules /api/changes
+  routers/           /api/machine /api/services /api/modules /api/changes /api/trends
   models/ schemas/   SQLAlchemy tables + Pydantic response models
   static/            build output served by FastAPI (single origin, no CORS needed)
 frontend/
@@ -65,6 +65,7 @@ here is a mock.
 | GET | `/api/modules/` | residents with live/stopped status |
 | GET | `/api/modules/{id}` | one resident |
 | GET | `/api/changes/?limit=` | the change log |
+| GET | `/api/trends/?hours=&metrics=` | hourly rollups — distinct listeners, live residents, RAM/disk means; `metrics` picks series (`services,modules,ram,disk`) |
 | GET | `/openapi.json` | schema |
 
 Interactive reference with the same themes: **`/docs`**.

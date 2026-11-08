@@ -46,9 +46,9 @@ Unassigned days are buffer/soak. Weekends marked (light) are small work.
 | Fri Oct 9 | train infra: hygiene gate, LICENSE, daily-train script, calendar — done |
 | Fri Oct 9 | SD1 · SVG diagram pass (Architecture / Signal Flow / Data Flow) + plain-voice copy pass — done |
 | Fri Oct 9 | SD2 · security scrub: host facts → gitignored files, history rewritten, daily-train made local-only — done |
-| Sat Oct 10 (light) | S7a · `/api/trends/` — hourly rollup query + schema |
-| Sun Oct 11 (light) | S7b · trends metric params (services, modules, ram, disk) |
-| Mon Oct 12 | S7 merge · docs note, ROADMAP tick |
+| Sat Oct 10 (light) | S7a · `/api/trends/` — hourly rollup query + schema — done |
+| Sun Oct 11 (light) | S7b · trends metric params (services, modules, ram, disk) — done |
+| Mon Oct 12 | S7 merge · docs note, ROADMAP tick — done |
 | Tue Oct 13 | S8a · trend bars component — SVG, sqrt scale, value labels |
 | Wed Oct 14 | S8b · Home + Architecture get service/module series |
 | Thu Oct 15 | S8c · period toggles day/week/month (dashboard language) |
