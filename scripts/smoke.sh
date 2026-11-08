@@ -23,8 +23,15 @@ check "api machine"        "$BASE/api/machine/" '"hostname"'
 check "api services"       "$BASE/api/services/" '"port"'
 check "api modules"        "$BASE/api/modules/" '"module_id"'
 check "api changes"        "$BASE/api/changes/" '\[|\]'
+check "api trends"         "$BASE/api/trends/?hours=2&metrics=services,modules,ram,disk" '"hour"'
+check "api trends metric"  "$BASE/api/trends/?hours=2&metrics=ram" '"ram_gb_avg"'
 check "lessons route"      "$BASE/lessons"     '<div id="root"'
 check "data-flow route"    "$BASE/data-flow"   '<div id="root"'
+
+# trends must reject unknown metrics rather than quietly return nothing
+code=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/api/trends/?metrics=bogus" --max-time 5)
+if [ "$code" = "422" ]; then echo "PASS trends metric validation (422)"; pass=$((pass+1));
+else echo "FAIL trends metric validation (got $code, want 422)"; fail=$((fail+1)); fi
 
 # sanity: a scan must have happened
 n=$(curl -fsS --max-time 5 "$BASE/api/services/" 2>/dev/null | python3 -c 'import json,sys; print(len(json.load(sys.stdin)))' 2>/dev/null || echo 0)

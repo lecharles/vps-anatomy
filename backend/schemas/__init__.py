@@ -46,8 +46,10 @@ class ModuleState(BaseModel):
 class HourlyTrend(BaseModel):
     hour: str
     scans: int
-    services_listening: int
-    modules_live: int
+    # null = metric not requested via the `metrics` param; absent hour =
+    # the scanner recorded nothing then.
+    services_listening: Optional[int] = None
+    modules_live: Optional[int] = None
     ram_gb_avg: Optional[float] = None
     disk_used_gb_avg: Optional[float] = None
 
