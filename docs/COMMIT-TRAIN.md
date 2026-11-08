@@ -13,6 +13,7 @@ One row per calendar slice from ROADMAP.md. Statuses:
 | Fri Oct 9 | train infra: hygiene gate, LICENSE, daily-train script, calendar | EVIDENCED | b6cc0f1, f41f1ea, fb7d41b | Oct 8–9 |
 | Fri Oct 9 | SD1 · SVG diagram pass + plain-voice copy pass | EVIDENCED | 09509e4 | Oct 9 |
 | Fri Oct 9 | SD2 · security scrub (host facts → gitignored, local-only daily-train) | EVIDENCED | bfe6c6b, 7782bd7 | Oct 9 |
+| Sun Nov 8 | S7a · `/api/trends/` — hourly rollup query + schema | SHIPPED | 4a72860 | Nov 8 |
 
 ## Audit — Nov 8 (first ledger run)
 
@@ -27,12 +28,14 @@ Checked against `git log` (no commits after Oct 9) and the tree:
 - no trend-bars component in `frontend/src/components/`
 - no retention/prune job in `core/`
 
-So every October 10 → November 8 calendar row is **STALLED**, not evidenced.
-The ledger does not mark them EVIDENCED because nothing covers them.
+So every October 11 → November 8 calendar row is **STALLED**, not evidenced.
+The ledger does not mark them EVIDENCED because nothing covers them. (S7a was
+burned as a real slice immediately after this audit, same day — see the
+table above.)
 
 ### Queue (oldest unevidenced first)
 
-S7a → S7b → S7 merge → S8a → S8b → S8c → S9a → S9b → S10a → S10b → S10c →
+S7b → S7 merge → S8a → S8b → S8c → S9a → S9b → S10a → S10b → S10c →
 S11a → S11b → S11c → S12a → S12b → M1 → S13a → S13b → S14a → S14b → S14c →
 S15a → S15b → S15c → S16a → G1 → S16b → S17a → S17b → S17c → S22 → S23 →
 S24 → M2 → … (rest per ROADMAP.md)
