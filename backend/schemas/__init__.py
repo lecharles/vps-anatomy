@@ -43,6 +43,17 @@ class ModuleState(BaseModel):
     class Config:
         from_attributes = True
 
+class HourlyTrend(BaseModel):
+    hour: str
+    scans: int
+    services_listening: int
+    modules_live: int
+    ram_gb_avg: Optional[float] = None
+    disk_used_gb_avg: Optional[float] = None
+
+    class Config:
+        from_attributes = True
+
 class Change(BaseModel):
     id: int
     timestamp: datetime

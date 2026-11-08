@@ -3,7 +3,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
-from routers import machine, services, modules, changes
+from routers import machine, services, modules, changes, trends
 from database import engine, Base
 from core import scan_loop
 from static_serve import mount_spa
@@ -21,6 +21,7 @@ lab notebook: each endpoint is a lens on one layer of the system.
 - **services** — TCP listeners, labeled by the port catalog.
 - **modules** — the residents: agents, runtimes, containers, scheduler.
 - **changes** — the diff between successive scans.
+- **trends** — hourly rollups of the recorded history, for charts.
 
 Scans run every 30 seconds. Timestamps are UTC, written by the scanner.
 """
@@ -45,6 +46,7 @@ app = FastAPI(
         {"name": "services", "description": "TCP listeners currently bound on the host."},
         {"name": "modules", "description": "Software residents (agents, runtimes, containers) and their liveness."},
         {"name": "changes", "description": "Events detected between scans — services and modules that started or stopped."},
+        {"name": "trends", "description": "Hourly rollups of the scan history: listeners, live residents, RAM and disk."},
     ],
     lifespan=lifespan,
 )
@@ -61,6 +63,7 @@ app.include_router(machine.router)
 app.include_router(services.router)
 app.include_router(modules.router)
 app.include_router(changes.router)
+app.include_router(trends.router)
 
 # Themed API reference (Swagger UI + the site's token system).
 @app.get("/docs", include_in_schema=False)
