@@ -1,7 +1,9 @@
 import { useApi } from '../hooks/useApi'
+import TrendBars, { type TrendPoint } from '../components/TrendBars'
 
 type Service = { port: number; name: string }
 type Module = { module_id: string; status: string }
+type TrendRow = { hour: string; modules_live: number | null }
 
 type NodeDef = { name: string; sub?: string; live?: boolean | null; accent: string }
 
@@ -72,6 +74,7 @@ function Connector({ y }: { y: number }) {
 export default function Architecture() {
   const { data: services } = useApi<Service[]>('/api/services/')
   const { data: modules } = useApi<Module[]>('/api/modules/')
+  const { data: modTrend } = useApi<TrendRow[]>('/api/trends/?hours=24&metrics=modules', 60000)
   const ports = new Set((services ?? []).map((s) => s.port))
   const mod = (id: string) => (modules ?? []).find((m) => m.module_id === id)?.status === 'live'
 
@@ -154,6 +157,23 @@ export default function Architecture() {
           })}
         </svg>
       </div>
+
+      <section style={{ marginTop: 30 }}>
+        <h2 className="sec">Live residents, hour by hour</h2>
+        <p className="sec-sub">
+          How many modules the scanner found <em>live</em> in each UTC hour —
+          rolled up from <code>/api/trends</code> with <code>metrics=modules</code>.
+          A dip is a real event: something stopped living in that window and
+          the change log records which.
+        </p>
+        <div className="diagram">
+          <TrendBars
+            points={(modTrend ?? []).map((t): TrendPoint => ({ hour: t.hour, value: t.modules_live }))}
+            label="Live resident modules per hour, last 24 hours"
+            accent="var(--success)"
+          />
+        </div>
+      </section>
 
       <div className="seealso">
         See also: <a href="/signal-flow">Signal Flow</a> · <a href="/data-flow">Data Flow</a> · <a href="/modules">Modules</a>

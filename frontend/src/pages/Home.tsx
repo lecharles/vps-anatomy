@@ -1,4 +1,5 @@
 import { useApi } from '../hooks/useApi'
+import TrendBars, { type TrendPoint } from '../components/TrendBars'
 
 type Machine = {
   hostname: string; os: string; arch: string; cpus: number; ram_gb: number
@@ -6,10 +7,12 @@ type Machine = {
   timestamp: string
 }
 type Service = { port: number; bind: string; name: string; owner: string; public: boolean; status: string }
+type TrendRow = { hour: string; services_listening: number | null }
 
 export default function Home() {
   const { data: machine } = useApi<Machine>('/api/machine/')
   const { data: services } = useApi<Service[]>('/api/services/', 30000)
+  const { data: svcTrend } = useApi<TrendRow[]>('/api/trends/?hours=24&metrics=services', 60000)
 
   const live = services ?? []
   const nPublic = live.filter((s) => s.public).length
@@ -38,6 +41,21 @@ export default function Home() {
         <div className="pill"><div className="v y">{diskPct !== null ? `${diskPct}%` : '—'}</div><div className="k">Disk used</div><div className="s">{machine ? `${machine.disk_used_gb} of ${machine.disk_total_gb} GB` : ''}</div></div>
         <div className="pill"><div className="v">{machine?.uptime_days ?? '—'}d</div><div className="k">Uptime</div><div className="s">{machine?.ip_public ?? ''}</div></div>
       </div>
+
+      <section>
+        <h2 className="sec">Twenty-four hours of listeners</h2>
+        <p className="sec-sub">
+          Distinct TCP ports the scanner caught in each UTC hour — an hourly
+          rollup from <code>/api/trends</code>, newest at the right. Bars use a
+          square-root scale so small, honest changes stay visible.
+        </p>
+        <div className="diagram">
+          <TrendBars
+            points={(svcTrend ?? []).map((t): TrendPoint => ({ hour: t.hour, value: t.services_listening }))}
+            label="Distinct services listening per hour, last 24 hours"
+          />
+        </div>
+      </section>
 
       <section>
         <h2 className="sec">What this server does</h2>
