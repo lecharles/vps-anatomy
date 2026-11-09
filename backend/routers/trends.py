@@ -5,7 +5,7 @@ from sqlalchemy import case, distinct, func
 from sqlalchemy.orm import Session
 
 from database import get_db
-from models import MachineState, ModuleState, ServiceState
+from models import MachineState, ModuleState, ServiceState, TrendHour
 from schemas import HourlyTrend
 
 router = APIRouter(prefix="/api/trends", tags=["trends"])
@@ -78,6 +78,12 @@ def get_trends(
 
     Pass `metrics=` to compute only the series a chart needs — one
     grouped query per metric, never all four for a single line.
+
+    Raw snapshots are pruned past the retention window by the daily
+    retention job; archived hours (trend_hours) fill any bucket the
+    raw tables no longer cover, so history outlives the rows it came
+    from. Fresh hours are always computed from raw, never from the
+    archive.
     """
     chosen = _parse_metrics(metrics)
     since = datetime.utcnow() - timedelta(hours=hours)
@@ -165,5 +171,33 @@ def get_trends(
             .all()
         ):
             bucket(hour)["scans"] = int(scans or 0)
+
+    # Fill buckets the raw tables no longer cover from the archive. The
+    # hour key is a zero-padded ISO string, so >= on the string is >= in
+    # time. Fresh hours already in `merged` win — the archive only backs
+    # what retention took away.
+    field_for = {
+        "services": "services_listening",
+        "modules": "modules_live",
+        "ram": "ram_gb_avg",
+        "disk": "disk_used_gb_avg",
+    }
+    since_key = since.strftime(HOUR_FMT)
+    for row in (
+        db.query(TrendHour)
+        .filter(TrendHour.hour >= since_key)
+        .order_by(TrendHour.hour)
+        .all()
+    ):
+        if row.hour in merged:
+            continue
+        merged[row.hour] = {
+            "hour": row.hour,
+            "scans": row.scans,
+            **{
+                field: (getattr(row, field) if name in chosen else None)
+                for name, field in field_for.items()
+            },
+        }
 
     return [merged[h] for h in sorted(merged)]

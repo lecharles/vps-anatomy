@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 
 from models import MachineState, ServiceState, ModuleState, Change
 from database import SessionLocal
+from core.retention import maybe_run as retention_maybe_run
 import asyncio
 
 BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -338,6 +339,13 @@ async def scan_loop():
             db.commit()
             db.close()
             print(f"[scanner] machine OK · {len(services_data)} services · {sum(1 for m in modules_data if m['status']=='live')} modules live", flush=True)
+            # Once a day (first pass after startup always): archive hours,
+            # prune raw snapshots past their window. Cheap and self-healing.
+            rdb = SessionLocal()
+            try:
+                retention_maybe_run(rdb)
+            finally:
+                rdb.close()
         except Exception as e:
             print(f"Scanner error: {e}", flush=True)
         await asyncio.sleep(30)

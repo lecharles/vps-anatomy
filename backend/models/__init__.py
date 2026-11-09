@@ -2,6 +2,25 @@ from sqlalchemy import Column, Integer, String, Float, DateTime, JSON, Boolean
 from datetime import datetime
 from database import Base
 
+
+class TrendHour(Base):
+    """Archived hourly rollup — survives raw-row pruning (core/retention.py).
+
+    Keyed by the UTC hour string ("YYYY-MM-DDTHH:00:00Z"), the same bucket
+    format /api/trends answers with. All metrics are stored; the `metrics`
+    param filters at read time, not in the archive.
+    """
+    __tablename__ = "trend_hours"
+
+    hour = Column(String, primary_key=True)
+    scans = Column(Integer, nullable=False, default=0)
+    services_listening = Column(Integer)
+    modules_live = Column(Integer)
+    ram_gb_avg = Column(Float)
+    disk_used_gb_avg = Column(Float)
+    computed_at = Column(DateTime, default=datetime.utcnow)
+
+
 class MachineState(Base):
     __tablename__ = "machine_states"
     

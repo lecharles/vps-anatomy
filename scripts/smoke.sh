@@ -25,6 +25,7 @@ check "api modules"        "$BASE/api/modules/" '"module_id"'
 check "api changes"        "$BASE/api/changes/" '\[|\]'
 check "api trends"         "$BASE/api/trends/?hours=2&metrics=services,modules,ram,disk" '"hour"'
 check "api trends metric"  "$BASE/api/trends/?hours=2&metrics=ram" '"ram_gb_avg"'
+check "api trends month"   "$BASE/api/trends/?hours=720&metrics=services" '"hour"'
 check "lessons route"      "$BASE/lessons"     '<div id="root"'
 check "data-flow route"    "$BASE/data-flow"   '<div id="root"'
 
@@ -37,6 +38,11 @@ else echo "FAIL trends metric validation (got $code, want 422)"; fail=$((fail+1)
 n=$(curl -fsS --max-time 5 "$BASE/api/services/" 2>/dev/null | python3 -c 'import json,sys; print(len(json.load(sys.stdin)))' 2>/dev/null || echo 0)
 if [ "${n:-0}" -gt 0 ]; then echo "PASS scanner fresh ($n listeners recorded)"; pass=$((pass+1));
 else echo "FAIL scanner stale (0 listeners — scan loop down?)"; fail=$((fail+1)); fi
+
+# retention must have archived at least one closed hour
+arch=$(curl -fsS --max-time 5 "$BASE/api/trends/?hours=720&metrics=services,modules,ram,disk" 2>/dev/null | python3 -c 'import json,sys; d=json.load(sys.stdin); print(len([b for b in d if all(b.get(k) is not None for k in ("scans","services_listening","modules_live","ram_gb_avg","disk_used_gb_avg"))]))' 2>/dev/null || echo 0)
+if [ "${arch:-0}" -gt 0 ]; then echo "PASS trends archive populated ($arch full hours)"; pass=$((pass+1));
+else echo "FAIL trends archive empty (retention job not running?)"; fail=$((fail+1)); fi
 
 echo "smoke: $pass passed, $fail failed"
 [ "$fail" -eq 0 ] || exit 1
