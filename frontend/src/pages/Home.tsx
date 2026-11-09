@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { useApi } from '../hooks/useApi'
-import TrendBars, { type TrendPoint } from '../components/TrendBars'
+import TrendBars, { rollupDaily, type TrendPoint } from '../components/TrendBars'
+import PeriodToggle, { PERIOD_HOURS, type Period } from '../components/PeriodToggle'
 
 type Machine = {
   hostname: string; os: string; arch: string; cpus: number; ram_gb: number
@@ -9,15 +11,44 @@ type Machine = {
 type Service = { port: number; bind: string; name: string; owner: string; public: boolean; status: string }
 type TrendRow = { hour: string; services_listening: number | null }
 
+const PERIOD_COPY: Record<Period, { title: string; sub: string; aria: string; empty: string }> = {
+  day: {
+    title: 'A day of listeners',
+    sub: 'Distinct TCP ports the scanner caught in each UTC hour — an hourly rollup from /api/trends, newest at the right. Bars use a square-root scale so small, honest changes stay visible.',
+    aria: 'Distinct services listening per hour, last 24 hours',
+    empty: 'No recorded hours yet — history builds as the scanner runs.',
+  },
+  week: {
+    title: 'A week of listeners',
+    sub: 'One bar per UTC day over the last seven — each day is the mean of its hourly rollups from /api/trends (hours=168), newest at the right. Square-root scale keeps the quiet days legible.',
+    aria: 'Distinct services listening per day, last 7 days',
+    empty: 'No recorded days yet — the week needs at least one scan.',
+  },
+  month: {
+    title: 'A month of listeners',
+    sub: 'One bar per UTC day over the last thirty — each day is the mean of its hourly rollups from /api/trends (hours=720), newest at the right. Square-root scale keeps the quiet days legible.',
+    aria: 'Distinct services listening per day, last 30 days',
+    empty: 'No recorded days yet — the month needs at least one scan.',
+  },
+}
+
 export default function Home() {
   const { data: machine } = useApi<Machine>('/api/machine/')
   const { data: services } = useApi<Service[]>('/api/services/', 30000)
-  const { data: svcTrend } = useApi<TrendRow[]>('/api/trends/?hours=24&metrics=services', 60000)
+  const [period, setPeriod] = useState<Period>('day')
+  const { data: svcTrend } = useApi<TrendRow[]>(
+    `/api/trends/?hours=${PERIOD_HOURS[period]}&metrics=services`,
+    60000,
+  )
 
   const live = services ?? []
   const nPublic = live.filter((s) => s.public).length
   const diskPct = machine && machine.disk_total_gb > 0
     ? Math.round((machine.disk_used_gb / machine.disk_total_gb) * 100) : null
+
+  const hourly = (svcTrend ?? []).map((t): TrendPoint => ({ hour: t.hour, value: t.services_listening }))
+  const trendPoints = period === 'day' ? hourly : rollupDaily(hourly)
+  const copy = PERIOD_COPY[period]
 
   return (
     <>
@@ -43,16 +74,19 @@ export default function Home() {
       </div>
 
       <section>
-        <h2 className="sec">Twenty-four hours of listeners</h2>
-        <p className="sec-sub">
-          Distinct TCP ports the scanner caught in each UTC hour — an hourly
-          rollup from <code>/api/trends</code>, newest at the right. Bars use a
-          square-root scale so small, honest changes stay visible.
-        </p>
+        <div className="sec-head">
+          <div>
+            <h2 className="sec">{copy.title}</h2>
+            <p className="sec-sub">{copy.sub}</p>
+          </div>
+          <PeriodToggle value={period} onChange={setPeriod} />
+        </div>
         <div className="diagram">
           <TrendBars
-            points={(svcTrend ?? []).map((t): TrendPoint => ({ hour: t.hour, value: t.services_listening }))}
-            label="Distinct services listening per hour, last 24 hours"
+            points={trendPoints}
+            tickStyle={period === 'day' ? 'hour' : 'date'}
+            label={copy.aria}
+            emptyText={copy.empty}
           />
         </div>
       </section>

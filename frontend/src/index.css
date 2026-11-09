@@ -171,6 +171,21 @@ nav.main-nav::-webkit-scrollbar { display: none; }
 .theme-toggle button:hover { color: var(--text); }
 .theme-toggle button.on { background: var(--primary-tint); color: var(--primary-bright); }
 
+/* Period toggle (Day/Week/Month) beside trend charts — same idiom as the theme control. */
+.period-toggle { display: flex; align-items: center; border: 1px solid var(--hairline-2); border-radius: 7px; overflow: hidden; flex-shrink: 0; }
+.period-toggle button {
+  appearance: none; border: 0; cursor: pointer;
+  background: transparent; color: var(--text-faint);
+  font: 500 11px var(--font-sans); padding: 5px 12px; letter-spacing: 0.02em;
+}
+.period-toggle button:hover { color: var(--text); }
+.period-toggle button.on { background: var(--primary-tint); color: var(--primary-bright); }
+
+/* Section head with a control aligned to the right of the title. */
+.sec-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+.sec-head h2.sec { font-size: 16.5px; font-weight: 620; letter-spacing: -0.01em; color: var(--text-bright); margin-bottom: 4px; }
+.sec-head p.sec-sub { color: var(--text-muted); margin-bottom: 14px; max-width: 620px; }
+
 /* ---------- Hero / page heads ---------- */
 .hero { padding: 42px 0 8px; }
 .hero h1 { font-size: 26px; font-weight: 650; letter-spacing: -0.02em; color: var(--text-bright); line-height: 1.2; }

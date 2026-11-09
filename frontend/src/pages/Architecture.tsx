@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { useApi } from '../hooks/useApi'
-import TrendBars, { type TrendPoint } from '../components/TrendBars'
+import TrendBars, { rollupDaily, type TrendPoint } from '../components/TrendBars'
+import PeriodToggle, { PERIOD_HOURS, type Period } from '../components/PeriodToggle'
 
 type Service = { port: number; name: string }
 type Module = { module_id: string; status: string }
@@ -74,7 +76,13 @@ function Connector({ y }: { y: number }) {
 export default function Architecture() {
   const { data: services } = useApi<Service[]>('/api/services/')
   const { data: modules } = useApi<Module[]>('/api/modules/')
-  const { data: modTrend } = useApi<TrendRow[]>('/api/trends/?hours=24&metrics=modules', 60000)
+  const [period, setPeriod] = useState<Period>('day')
+  const { data: modTrend } = useApi<TrendRow[]>(
+    `/api/trends/?hours=${PERIOD_HOURS[period]}&metrics=modules`,
+    60000,
+  )
+  const modHourly = (modTrend ?? []).map((t): TrendPoint => ({ hour: t.hour, value: t.modules_live }))
+  const modPoints = period === 'day' ? modHourly : rollupDaily(modHourly)
   const ports = new Set((services ?? []).map((s) => s.port))
   const mod = (id: string) => (modules ?? []).find((m) => m.module_id === id)?.status === 'live'
 
@@ -159,17 +167,38 @@ export default function Architecture() {
       </div>
 
       <section style={{ marginTop: 30 }}>
-        <h2 className="sec">Live residents, hour by hour</h2>
-        <p className="sec-sub">
-          How many modules the scanner found <em>live</em> in each UTC hour —
-          rolled up from <code>/api/trends</code> with <code>metrics=modules</code>.
-          A dip is a real event: something stopped living in that window and
-          the change log records which.
-        </p>
+        <div className="sec-head">
+          <div>
+            <h2 className="sec">
+              {period === 'day' ? 'Live residents, hour by hour' : 'Live residents, day by day'}
+            </h2>
+            <p className="sec-sub">
+              {period === 'day' ? (
+                <>How many modules the scanner found <em>live</em> in each UTC hour —
+                  rolled up from <code>/api/trends</code> with <code>metrics=modules</code>.
+                  A dip is a real event: something stopped living in that window and
+                  the change log records which.</>
+              ) : (
+                <>How many modules the scanner found <em>live</em>, one bar per UTC day
+                  over the last {period === 'week' ? 'seven' : 'thirty'} — each day the mean
+                  of its hourly rollups from <code>/api/trends</code>. A dip is a real
+                  event: something stopped living in that window and the change log
+                  records which.</>
+              )}
+            </p>
+          </div>
+          <PeriodToggle value={period} onChange={setPeriod} />
+        </div>
         <div className="diagram">
           <TrendBars
-            points={(modTrend ?? []).map((t): TrendPoint => ({ hour: t.hour, value: t.modules_live }))}
-            label="Live resident modules per hour, last 24 hours"
+            points={modPoints}
+            tickStyle={period === 'day' ? 'hour' : 'date'}
+            label={period === 'day'
+              ? 'Live resident modules per hour, last 24 hours'
+              : `Live resident modules per day, last ${period === 'week' ? 7 : 30} days`}
+            emptyText={period === 'day'
+              ? 'No recorded hours yet — history builds as the scanner runs.'
+              : 'No recorded days yet — history builds as the scanner runs.'}
             accent="var(--success)"
           />
         </div>
