@@ -26,6 +26,7 @@ check "api changes"        "$BASE/api/changes/" '\[|\]'
 check "api trends"         "$BASE/api/trends/?hours=2&metrics=services,modules,ram,disk" '"hour"'
 check "api trends metric"  "$BASE/api/trends/?hours=2&metrics=ram" '"ram_gb_avg"'
 check "api trends month"   "$BASE/api/trends/?hours=720&metrics=services" '"hour"'
+check "trends swagger docs" "$BASE/openapi.json" 'Dashboard convention'
 check "lessons route"      "$BASE/lessons"     '<div id="root"'
 check "data-flow route"    "$BASE/data-flow"   '<div id="root"'
 

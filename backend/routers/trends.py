@@ -52,10 +52,53 @@ def _parse_metrics(raw: str) -> set[str]:
     "/",
     response_model=list[HourlyTrend],
     summary="Hourly rollups of the scan history",
+    responses={
+        200: {
+            "description": (
+                "One point per UTC hour with recorded data, oldest first. "
+                "Hours the scanner never ran are absent, not zero."
+            ),
+            "content": {
+                "application/json": {
+                    "example": [
+                        {
+                            "hour": "2026-01-05T09:00:00Z",
+                            "scans": 119,
+                            "services_listening": 12,
+                            "modules_live": 5,
+                            "ram_gb_avg": 7.4,
+                            "disk_used_gb_avg": 21.3,
+                        },
+                        {
+                            "hour": "2026-01-05T10:00:00Z",
+                            "scans": 120,
+                            "services_listening": 12,
+                            "modules_live": 6,
+                            "ram_gb_avg": 7.5,
+                            "disk_used_gb_avg": 21.4,
+                        },
+                    ],
+                }
+            },
+        },
+        422: {
+            "description": (
+                "An unknown metric name, an empty metric list, or an "
+                "out-of-range `hours`. The error body names the valid "
+                "choices instead of quietly charting nothing."
+            )
+        },
+    },
 )
 def get_trends(
     hours: int = Query(
-        24, ge=1, le=720, description="Trailing hours to roll up."
+        24,
+        ge=1,
+        le=720,
+        description=(
+            "Trailing hours to roll up. Dashboard convention: "
+            "day = 24, week = 168, month = 720."
+        ),
     ),
     metrics: str = Query(
         ",".join(SELECTABLE),
