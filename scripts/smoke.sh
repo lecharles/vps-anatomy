@@ -17,6 +17,7 @@ check() { # name, url, predicate(on body)
 }
 
 check "home page"          "$BASE/"            '<div id="root"'
+check "healthz"            "$BASE/healthz"     '"status": "ok"'
 check "docs page"          "$BASE/docs"        'swagger'
 check "openapi"            "$BASE/openapi.json" '"openapi"'
 check "api machine"        "$BASE/api/machine/" '"hostname"'

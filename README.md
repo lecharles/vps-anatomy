@@ -66,6 +66,7 @@ here is a mock.
 | GET | `/api/modules/{id}` | one resident |
 | GET | `/api/changes/?limit=` | the change log |
 | GET | `/api/trends/?hours=&metrics=` | hourly rollups — distinct listeners, live residents, RAM/disk means; `metrics` picks series (`services,modules,ram,disk`) |
+| GET | `/healthz` | liveness — 200 while the scanner is writing, 503 when stale (see `scripts/boot-check.sh`) |
 | GET | `/openapi.json` | schema |
 
 Interactive reference with the same themes: **`/docs`**.
