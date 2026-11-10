@@ -79,8 +79,23 @@ pip install -r requirements.txt
 python3 -m uvicorn main:app --host 0.0.0.0 --port 8093
 ```
 
+A production host has two paths, both self-observing:
+
+- **Target: systemd.** `deploy/vps-anatomy.service` is the unit draft
+  (restart-on-crash, start-on-boot, journald logs). Installing it needs a
+  root session — the steps are in the file header. After any boot or
+  enable, `scripts/boot-check.sh` proves the app and its scanner are
+  actually writing again.
+- **Current-host fallback: the launcher.** `launch-8093.sh` runs the same
+  uvicorn command in a terminal multiplexer and appends stdout to a log
+  file that rotates at 5 MB (one previous generation). It retires when
+  the unit is enabled; until then, rotation is the launcher's job, so a
+  long-running dashboard cannot fill the disk with its own log.
+
 The database is created on first start. The scanner runs inside the app
-process; no separate worker. To rebuild the frontend:
+process; no separate worker.
+
+To rebuild the frontend:
 
 ```bash
 cd frontend && npm install && npm run build
