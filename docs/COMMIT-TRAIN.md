@@ -18,6 +18,8 @@ One row per calendar slice from ROADMAP.md. Statuses:
 | Sun Nov 8 | S7 merge · docs note, ROADMAP tick | SHIPPED | 20a0869 | Nov 8 |
 | Sun Nov 8 | S8a · trend bars component — SVG, sqrt scale, value labels | SHIPPED | fc33fe4 | Nov 8 |
 | Sun Nov 8 | S8b · Home + Architecture get service/module series | SHIPPED | 7fc9fb0 | Nov 8 |
+| Thu Oct 15 | S8c · period toggles day/week/month (dashboard language) | SHIPPED | 0eae626 | Nov 9 |
+| Fri Oct 16 | S9a · retention job: prune raw >60d, keep hourly rollups | SHIPPED | 3c914dd | Nov 9 |
 
 ## Audit — Nov 8 (first ledger run)
 
@@ -58,3 +60,15 @@ Home, live-residents series on Architecture; built, deployed, served).
 `scripts/smoke.sh` grew trends coverage (params + validation). No new rows
 marked EVIDENCED — nothing in Oct–Nov code predates this train's burns.
 Queue head: **S8c** (period toggles).
+
+## Run — Nov 10 (fourth run)
+
+Previous run (Nov 9, 05:37–05:42 PT) burned **S8c** (`0eae626`) and **S9a**
+(`3c914dd`) but did not stamp them; both verified against code before
+stamping — PeriodToggle on Home + Architecture with the 720h window, and the
+retention job proven in `backend/core/retention.py` wired into the scan loop,
+with 376 archived hours already in `trend_hours` on the host (DB is
+gitignored; not committed). Queue head advanced to **S9b**, whose work was
+found prepared but uncommitted in the working tree (Swagger response docs
+for `/api/trends/`) — audited this run: example payload is synthetic (12
+listeners / 7.4 GB), not a mirror of live host facts; safe to commit.

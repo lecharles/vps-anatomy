@@ -51,8 +51,8 @@ Unassigned days are buffer/soak. Weekends marked (light) are small work.
 | Mon Oct 12 | S7 merge · docs note, ROADMAP tick — done |
 | Tue Oct 13 | S8a · trend bars component — SVG, sqrt scale, value labels — done |
 | Wed Oct 14 | S8b · Home + Architecture get service/module series — done |
-| Thu Oct 15 | S8c · period toggles day/week/month (dashboard language) |
-| Fri Oct 16 | S9a · retention job: prune raw >60d, keep hourly rollups |
+| Thu Oct 15 | S8c · period toggles day/week/month (dashboard language) — done |
+| Fri Oct 16 | S9a · retention job: prune raw >60d, keep hourly rollups — done |
 | Sat Oct 17 (light) | S9b · trends endpoints documented in Swagger |
 | Sun Oct 18 (light) | S10a · systemd unit draft `vps-anatomy.service` |
 | Mon Oct 19 | S10b · `/healthz` endpoint + enable, boot check |
