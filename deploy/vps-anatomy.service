@@ -1,0 +1,39 @@
+# vps-anatomy.service — production unit for the VPS Anatomy app + scanner.
+#
+# STATUS: draft. Not yet enabled on the machine this repo runs on — the
+# dashboard still runs from launch-8093.sh in a terminal multiplexer until a
+# root session installs this unit. Enabling it is a one-liner:
+#
+#   install -m 0644 deploy/vps-anatomy.service /etc/systemd/system/
+#   systemctl daemon-reload && systemctl enable --now vps-anatomy
+#
+# What the unit buys over the launcher: restart-on-crash (Restart=always),
+# start-on-boot (WantedBy=multi-user.target), and journal-rotated logs —
+# the launcher's log file and its rotation logic retire with this install.
+#
+# Health: once enabled, scripts/boot-check.sh polls /healthz until the
+# scanner has written its first row — that is the post-boot proof.
+
+[Unit]
+Description=VPS Anatomy — self-observing dashboard and scanner API
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=hermes
+WorkingDirectory=/home/hermes/vps-anatomy/backend
+# The same command the launcher runs — single process, scanner inside the
+# app lifespan, SQLite next to it. Keep this in sync with README's Run steps.
+ExecStart=/usr/bin/python3 -m uvicorn main:app --host 0.0.0.0 --port 8093
+Restart=always
+RestartSec=5
+
+# The scanner reads /proc and writes the gitignored database + data/ in the
+# checkout; everything else can be read-only.
+NoNewPrivileges=yes
+ProtectSystem=full
+ReadWritePaths=/home/hermes/vps-anatomy
+
+[Install]
+WantedBy=multi-user.target
