@@ -53,10 +53,10 @@ Unassigned days are buffer/soak. Weekends marked (light) are small work.
 | Wed Oct 14 | S8b · Home + Architecture get service/module series — done |
 | Thu Oct 15 | S8c · period toggles day/week/month (dashboard language) — done |
 | Fri Oct 16 | S9a · retention job: prune raw >60d, keep hourly rollups — done |
-| Sat Oct 17 (light) | S9b · trends endpoints documented in Swagger |
-| Sun Oct 18 (light) | S10a · systemd unit draft `vps-anatomy.service` |
-| Mon Oct 19 | S10b · `/healthz` endpoint + enable, boot check |
-| Tue Oct 20 | S10c · log rotation; retire tmux launcher in docs |
+| Sat Oct 17 (light) | S9b · trends endpoints documented in Swagger — done |
+| Sun Oct 18 (light) | S10a · systemd unit draft `vps-anatomy.service` — done |
+| Mon Oct 19 | S10b · `/healthz` endpoint + enable, boot check — code done; enable pending root |
+| Tue Oct 20 | S10c · log rotation; retire tmux launcher in docs — rotation done; full launcher drop awaits root enable of S10a unit |
 | Wed Oct 21 | S11a · pytest scaffolding; `ss -tlnp` fixtures |
 | Thu Oct 22 | S11b · catalog mapping + change-diff tests |
 | Fri Oct 23 | S11c · empty-DB + first-scan baseline regressions (the v0.2 bug class) |

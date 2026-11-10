@@ -20,6 +20,10 @@ One row per calendar slice from ROADMAP.md. Statuses:
 | Sun Nov 8 | S8b · Home + Architecture get service/module series | SHIPPED | 7fc9fb0 | Nov 8 |
 | Thu Oct 15 | S8c · period toggles day/week/month (dashboard language) | SHIPPED | 0eae626 | Nov 9 |
 | Fri Oct 16 | S9a · retention job: prune raw >60d, keep hourly rollups | SHIPPED | 3c914dd | Nov 9 |
+| Sat Oct 17 (light) | S9b · trends endpoints documented in Swagger | SHIPPED | 5c10088 | Nov 10 |
+| Sun Oct 18 (light) | S10a · systemd unit draft `vps-anatomy.service` | SHIPPED | f6a539f | Nov 10 |
+| Mon Oct 19 | S10b · `/healthz` endpoint + boot check | SHIPPED (enable pending root) | f888d4d | Nov 10 |
+| Tue Oct 20 | S10c · log rotation; launcher retirement stated in docs | SHIPPED (launcher drop itself pending root) | 736f997 | Nov 10 |
 
 ## Audit — Nov 8 (first ledger run)
 
@@ -72,3 +76,21 @@ gitignored; not committed). Queue head advanced to **S9b**, whose work was
 found prepared but uncommitted in the working tree (Swagger response docs
 for `/api/trends/`) — audited this run: example payload is synthetic (12
 listeners / 7.4 GB), not a mirror of live host facts; safe to commit.
+
+Burned four rows oldest-first, queue ~25 calendar rows behind today: **S9b**
+(`5c10088`, trends Swagger docs — served examples + 422 contract verified in
+the live schema), **S10a** (`f6a539f`, `deploy/vps-anatomy.service` unit
+draft, parses under `systemd-analyze verify`), **S10b** (`f888d4d`, `/healthz`
+— 200 fresh / 503 stale / 503 no-scans, all three states exercised;
+`scripts/boot-check.sh` as the post-boot proof; smoke covers it, one fixup
+commit `827989d` after the check's JSON spacing failed its own gate),
+**S10c** (`736f997`, launcher log rotation at 5 MB with append across
+restarts — rotation block proven on a sandboxed oversized log; README Run
+section states the systemd target and the launcher's retirement plan).
+
+Pending root (honest, not skipped): this host grants no passwordless sudo,
+so the unit **install/enable** step and the literal launcher retirement
+cannot be executed by the train. They need one interactive root session;
+until then the app runs under `launch-8093.sh` in its multiplexer session
+and `boot-check` guards restarts. Queue head: **S11a** (pytest scaffolding —
+no host privileges needed, safe for the next run).
