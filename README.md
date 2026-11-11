@@ -102,6 +102,17 @@ cd frontend && npm install && npm run build
 rm -rf ../backend/static/* && cp -r dist/* ../backend/static/
 ```
 
+To run the test suite:
+
+```bash
+pip install -r backend/requirements-dev.txt
+python3 -m pytest
+```
+
+The scanner is tested with `ss -tlnp` fixtures and an in-memory database:
+tests never run commands, never touch the network, and never open the live
+app's database, so they are safe to run on the server itself.
+
 ## Notes on public data
 
 This repository is a public engineering artifact: it ships the mechanism —

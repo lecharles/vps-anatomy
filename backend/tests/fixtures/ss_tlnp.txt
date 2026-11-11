@@ -1,0 +1,11 @@
+State  Recv-Q Send-Q Local Address:Port   Peer Address:Port  Process
+LISTEN 0      4096   0.0.0.0:22           0.0.0.0:*          users:(("sshd",pid=812,fd=3))
+LISTEN 0      80     127.0.0.1:3306       0.0.0.0:*          users:(("mariadbd",pid=640,fd=21))
+LISTEN 0      4096   127.0.0.53%lo:53     0.0.0.0:*          users:(("systemd-resolve",pid=501,fd=14))
+LISTEN 0      4096   [::]:443             [::]:*             users:(("caddy",pid=1011,fd=10))
+LISTEN 0      4096   0.0.0.0:443          0.0.0.0:*          users:(("caddy",pid=1011,fd=11))
+LISTEN 0      4096   0.0.0.0:22           0.0.0.0:*          users:(("sshd",pid=812,fd=4))
+LISTEN 0      2048   127.0.0.1:6379       0.0.0.0:*
+LISTEN 0      4096   [::1]:9090           [::1]:*            users:(("temporal",pid=777,fd=6))
+LISTEN 0      128    0.0.0.0:2222         0.0.0.0:*          users:(("sshd",pid=812,fd=9))
+truncatedrow

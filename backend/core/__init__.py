@@ -176,6 +176,10 @@ def scan_services() -> list:
             continue
         port = int(m.group(1))
         bind = addr[: addr.rfind(":")] or "*"
+        # ss brackets IPv6 addresses ("[::]:443"). The public-bind check
+        # and the routers both expect bare addresses, so unwrap here.
+        if bind.startswith("[") and bind.endswith("]"):
+            bind = bind[1:-1]
         proc = None
         pm = re.search(r'users:\(\("([^"]+)"', line)
         if pm:

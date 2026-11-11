@@ -1,0 +1,6 @@
+# Development-only dependencies — the scanner test suite.
+# Install alongside the runtime requirements:
+#   pip install -r backend/requirements.txt -r backend/requirements-dev.txt
+# Runtime deps live in backend/requirements.txt.
+pytest>=8.0
+httpx>=0.27
