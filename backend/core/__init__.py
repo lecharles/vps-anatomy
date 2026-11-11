@@ -283,7 +283,11 @@ def detect_changes(db: Session, machine: dict, services: list, modules: list):
     if latest_mod_ts is not None:
         prev_modules_rows = db.query(ModuleState).filter(ModuleState.timestamp == latest_mod_ts[0]).all()
 
-    baseline = latest_ts is None
+    # Baseline = the app has recorded NO history at all. Checking both
+    # tables matters: a host with zero TCP listeners still has module
+    # history, and treating it as "first scan" would mute every module
+    # event forever (caught by the S11b change-diff tests).
+    baseline = latest_ts is None and latest_mod_ts is None
 
     prev_ports = {s.port: s for s in prev_services_rows}
     new_ports = {s["port"]: s for s in services}
