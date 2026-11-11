@@ -171,6 +171,17 @@ nav.main-nav::-webkit-scrollbar { display: none; }
 .theme-toggle button:hover { color: var(--text); }
 .theme-toggle button.on { background: var(--primary-tint); color: var(--primary-bright); }
 
+/* Trend chart hover caption (S12a): when · value, in the chart's own voice.
+   min-height keeps the layout steady when it swaps between buckets. */
+.trend-caption {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 8px;
+  min-height: 18px;
+}
+
 /* Period toggle (Day/Week/Month) beside trend charts — same idiom as the theme control. */
 .period-toggle { display: flex; align-items: center; border: 1px solid var(--hairline-2); border-radius: 7px; overflow: hidden; flex-shrink: 0; }
 .period-toggle button {

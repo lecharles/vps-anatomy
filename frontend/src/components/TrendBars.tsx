@@ -12,6 +12,14 @@
 // to collapse hourly points into one daily mean per UTC day. Charts handed
 // more than 40 points shrink their slots and drop per-bar labels rather
 // than render a wall.
+//
+// Hovering a slot (S12a) highlights its bar, reveals a value label even on
+// dense charts, and drives the caption below: when · value · scans. The
+// caption defaults to the latest recorded bucket, so the chart answers its
+// headline question before you touch it. Each slot also carries a native
+// <title> — no hover machinery required for the same facts.
+
+import { useState } from 'react'
 
 export type TrendPoint = { hour: string; value: number | null }
 
@@ -55,6 +63,11 @@ function fmt(v: number): string {
   return Number.isInteger(v) ? String(v) : v.toFixed(1)
 }
 
+/** "2026-11-11 04:00" from a bucket key — the caption speaks exact UTC. */
+function when(hour: string): string {
+  return `${hour.slice(0, 10)} ${hour.slice(11, 16)}`
+}
+
 export default function TrendBars({
   points,
   label,
@@ -62,6 +75,8 @@ export default function TrendBars({
   accent = 'var(--primary)',
   tickStyle = 'hour',
 }: Props) {
+  const [hover, setHover] = useState<number | null>(null)
+
   if (points.length === 0) {
     return <div className="empty">{emptyText}</div>
   }
@@ -79,47 +94,67 @@ export default function TrendBars({
   const tickEvery = Math.max(1, Math.ceil(points.length / 8))
   const last = [...points].reverse().find((p) => p.value !== null)
 
+  // Caption content: hovered slot wins; otherwise the latest reading,
+  // so the line under the chart always states something truthful.
+  const shown = hover !== null ? points[hover] : (last ?? points[points.length - 1])
+  const caption = shown.value === null
+    ? `${when(shown.hour)} · no reading`
+    : `${when(shown.hour)} · ${fmt(shown.value)}${hover === null ? ' (latest)' : ''}`
+
   return (
-    <svg
-      viewBox={`0 0 ${W} ${H}`}
-      role="img"
-      aria-label={last ? `${label}. Latest hour: ${fmt(last.value as number)}.` : label}
-      style={{ display: 'block', width: '100%', height: 'auto', maxWidth: W, margin: '0 auto' }}
-    >
-      <line x1={PAD_X} y1={baseY} x2={W - PAD_X} y2={baseY}
-        style={{ stroke: 'var(--hairline-2)', strokeWidth: 1 }} />
-      {points.map((p, i) => {
-        const x = PAD_X + i * slot + (slot - barW) / 2
-        const showTick = tickStyle === 'date'
-          ? i % tickEvery === 0 || i === points.length - 1
-          : p.hour.slice(11, 16) === '00:00' || i % tickEvery === 0 || i === points.length - 1
-        return (
-          <g key={p.hour}>
-            {p.value !== null && (() => {
-              const h = Math.max(Math.sqrt(p.value / max) * PLOT_H, p.value > 0 ? 4 : 2)
-              const y = baseY - h
-              return (
-                <>
-                  <rect x={x} y={y} width={barW} height={h} rx={Math.min(3, barW / 2)}
-                    style={{ fill: accent, fillOpacity: 0.85 }} />
-                  {showLabels && (
-                    <text x={x + barW / 2} y={y - 4} textAnchor="middle"
-                      style={{ fontSize: 9, fontWeight: 600, fill: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-                      {fmt(p.value)}
-                    </text>
-                  )}
-                </>
-              )
-            })()}
-            {showTick && (
-              <text x={x + barW / 2} y={baseY + 13} textAnchor="middle"
-                style={{ fontSize: 8.5, fill: 'var(--text-faint)', fontFamily: 'var(--font-mono)' }}>
-                {tickStyle === 'date' ? p.hour.slice(5, 10) : p.hour.slice(11, 16)}
-              </text>
-            )}
-          </g>
-        )
-      })}
-    </svg>
+    <>
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        role="img"
+        aria-label={last ? `${label}. Latest hour: ${fmt(last.value as number)}.` : label}
+        style={{ display: 'block', width: '100%', height: 'auto', maxWidth: W, margin: '0 auto' }}
+      >
+        <line x1={PAD_X} y1={baseY} x2={W - PAD_X} y2={baseY}
+          style={{ stroke: 'var(--hairline-2)', strokeWidth: 1 }} />
+        {points.map((p, i) => {
+          const x = PAD_X + i * slot + (slot - barW) / 2
+          const isHover = hover === i
+          const showTick = tickStyle === 'date'
+            ? i % tickEvery === 0 || i === points.length - 1
+            : p.hour.slice(11, 16) === '00:00' || i % tickEvery === 0 || i === points.length - 1
+          return (
+            <g key={p.hour}
+              style={{ cursor: 'crosshair' }}
+              onPointerEnter={() => setHover(i)}
+              onPointerLeave={() => setHover(h => (h === i ? null : h))}
+              onClick={() => setHover(isHover ? null : i)} /* tap = hold, for touch */
+            >
+              <title>{`${p.hour} · ${p.value === null ? 'no reading' : fmt(p.value)}`}</title>
+              {/* invisible strip spanning the whole slot: the hover target
+                  exists even where the bar is short or missing */}
+              <rect x={PAD_X + i * slot} y={0} width={slot} height={baseY} fill="transparent" />
+              {p.value !== null && (() => {
+                const h = Math.max(Math.sqrt(p.value / max) * PLOT_H, p.value > 0 ? 4 : 2)
+                const y = baseY - h
+                return (
+                  <>
+                    <rect x={x} y={y} width={barW} height={h} rx={Math.min(3, barW / 2)}
+                      style={{ fill: accent, fillOpacity: isHover ? 1 : 0.85, transition: 'fill-opacity 120ms' }} />
+                    {(showLabels || isHover) && (
+                      <text x={x + barW / 2} y={y - 4} textAnchor="middle"
+                        style={{ fontSize: 9, fontWeight: 600, fill: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                        {fmt(p.value)}
+                      </text>
+                    )}
+                  </>
+                )
+              })()}
+              {showTick && (
+                <text x={x + barW / 2} y={baseY + 13} textAnchor="middle"
+                  style={{ fontSize: 8.5, fill: 'var(--text-faint)', fontFamily: 'var(--font-mono)' }}>
+                  {tickStyle === 'date' ? p.hour.slice(5, 10) : p.hour.slice(11, 16)}
+                </text>
+              )}
+            </g>
+          )
+        })}
+      </svg>
+      <div className="trend-caption" aria-live="polite">{caption}</div>
+    </>
   )
 }
