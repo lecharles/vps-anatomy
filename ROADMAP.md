@@ -57,12 +57,12 @@ Unassigned days are buffer/soak. Weekends marked (light) are small work.
 | Sun Oct 18 (light) | S10a · systemd unit draft `vps-anatomy.service` — done |
 | Mon Oct 19 | S10b · `/healthz` endpoint + enable, boot check — code done; enable pending root |
 | Tue Oct 20 | S10c · log rotation; retire tmux launcher in docs — rotation done; full launcher drop awaits root enable of S10a unit |
-| Wed Oct 21 | S11a · pytest scaffolding; `ss -tlnp` fixtures |
-| Thu Oct 22 | S11b · catalog mapping + change-diff tests |
-| Fri Oct 23 | S11c · empty-DB + first-scan baseline regressions (the v0.2 bug class) |
-| Sat Oct 24 (light) | S12a · trends UI polish, hover detail |
-| Sun Oct 25 (light) | S12b · bar labels + legend copy |
-| Mon Oct 26 | **M1 · tag v0.4 (History + Trust complete)** |
+| Wed Oct 21 | S11a · pytest scaffolding; `ss -tlnp` fixtures — done |
+| Thu Oct 22 | S11b · catalog mapping + change-diff tests — done |
+| Fri Oct 23 | S11c · empty-DB + first-scan baseline regressions (the v0.2 bug class) — done |
+| Sat Oct 24 (light) | S12a · trends UI polish, hover detail — done |
+| Sun Oct 25 (light) | S12b · bar labels + legend copy — done |
+| Mon Oct 26 | **M1 · tag v0.4 (History + Trust complete)** — tagged Nov 12; root-enable of S10a unit still pending one interactive session |
 | Tue Oct 27 | soak / buffer |
 | Wed Oct 28 | S13a · Lesson 3 rows link to live `/api/services/` data |
 | Thu Oct 29 | S13b · every port row cites real source or config path on disk |

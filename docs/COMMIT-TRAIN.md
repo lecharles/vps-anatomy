@@ -28,6 +28,8 @@ One row per calendar slice from ROADMAP.md. Statuses:
 | Thu Oct 22 | S11b · catalog mapping + change-diff tests | SHIPPED | 981640c | Nov 11 |
 | Fri Oct 23 | S11c · empty-DB + first-scan baseline regressions | SHIPPED | 2f155f0 | Nov 11 |
 | Sat Oct 24 (light) | S12a · trends UI polish, hover detail | SHIPPED | 692e99f | Nov 11 |
+| Sun Oct 25 (light) | S12b · bar labels + legend copy | SHIPPED | 6021cd9 | Nov 12 |
+| Mon Oct 26 | **M1 · tag v0.4 (History + Trust complete)** | SHIPPED (tag `v0.4`; root-enable of the S10a unit remains an open host-side step) | v0.4 @ this-run ledger commit | Nov 12 |
 
 ## Audit — Nov 8 (first ledger run)
 
@@ -98,3 +100,19 @@ cannot be executed by the train. They need one interactive root session;
 until then the app runs under `launch-8093.sh` in its multiplexer session
 and `boot-check` guards restarts. Queue head: **S11a** (pytest scaffolding —
 no host privileges needed, safe for the next run).
+
+## Run — Nov 12 (fifth + sixth runs; ledger back-stamp, S12b, M1)
+
+The Nov 11 run burned S11a–S11c + S12a (`7ad47a7`, `981640c`, `2f155f0`,
+`692e99f`) but exited before stamping the ledger; its edits were found
+uncommitted. This run re-ran the suite (30 green) and code-verified the
+hover/legend claims in `TrendBars.tsx` before stamping those four rows
+(`2db1d49`).
+
+Burned two rows oldest-first, queue still ~2.5 calendar weeks behind:
+**S12b** (`6021cd9`, legend copy + density-surviving ceiling label —
+built via `npm run build`, deployed into the served bundle), then **M1**:
+tag **v0.4** — the repo's first tag — anchoring History (S7→S12) and Trust
+(S10, S11) as complete in code, with the standing caveat that enabling the
+systemd unit still awaits one interactive root session. Queue head:
+**S13a** (Lesson 3 rows link to live `/api/services/` data).
