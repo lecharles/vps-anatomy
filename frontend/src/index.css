@@ -281,6 +281,20 @@ a.card:hover { text-decoration: none; border-color: var(--hairline-2); transform
 .chip.port { color: var(--primary-bright); border-color: transparent; background: var(--primary-tint); }
 .chip.kind { color: var(--purple); border-color: transparent; background: var(--purple-tint); }
 
+/* Lesson 3 live counts (S13a): a chip that is also the link — the number
+   and its source are one click apart. Muted until it holds a nonzero
+   reading; a live dot does the talking. */
+.lesson-live {
+  display: inline-flex; align-items: center; gap: 5px;
+  font: 500 10.5px var(--font-mono); letter-spacing: 0.02em;
+  border: 1px solid var(--hairline); border-radius: 999px; padding: 2px 9px;
+  color: var(--text-muted); background: var(--surface);
+  margin-left: 6px; text-decoration: none; white-space: nowrap;
+}
+.lesson-live:hover { color: var(--primary-bright); border-color: var(--primary-bright); }
+.live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-faint); }
+.live-dot.on { background: var(--success); }
+
 /* ---------- Tables / rows ---------- */
 .rows { border: 1px solid var(--hairline); border-radius: var(--radius-card); background: var(--panel); overflow: hidden; }
 .row {

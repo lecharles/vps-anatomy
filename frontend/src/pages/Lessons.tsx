@@ -5,8 +5,29 @@ type Machine = {
   disk_total_gb: number; disk_used_gb: number; uptime_days: number; ip_public: string
 }
 
+// Lesson 3 speaks in live numbers (S13a): every category row counts what
+// the scanner sees RIGHT NOW on that port band, from /api/services/.
+// The data is a poll away — so the row itself carries the count and a
+// link to the very endpoint that produced it. Stale copy beats nothing;
+// live copy beats stale.
+type Service = { port: number; bind: string; name: string; owner: string; public: boolean; status: string }
+
+function LiveChip({ n, title }: { n: number | null; title: string }) {
+  if (n === null) return null
+  return (
+    <a className="lesson-live" href="/api/services/" title={title}>
+      <span className={n > 0 ? 'live-dot on' : 'live-dot'} />
+      {n === 0 ? 'not caught this scan' : `${n} live now`}
+    </a>
+  )
+}
+
 export default function Lessons() {
   const { data: m } = useApi<Machine>('/api/machine/')
+  const { data: svcs } = useApi<Service[]>('/api/services/', 30000)
+  const services = svcs // null until the first poll answers
+  const count = (pred: (s: Service) => boolean) =>
+    services === null ? null : services.filter(pred).length
   return (
     <div>
       <div className="page-head">
@@ -70,14 +91,15 @@ export default function Lessons() {
         <p>
           A port is a numbered socket on one IP address. Each running service claims one and answers HTTP
           (or another protocol) there. The scanner in this app reads the kernel's list of open ports every 30
-          seconds. What's typically here, and what each one means:
+          seconds. What's typically here, and what each one means — each line carries its live count, read
+          from <code>/api/services/</code> while you look:
         </p>
         <ul>
-          <li><span className="kbd">:22</span> SSH — administrative access. Everything else is downstream of someone having had it.</li>
-          <li>A band of web apps (this one among them) on ports near <span className="kbd">:8000</span>–<span className="kbd">:9000</span>, each a FastAPI server on a React build.</li>
-          <li>A model runtime on <span className="kbd">:11434</span> for local inference.</li>
-          <li>Agent control ports — deliberately bound to localhost, never public.</li>
-          <li>The live list, with names and binds for this server, is one call away: <a className="kbd" href="/api/services/">/api/services/</a>.</li>
+          <li><span className="kbd">:22</span> SSH — administrative access. Everything else is downstream of someone having had it. <LiveChip n={count(s => s.port === 22)} title="counted live from /api/services/" /></li>
+          <li>A band of web apps (this one among them) on ports near <span className="kbd">:8000</span>–<span className="kbd">:9000</span>, each a FastAPI server on a React build. <LiveChip n={count(s => s.port >= 8000 && s.port <= 9999)} title="listeners on 8000–9999, counted live" /></li>
+          <li>A model runtime on <span className="kbd">:11434</span> for local inference. <LiveChip n={count(s => s.port === 11434)} title="listener on 11434, counted live" /></li>
+          <li>Agent control ports — deliberately bound to localhost, never public. <LiveChip n={count(s => !s.public && s.port !== 22 && s.port !== 11434 && !(s.port >= 8000 && s.port <= 9999))} title="localhost-bound listeners outside the other rows, counted live" /></li>
+          <li>The live list, with names and binds for this server, is one call away: <a className="kbd" href="/api/services/">/api/services/</a>{services !== null && <> — <b>{services.length}</b> listeners on the last scan</>}</li>
         </ul>
         <p>
           How processes are kept alive matters too: <strong>systemd</strong> and <strong>systemd user services</strong>
