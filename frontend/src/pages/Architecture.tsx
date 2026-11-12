@@ -200,6 +200,9 @@ export default function Architecture() {
               ? 'No recorded hours yet — history builds as the scanner runs.'
               : 'No recorded days yet — history builds as the scanner runs.'}
             accent="var(--success)"
+            seriesName="Live residents"
+            unit="kernel modules found loaded"
+            perBar={period === 'day' ? 'one bar = one UTC hour' : 'one bar = one UTC day, mean of its hours'}
           />
         </div>
       </section>

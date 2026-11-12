@@ -11,24 +11,30 @@ type Machine = {
 type Service = { port: number; bind: string; name: string; owner: string; public: boolean; status: string }
 type TrendRow = { hour: string; services_listening: number | null }
 
-const PERIOD_COPY: Record<Period, { title: string; sub: string; aria: string; empty: string }> = {
+// S12b legend copy per period: the chart names itself — series, what a
+// value counts, what a bar spans. Blue bars live on Home, green ones on
+// Architecture; the swatch color comes from the accent the page passes.
+const PERIOD_COPY: Record<Period, { title: string; sub: string; aria: string; empty: string; perBar: string }> = {
   day: {
     title: 'A day of listeners',
     sub: 'Distinct TCP ports the scanner caught in each UTC hour — an hourly rollup from /api/trends, newest at the right. Bars use a square-root scale so small, honest changes stay visible.',
     aria: 'Distinct services listening per hour, last 24 hours',
     empty: 'No recorded hours yet — history builds as the scanner runs.',
+    perBar: 'one bar = one UTC hour',
   },
   week: {
     title: 'A week of listeners',
     sub: 'One bar per UTC day over the last seven — each day is the mean of its hourly rollups from /api/trends (hours=168), newest at the right. Square-root scale keeps the quiet days legible.',
     aria: 'Distinct services listening per day, last 7 days',
     empty: 'No recorded days yet — the week needs at least one scan.',
+    perBar: 'one bar = one UTC day, mean of its hours',
   },
   month: {
     title: 'A month of listeners',
     sub: 'One bar per UTC day over the last thirty — each day is the mean of its hourly rollups from /api/trends (hours=720), newest at the right. Square-root scale keeps the quiet days legible.',
     aria: 'Distinct services listening per day, last 30 days',
     empty: 'No recorded days yet — the month needs at least one scan.',
+    perBar: 'one bar = one UTC day, mean of its hours',
   },
 }
 
@@ -87,6 +93,9 @@ export default function Home() {
             tickStyle={period === 'day' ? 'hour' : 'date'}
             label={copy.aria}
             emptyText={copy.empty}
+            seriesName="Listeners"
+            unit="distinct TCP ports"
+            perBar={copy.perBar}
           />
         </div>
       </section>

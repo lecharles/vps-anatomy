@@ -18,6 +18,13 @@
 // caption defaults to the latest recorded bucket, so the chart answers its
 // headline question before you touch it. Each slot also carries a native
 // <title> — no hover machinery required for the same facts.
+//
+// S12b gives the chart its vocabulary: a legend line naming the series,
+// what one value counts, and what one bar spans — so Home's blue bars and
+// Architecture's green ones say what they are without the reader guessing
+// from page context. And the tallest bar keeps its value label even on
+// dense charts, because with a square-root scale the ceiling IS the axis:
+// "max 15" under the highest bar lets every other bar be read honestly.
 
 import { useState } from 'react'
 
@@ -57,6 +64,9 @@ type Props = {
   emptyText?: string            // shown when the history has no buckets
   accent?: string               // CSS color token for the bars
   tickStyle?: 'hour' | 'date'   // bottom ticks: HH:MM for hourly, MM-DD for daily buckets
+  seriesName?: string           // legend copy (S12b): names the series, e.g. "Listeners"
+  unit?: string                 // what one value counts, e.g. "distinct TCP ports"
+  perBar?: string               // what one bar spans, e.g. "one bar = one UTC hour"
 }
 
 function fmt(v: number): string {
@@ -74,6 +84,9 @@ export default function TrendBars({
   emptyText = 'No recorded hours yet — history builds as the scanner runs.',
   accent = 'var(--primary)',
   tickStyle = 'hour',
+  seriesName,
+  unit,
+  perBar,
 }: Props) {
   const [hover, setHover] = useState<number | null>(null)
 
@@ -93,6 +106,15 @@ export default function TrendBars({
   const baseY = TOP + PLOT_H
   const tickEvery = Math.max(1, Math.ceil(points.length / 8))
   const last = [...points].reverse().find((p) => p.value !== null)
+  // S12b: the tallest bar is the scale's ceiling — its value label is the
+  // axis on a sqrt chart, so it survives density. And a slot with no bar
+  // is information (a gap in the record), so the legend names it when gaps
+  // actually exist on this chart.
+  const maxIdx = points.reduce(
+    (best, p, i) => (p.value !== null && (best < 0 || p.value > (points[best].value ?? 0)) ? i : best),
+    -1,
+  )
+  const hasGaps = points.some((p) => p.value === null)
 
   // Caption content: hovered slot wins; otherwise the latest reading,
   // so the line under the chart always states something truthful.
@@ -135,10 +157,11 @@ export default function TrendBars({
                   <>
                     <rect x={x} y={y} width={barW} height={h} rx={Math.min(3, barW / 2)}
                       style={{ fill: accent, fillOpacity: isHover ? 1 : 0.85, transition: 'fill-opacity 120ms' }} />
-                    {(showLabels || isHover) && (
+                    {(showLabels || isHover || i === maxIdx) && (
                       <text x={x + barW / 2} y={y - 4} textAnchor="middle"
                         style={{ fontSize: 9, fontWeight: 600, fill: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-                        {fmt(p.value)}
+                        {/* on dense charts the ceiling label is the axis — say so */}
+                        {!showLabels && i === maxIdx && !isHover ? `max ${fmt(p.value)}` : fmt(p.value)}
                       </text>
                     )}
                   </>
@@ -154,6 +177,15 @@ export default function TrendBars({
           )
         })}
       </svg>
+      {seriesName && (
+        <div className="trend-legend">
+          <span className="trend-legend-swatch" style={{ background: accent }} aria-hidden="true" />
+          <b className="trend-legend-name">{seriesName}</b>
+          {unit && <span className="trend-legend-note">— {unit}</span>}
+          {perBar && <span className="trend-legend-note">· {perBar}</span>}
+          {hasGaps && <span className="trend-legend-note">· no bar = no reading</span>}
+        </div>
+      )}
       <div className="trend-caption" aria-live="polite">{caption}</div>
     </>
   )

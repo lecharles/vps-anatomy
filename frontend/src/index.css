@@ -182,6 +182,27 @@ nav.main-nav::-webkit-scrollbar { display: none; }
   min-height: 18px;
 }
 
+/* Trend legend (S12b): swatch + plain-voice copy — what the series is,
+   what one value counts, what one bar spans. Sits between figure and
+   caption so the caption stays about the newest fact, not the setup. */
+.trend-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-faint);
+}
+.trend-legend-swatch {
+  width: 10px; height: 10px; border-radius: 2px;
+  display: inline-block;
+  align-self: center;
+}
+.trend-legend-name { color: var(--text-muted); font-weight: 600; }
+.trend-legend-note { font-family: var(--font-mono); font-size: 11px; }
+
 /* Period toggle (Day/Week/Month) beside trend charts — same idiom as the theme control. */
 .period-toggle { display: flex; align-items: center; border: 1px solid var(--hairline-2); border-radius: 7px; overflow: hidden; flex-shrink: 0; }
 .period-toggle button {
