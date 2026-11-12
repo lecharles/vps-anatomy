@@ -24,6 +24,10 @@ One row per calendar slice from ROADMAP.md. Statuses:
 | Sun Oct 18 (light) | S10a · systemd unit draft `vps-anatomy.service` | SHIPPED | f6a539f | Nov 10 |
 | Mon Oct 19 | S10b · `/healthz` endpoint + boot check | SHIPPED (enable pending root) | f888d4d | Nov 10 |
 | Tue Oct 20 | S10c · log rotation; launcher retirement stated in docs | SHIPPED (launcher drop itself pending root) | 736f997 | Nov 10 |
+| Wed Oct 21 | S11a · pytest scaffolding; `ss -tlnp` fixtures | SHIPPED | 7ad47a7 | Nov 11 |
+| Thu Oct 22 | S11b · catalog mapping + change-diff tests | SHIPPED | 981640c | Nov 11 |
+| Fri Oct 23 | S11c · empty-DB + first-scan baseline regressions | SHIPPED | 2f155f0 | Nov 11 |
+| Sat Oct 24 (light) | S12a · trends UI polish, hover detail | SHIPPED | 692e99f | Nov 11 |
 
 ## Audit — Nov 8 (first ledger run)
 
