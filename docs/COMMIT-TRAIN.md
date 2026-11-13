@@ -30,6 +30,7 @@ One row per calendar slice from ROADMAP.md. Statuses:
 | Sat Oct 24 (light) | S12a · trends UI polish, hover detail | SHIPPED | 692e99f | Nov 11 |
 | Sun Oct 25 (light) | S12b · bar labels + legend copy | SHIPPED | 6021cd9 | Nov 12 |
 | Mon Oct 26 | **M1 · tag v0.4 (History + Trust complete)** | SHIPPED (tag `v0.4`; root-enable of the S10a unit remains an open host-side step) | v0.4 @ this-run ledger commit | Nov 12 |
+| Wed Oct 28 | S13a · Lesson 3 rows link to live `/api/services/` data | SHIPPED | b3ca2b3 | Nov 12 |
 
 ## Audit — Nov 8 (first ledger run)
 

@@ -64,7 +64,7 @@ Unassigned days are buffer/soak. Weekends marked (light) are small work.
 | Sun Oct 25 (light) | S12b · bar labels + legend copy — done |
 | Mon Oct 26 | **M1 · tag v0.4 (History + Trust complete)** — tagged Nov 12; root-enable of S10a unit still pending one interactive session |
 | Tue Oct 27 | soak / buffer |
-| Wed Oct 28 | S13a · Lesson 3 rows link to live `/api/services/` data |
+| Wed Oct 28 | S13a · Lesson 3 rows link to live `/api/services/` data — done |
 | Thu Oct 29 | S13b · every port row cites real source or config path on disk |
 | Fri Oct 30 | S14a · localhost hop-latency probes: design + first numbers |
 | Sat Oct 31 (light) | S14b · Signal Flow renders measured hop ms |
