@@ -23,7 +23,7 @@ honest inventory of everything the site knows.
 backend/
   main.py            app factory, OpenAPI metadata, /docs, SPA mount
   core/__init__.py   the scanner: machine facts, ss parsing, module probes, change diffing
-  routers/           /api/machine /api/services /api/modules /api/changes /api/trends
+  routers/           /api/machine /api/services /api/modules /api/changes /api/trends /api/latency
   models/ schemas/   SQLAlchemy tables + Pydantic response models
   static/            build output served by FastAPI (single origin, no CORS needed)
 frontend/
@@ -66,6 +66,8 @@ here is a mock.
 | GET | `/api/modules/{id}` | one resident |
 | GET | `/api/changes/?limit=` | the change log |
 | GET | `/api/trends/?hours=&metrics=` | hourly rollups — distinct listeners, live residents, RAM/disk means; `metrics` picks series (`services,modules,ram,disk`) |
+| GET | `/api/latency/` | newest scan's loopback handshake medians, per port, in ms |
+| GET | `/api/latency/history?port=` | hop-latency history, newest first |
 | GET | `/healthz` | liveness — 200 while the scanner is writing, 503 when stale (see `scripts/boot-check.sh`) |
 | GET | `/openapi.json` | schema |
 

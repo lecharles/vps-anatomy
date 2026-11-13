@@ -4,7 +4,7 @@ import os
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
-from routers import machine, services, modules, changes, trends
+from routers import machine, services, modules, changes, trends, latency
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 from database import engine, Base, get_db
@@ -26,6 +26,8 @@ lab notebook: each endpoint is a lens on one layer of the system.
 - **modules** — the residents: agents, runtimes, containers, scheduler.
 - **changes** — the diff between successive scans.
 - **trends** — hourly rollups of the recorded history, for charts.
+- **latency** — loopback handshake times for the ports this scan found:
+  the machine measuring its own cheapest hops, in milliseconds.
 - **health** — liveness of the app and of the scan loop behind it.
 
 Scans run every 30 seconds. Timestamps are UTC, written by the scanner.
@@ -52,6 +54,7 @@ app = FastAPI(
         {"name": "modules", "description": "Software residents (agents, runtimes, containers) and their liveness."},
         {"name": "changes", "description": "Events detected between scans — services and modules that started or stopped."},
         {"name": "trends", "description": "Hourly rollups of the scan history: listeners, live residents, RAM and disk."},
+        {"name": "latency", "description": "Measured loopback TCP handshake times — the localhost hops, in ms."},
         {"name": "health", "description": "Liveness of the app and of the scan loop behind it."},
     ],
     lifespan=lifespan,
@@ -70,6 +73,7 @@ app.include_router(services.router)
 app.include_router(modules.router)
 app.include_router(changes.router)
 app.include_router(trends.router)
+app.include_router(latency.router)
 
 # Themed API reference (Swagger UI + the site's token system).
 @app.get("/docs", include_in_schema=False)

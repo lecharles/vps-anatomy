@@ -17,7 +17,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import case, distinct, func
 from sqlalchemy.orm import Session
 
-from models import MachineState, ModuleState, ServiceState, TrendHour
+from models import MachineState, ModuleState, ServiceState, TrendHour, LatencySample
 
 # Hour buckets are stored as zero-padded ISO strings; lex order == time order.
 HOUR_FMT = "%Y-%m-%dT%H:00:00Z"
@@ -114,7 +114,7 @@ def prune_raw(db: Session) -> dict:
     delete counts. The Changes log and the trend_hours archive are kept."""
     cutoff = datetime.utcnow() - timedelta(days=RETENTION_DAYS)
     deleted = {}
-    for model in (MachineState, ServiceState, ModuleState):
+    for model in (MachineState, ServiceState, ModuleState, LatencySample):
         n = db.query(model).filter(model.timestamp < cutoff).delete()
         deleted[model.__tablename__] = n
     db.commit()

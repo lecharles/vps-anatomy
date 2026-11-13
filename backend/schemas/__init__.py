@@ -35,6 +35,19 @@ class ServiceState(BaseModel):
     class Config:
         from_attributes = True
 
+
+class LatencyReading(BaseModel):
+    """S14a — one loopback hop timing from the newest scan."""
+    timestamp: datetime
+    port: int
+    connect_ms: Optional[float] = None
+    ok: bool
+    probes: int
+    hits: int
+    
+    class Config:
+        from_attributes = True
+
 class ModuleState(BaseModel):
     id: int
     timestamp: datetime

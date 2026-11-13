@@ -18,9 +18,10 @@ from datetime import datetime
 
 from sqlalchemy.orm import Session
 
-from models import MachineState, ServiceState, ModuleState, Change
+from models import MachineState, ServiceState, ModuleState, Change, LatencySample
 from database import SessionLocal
 from core.retention import maybe_run as retention_maybe_run
+from core import latency
 import asyncio
 
 BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -387,6 +388,16 @@ async def scan_loop():
                 db.add(ServiceState(timestamp=now, **svc))
             for mod in modules_data:
                 db.add(ModuleState(timestamp=now, **mod))
+
+            # S14a — time the localhost hops this very scan found.
+            # Connect-only probes run in a worker thread so the event
+            # loop never waits on the kernel, and the scan records
+            # whatever came back: a dead port is a stated gap, not a
+            # failed scan.
+            hops = await asyncio.to_thread(
+                latency.probe_ports, [s["port"] for s in services_data])
+            for h in hops:
+                db.add(LatencySample(timestamp=now, **h))
             db.commit()
             db.close()
             print(f"[scanner] machine OK · {len(services_data)} services · {sum(1 for m in modules_data if m['status']=='live')} modules live", flush=True)

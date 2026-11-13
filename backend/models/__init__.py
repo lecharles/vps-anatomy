@@ -70,3 +70,20 @@ class Change(Base):
     description = Column(String)
     old_value = Column(JSON)
     new_value = Column(JSON)
+
+
+class LatencySample(Base):
+    """S14a — one loopback handshake timing per (scan, port).
+
+    connect_ms is the median of the probes that completed; None with
+    ok = False is the honest 'nothing answered' — never a fake zero.
+    """
+    __tablename__ = "latency_samples"
+
+    id = Column(Integer, primary_key=True, index=True)
+    timestamp = Column(DateTime, default=datetime.utcnow, index=True)
+    port = Column(Integer, index=True)
+    connect_ms = Column(Float)
+    ok = Column(Boolean, default=False)
+    probes = Column(Integer, default=0)
+    hits = Column(Integer, default=0)

@@ -141,7 +141,11 @@ def test_retention_on_empty_db_is_safe(db):
     assert retention.rollup_hours(db) == 0
     assert db.query(MachineState).count() == 0
     deleted = retention.prune_raw(db)
-    assert deleted == {"machine_states": 0, "service_states": 0, "module_states": 0}
+    # S14a: latency_samples joined the pruned set — loopback probes land
+    # every scan, so they age out exactly like raw rows. This pin is the
+    # prune-table contract: update it when the raw layer changes.
+    assert deleted == {"machine_states": 0, "service_states": 0,
+                       "module_states": 0, "latency_samples": 0}
     # run_once must print its one-liner and raise nothing.
     retention.run_once(db)
 
