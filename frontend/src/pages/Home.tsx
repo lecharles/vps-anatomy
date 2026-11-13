@@ -8,7 +8,7 @@ type Machine = {
   disk_total_gb: number; disk_used_gb: number; uptime_days: number; ip_public: string
   timestamp: string
 }
-type Service = { port: number; bind: string; name: string; owner: string; public: boolean; status: string }
+type Service = { port: number; bind: string; name: string; owner: string; public: boolean; status: string; config: string | null }
 type TrendRow = { hour: string; services_listening: number | null }
 
 // S12b legend copy per period: the chart names itself — series, what a
@@ -125,7 +125,7 @@ export default function Home() {
 
       <section>
         <h2 className="sec">What’s live right now</h2>
-        <p className="sec-sub">Every TCP listener the scanner found, sorted by port. The same data the whole site reads.</p>
+        <p className="sec-sub">Every TCP listener the scanner found, sorted by port. The same data the whole site reads. Each row cites its backing — the process seen live and, only when the file is proven on this disk, its config path. A gap is stated, never guessed.</p>
         <div className="rows">
           <div className="row row-head">
             <span className="dot n" style={{ opacity: 0 }} />
@@ -137,7 +137,7 @@ export default function Home() {
             <div className="row" key={s.port}>
               <span className={s.public ? 'dot g' : 'dot n'} />
               <span className="name mono" style={{ fontSize: 12.5 }}>{s.name} <span className="chip port">:{s.port}</span></span>
-              <span className="detail">{s.owner !== 'unknown' ? <>process <span className="mono">{s.owner}</span></> : 'root-owned · name not visible to this scanner'}</span>
+              <span className="detail">{s.owner !== 'unknown' ? <>process <span className="mono">{s.owner}</span></> : 'root-owned · name not visible to this scanner'}{' · '}{s.config ? <>reads <span className="mono">{s.config}</span></> : 'no config on disk'}</span>
               <span className="right">{s.public ? 'public' : s.bind}</span>
             </div>
           ))}

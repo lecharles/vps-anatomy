@@ -28,6 +28,9 @@ class ServiceState(BaseModel):
     protocol: str
     public: bool
     status: str
+    # S13b: a config path proven to exist on this disk at read time,
+    # or None — the row is then served as unattributed, never guessed.
+    config: Optional[str] = None
     
     class Config:
         from_attributes = True

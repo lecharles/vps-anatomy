@@ -4,8 +4,10 @@ Design rule: this file ships in a PUBLIC repo and contains only mechanism.
 Host-specific facts live in gitignored local files:
   - backend/service_catalog.json  port -> [name, kind, description]
   - backend/host_modules.json     list of residents to probe
+  - backend/service_configs.json  port -> [candidate config paths] (S13b)
 When those files are absent the scanner still works: ports are labeled by
-generic meaning, and a minimal set of universal modules is probed.
+generic meaning, a minimal set of universal modules is probed, and config
+citations fall back to the well-known distro paths below.
 """
 import json
 import os
@@ -64,6 +66,47 @@ PROC_HINTS = {
     "splitw": "Tmux session",
     "tmux": "Terminal multiplexer",
 }
+
+
+# S13b — disk citations for port rows. These are the well-known paths a
+# stock distro package writes for each service; the map is mechanism, not
+# a host fact. A gitignored overlay (backend/service_configs.json, same
+# shape as service_catalog.json) can add host-specific entries. Nothing
+# here claims a path is real: config_citation() only returns a path after
+# os.path.exists proves it on THIS disk, and a row with no surviving
+# candidate is served as unattributed rather than guessed.
+CONFIG_CANDIDATES: dict = {
+    22: ["/etc/ssh/sshd_config"],
+    53: ["/etc/systemd/resolved.conf", "/etc/resolv.conf"],
+    80: ["/etc/nginx/nginx.conf", "/etc/caddy/Caddyfile", "/etc/apache2/apache2.conf"],
+    443: ["/etc/nginx/nginx.conf", "/etc/caddy/Caddyfile", "/etc/apache2/apache2.conf"],
+    3306: ["/etc/mysql/my.cnf", "/etc/my.cnf"],
+    5432: ["/etc/postgresql"],
+    6379: ["/etc/redis/redis.conf", "/etc/redis.conf"],
+    9090: ["/etc/prometheus/prometheus.yml"],
+    11434: ["~/.ollama"],
+}
+_local_cfg = _load_json("service_configs.json")
+if _local_cfg:
+    CONFIG_CANDIDATES.update({int(k): list(v) for k, v in _local_cfg.items()})
+
+
+def config_citation(port: int):
+    """First candidate config path for this port that actually exists.
+
+    Existence-checked at read time, so the citation is a claim about the
+    disk, not about the catalog. Returns None when nothing survives —
+    honesty over coverage.
+    """
+    for cand in CONFIG_CANDIDATES.get(port, []):
+        path = os.path.expanduser(cand)
+        try:
+            if os.path.exists(path):
+                return path
+        except OSError:
+            continue
+    return None
+
 
 # Default residents probed when no local host_modules.json is present.
 DEFAULT_MODULES = [
