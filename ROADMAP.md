@@ -73,7 +73,7 @@ Unassigned days are buffer/soak. Weekends marked (light) are small work.
 
 | Date | Item |
 |------|------|
-| Sun Nov 1 (light) | S14c · latency probe error states + fallback copy |
+| Sun Nov 1 (light) | S14c · latency probe error states + fallback copy — done |
 | Mon Nov 2 | S15a · "build your own scanner" guide: skeleton from `core/` |
 | Tue Nov 3 | S15b · guide code excerpts (machine, ss, modules, diff) |
 | Wed Nov 4 | S15c · guide review + linked from Lesson 3 |

@@ -1,8 +1,8 @@
-import { useApi } from '../hooks/useApi'
+import { useApi, relTime } from '../hooks/useApi'
 
 type Module = { module_id: string; status: string }
 type Service = { port: number; name: string; public: boolean }
-type Hop = { port: number; connect_ms: number | null; ok: boolean; probes: number; hits: number }
+type Hop = { timestamp: string; port: number; connect_ms: number | null; ok: boolean; probes: number; hits: number }
 
 // S14b: median of the measured loopback handshakes, computed client-side
 // from the same scan that feeds every other number on this page.
@@ -44,7 +44,7 @@ export default function SignalFlow() {
 
   // S14b: the measured hops. Ports are joined to names at read time from
   // /api/services/ — nothing about this machine's residents lives in code.
-  const { data: hops } = useApi<Hop[]>('/api/latency/', 15000)
+  const { data: hops, error: hopsError } = useApi<Hop[]>('/api/latency/', 15000)
   const { data: services } = useApi<Service[]>('/api/services/', 15000)
   const answered = (hops ?? []).filter((h) => h.ok && h.connect_ms != null)
   const ms = answered.map((h) => h.connect_ms as number)
@@ -53,6 +53,15 @@ export default function SignalFlow() {
   const selfPort = Number(window.location.port) || NaN
   const selfHop = answered.find((h) => h.port === selfPort) ?? null
   const nameOf = (p: number) => (services ?? []).find((s) => s.port === p)?.name ?? `port :${p}`
+
+  // S14c: every way the meter can fail gets its own stated sentence.
+  // No branch here is allowed to render a guessed number.
+  const hopStatus: 'unreachable' | 'loading' | 'no-block' | 'no-answer' | 'ok' =
+    hopsError ? 'unreachable'
+      : hops == null ? 'loading'
+      : hops.length === 0 ? 'no-block'
+      : answered.length === 0 ? 'no-answer'
+      : 'ok'
 
   const x = (i: number) => 20 + i * (NW + GAPX)
   const cx = (i: number) => x(i) + NW / 2
@@ -112,31 +121,49 @@ export default function SignalFlow() {
             )
           })}
         </svg>
-        {answered.length > 0 && (
-          <div className="diagram-sub" style={{ marginTop: 12 }}>
-            measured, not promised: last scan timed {answered.length} of {hops!.length} loopback
-            handshakes · median {med != null ? fmtMs(med) : '—'} · slowest{' '}
-            {slowest != null ? fmtMs(slowest) : '—'}
-            {selfHop && selfHop.connect_ms != null ? (
-              <> · this dashboard timed itself at {fmtMs(selfHop.connect_ms)}</>
-            ) : null}
-          </div>
-        )}
+        <div className="diagram-sub" style={{ marginTop: 12 }}>
+          {hopStatus === 'unreachable' &&
+            'hop timings unavailable — /api/latency/ is not answering. This page would rather show nothing than guess a number.'}
+          {hopStatus === 'loading' && 'timing the first loopback hops…'}
+          {hopStatus === 'no-block' &&
+            'no probe block yet: the scanner times handshakes as part of each scan; the first numbers land here the moment one completes.'}
+          {hopStatus === 'no-answer' &&
+            `measured, not promised: the last scan probed ${hops!.length} ports and NONE answered on loopback — a stated gap, never a fake zero.`}
+          {hopStatus === 'ok' && (
+            <>
+              measured, not promised: last scan timed {answered.length} of {hops!.length} loopback
+              handshakes · median {med != null ? fmtMs(med) : '—'} · slowest{' '}
+              {slowest != null ? fmtMs(slowest) : '—'}
+              {selfHop && selfHop.connect_ms != null ? (
+                <> · this dashboard timed itself at {fmtMs(selfHop.connect_ms)}</>
+              ) : null}
+              {hops && hops.length > 0 && hops[0].timestamp ? (
+                <> · block from {relTime(hops[0].timestamp)}</>
+              ) : null}
+            </>
+          )}
+        </div>
       </div>
 
-      {answered.length > 0 && (
+      {(hopStatus === 'ok' || hopStatus === 'no-answer') && (
         <section>
           <div className="eyebrow">Every local hop, timed</div>
           <div className="rows">
-            {answered.map((h) => (
+            {(hops ?? []).map((h) => (
               <div className="row" key={h.port}>
-                <span className="name mono" style={{ color: 'var(--primary-bright)' }}>
+                <span className="name mono" style={{ color: h.ok ? 'var(--primary-bright)' : 'var(--text-faint)' }}>
                   {nameOf(h.port)} :{h.port}
                 </span>
                 <span className="detail">
-                  median handshake {fmtMs(h.connect_ms as number)} · {h.hits} of {h.probes} probes answered
-                  {' · '}
-                  <a href="/api/latency/history" style={{ textDecoration: 'none' }}>history ↗</a>
+                  {h.ok && h.connect_ms != null ? (
+                    <>
+                      median handshake {fmtMs(h.connect_ms)} · {h.hits} of {h.probes} probes answered
+                      {' · '}
+                      <a href="/api/latency/history" style={{ textDecoration: 'none' }}>history ↗</a>
+                    </>
+                  ) : (
+                    <>no answer on loopback — {h.hits} of {h.probes} probes came back: a stated gap, never a zero</>
+                  )}
                 </span>
               </div>
             ))}
