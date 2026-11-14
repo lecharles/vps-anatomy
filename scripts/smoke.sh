@@ -32,6 +32,7 @@ check "api trends month"   "$BASE/api/trends/?hours=720&metrics=services" '"hour
 check "trends swagger docs" "$BASE/openapi.json" 'Dashboard convention'
 check "lessons route"      "$BASE/lessons"     '<div id="root"'
 check "data-flow route"    "$BASE/data-flow"   '<div id="root"'
+check "guide route"        "$BASE/guide"       '<div id="root"'
 
 # trends must reject unknown metrics rather than quietly return nothing
 code=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/api/trends/?metrics=bogus" --max-time 5)

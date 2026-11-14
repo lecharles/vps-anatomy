@@ -6,6 +6,7 @@ import Architecture from './pages/Architecture'
 import SignalFlow from './pages/SignalFlow'
 import DataFlow from './pages/DataFlow'
 import Changes from './pages/Changes'
+import Guide from './pages/Guide'
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
 import ThemeToggle from './components/ThemeToggle'
 
@@ -26,6 +27,7 @@ function Shell({ children }: { children: React.ReactNode }) {
               ['/signal-flow', 'Signal Flow', false],
               ['/data-flow', 'Data Flow', false],
               ['/changes', 'Changes', false],
+              ['/guide', 'Guide', false],
             ] as [string, string, boolean][]).map(([to, label, end]) => (
               <NavLink key={to} to={to} end={end}
                 className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
@@ -64,6 +66,7 @@ function App() {
           <Route path="/signal-flow" element={<SignalFlow />} />
           <Route path="/data-flow" element={<DataFlow />} />
           <Route path="/changes" element={<Changes />} />
+          <Route path="/guide" element={<Guide />} />
         </Routes>
       </Shell>
     </BrowserRouter>
