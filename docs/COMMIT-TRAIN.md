@@ -33,6 +33,10 @@ One row per calendar slice from ROADMAP.md. Statuses:
 | Wed Oct 28 | S13a · Lesson 3 rows link to live `/api/services/` data | SHIPPED | b3ca2b3 | Nov 12 |
 | Thu Oct 29 | S13b · every port row cites real source or config path on disk | SHIPPED | c45d6bb | Nov 13 |
 | Fri Oct 30 | S14a · localhost hop-latency probes: design + first numbers | SHIPPED | 4e4c104 | Nov 13 |
+| Sat Oct 31 | S14b · Signal Flow renders measured hop ms | SHIPPED | 30673cf | Nov 14 |
+| Sun Nov 1 | S14c · latency probe error states + fallback copy | SHIPPED | 4350027 | Nov 14 |
+| Mon Nov 2 | S15a · "build your own scanner" guide: skeleton from `core/` | SHIPPED | dc49ff0 | Nov 14 |
+| Tue Nov 3 | S15b · guide code excerpts (machine, ss, modules, diff) | SHIPPED | 5ab6579 | Nov 14 |
 
 ## Audit — Nov 8 (first ledger run)
 
@@ -135,3 +139,17 @@ Queue head **S14b** (Oct 31, light): Signal Flow renders the measured hop ms
 per resident instead of promising 'local'. ~2 weeks behind today's calendar
 row (M2 · v0.5), so this run burns oldest-first: **S14b → S14c → S15a →
 S15b** (four real slices, max allowed).
+
+Outcome (same run): all four burned — **S14b** (`30673cf`, measured-hop
+strip + per-port rows joined at read time from `/api/services/`, dashboard
+times itself via `window.location.port`, zero host facts in code),
+**S14c** (`4350027`, exhaustive five-state hop meter: unreachable /
+loading / no-block / no-answer / ok, unanswered probes stay visible as
+stated gaps, block staleness reads as 'block from Xm ago'), **S15a**
+(`dc49ff0`, `/guide` page: project skeleton + the five questions + the
+three-rule contract, nav/route/smoke wired), **S15b** (`5ab6579`, four
+real trimmed excerpts from `core/__init__.py`: machine, sockets,
+residents, diff — shortened, never rewritten). Suite 45 green, smoke
+20/20, home 200, hygiene clean at every commit. Queue head: **S15c**
+(guide review + linked from Lesson 3), then S16a → G1 → S16b → S17a–c →
+S22 → S23 → S24 → M2 (queue now ~11 calendar rows behind).
