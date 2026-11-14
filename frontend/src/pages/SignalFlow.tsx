@@ -1,6 +1,19 @@
 import { useApi } from '../hooks/useApi'
 
 type Module = { module_id: string; status: string }
+type Service = { port: number; name: string; public: boolean }
+type Hop = { port: number; connect_ms: number | null; ok: boolean; probes: number; hits: number }
+
+// S14b: median of the measured loopback handshakes, computed client-side
+// from the same scan that feeds every other number on this page.
+function median(nums: number[]): number | null {
+  if (!nums.length) return null
+  const s = [...nums].sort((a, b) => a - b)
+  const m = Math.floor(s.length / 2)
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2
+}
+
+const fmtMs = (v: number) => `${v < 1 ? v.toFixed(3) : v.toFixed(2)} ms`
 
 const ACCENTS: Record<string, string> = {
   x: 'var(--purple)',
@@ -29,6 +42,18 @@ export default function SignalFlow() {
   const { data: modules } = useApi<Module[]>('/api/modules/', 15000)
   const hermesLive = (modules ?? []).find((m) => m.module_id === 'hermes')?.status === 'live'
 
+  // S14b: the measured hops. Ports are joined to names at read time from
+  // /api/services/ — nothing about this machine's residents lives in code.
+  const { data: hops } = useApi<Hop[]>('/api/latency/', 15000)
+  const { data: services } = useApi<Service[]>('/api/services/', 15000)
+  const answered = (hops ?? []).filter((h) => h.ok && h.connect_ms != null)
+  const ms = answered.map((h) => h.connect_ms as number)
+  const med = median(ms)
+  const slowest = ms.length ? Math.max(...ms) : null
+  const selfPort = Number(window.location.port) || NaN
+  const selfHop = answered.find((h) => h.port === selfPort) ?? null
+  const nameOf = (p: number) => (services ?? []).find((s) => s.port === p)?.name ?? `port :${p}`
+
   const x = (i: number) => 20 + i * (NW + GAPX)
   const cx = (i: number) => x(i) + NW / 2
 
@@ -36,7 +61,7 @@ export default function SignalFlow() {
     <div>
       <div className="page-head">
         <h1>Signal Flow</h1>
-        <p className="sub">One message, end to end. Step 04 is the only hop that leaves the server — model calls go out over HTTPS, everything else runs locally.</p>
+        <p className="sub">One message, end to end. Step 04 is the only hop that leaves the server — model calls go out over HTTPS, everything else runs locally. 'Local' is now timed, not promised: the loopback handshakes below come from the same scan that feeds every other page.</p>
       </div>
 
       <div className="diagram" style={{ marginTop: 18 }}>
@@ -87,7 +112,37 @@ export default function SignalFlow() {
             )
           })}
         </svg>
+        {answered.length > 0 && (
+          <div className="diagram-sub" style={{ marginTop: 12 }}>
+            measured, not promised: last scan timed {answered.length} of {hops!.length} loopback
+            handshakes · median {med != null ? fmtMs(med) : '—'} · slowest{' '}
+            {slowest != null ? fmtMs(slowest) : '—'}
+            {selfHop && selfHop.connect_ms != null ? (
+              <> · this dashboard timed itself at {fmtMs(selfHop.connect_ms)}</>
+            ) : null}
+          </div>
+        )}
       </div>
+
+      {answered.length > 0 && (
+        <section>
+          <div className="eyebrow">Every local hop, timed</div>
+          <div className="rows">
+            {answered.map((h) => (
+              <div className="row" key={h.port}>
+                <span className="name mono" style={{ color: 'var(--primary-bright)' }}>
+                  {nameOf(h.port)} :{h.port}
+                </span>
+                <span className="detail">
+                  median handshake {fmtMs(h.connect_ms as number)} · {h.hits} of {h.probes} probes answered
+                  {' · '}
+                  <a href="/api/latency/history" style={{ textDecoration: 'none' }}>history ↗</a>
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section>
         <div className="eyebrow">Hop by hop</div>

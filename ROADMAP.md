@@ -67,7 +67,7 @@ Unassigned days are buffer/soak. Weekends marked (light) are small work.
 | Wed Oct 28 | S13a · Lesson 3 rows link to live `/api/services/` data — done |
 | Thu Oct 29 | S13b · every port row cites real source or config path on disk — done |
 | Fri Oct 30 | S14a · localhost hop-latency probes: design + first numbers — done |
-| Sat Oct 31 (light) | S14b · Signal Flow renders measured hop ms |
+| Sat Oct 31 (light) | S14b · Signal Flow renders measured hop ms — done |
 
 ### November
 
