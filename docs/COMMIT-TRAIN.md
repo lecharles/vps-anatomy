@@ -31,6 +31,8 @@ One row per calendar slice from ROADMAP.md. Statuses:
 | Sun Oct 25 (light) | S12b · bar labels + legend copy | SHIPPED | 6021cd9 | Nov 12 |
 | Mon Oct 26 | **M1 · tag v0.4 (History + Trust complete)** | SHIPPED (tag `v0.4`; root-enable of the S10a unit remains an open host-side step) | v0.4 @ this-run ledger commit | Nov 12 |
 | Wed Oct 28 | S13a · Lesson 3 rows link to live `/api/services/` data | SHIPPED | b3ca2b3 | Nov 12 |
+| Thu Oct 29 | S13b · every port row cites real source or config path on disk | SHIPPED | c45d6bb | Nov 13 |
+| Fri Oct 30 | S14a · localhost hop-latency probes: design + first numbers | SHIPPED | 4e4c104 | Nov 13 |
 
 ## Audit — Nov 8 (first ledger run)
 
@@ -117,3 +119,19 @@ tag **v0.4** — the repo's first tag — anchoring History (S7→S12) and Trust
 (S10, S11) as complete in code, with the standing caveat that enabling the
 systemd unit still awaits one interactive root session. Queue head:
 **S13a** (Lesson 3 rows link to live `/api/services/` data).
+
+## Run — Nov 14 (eighth run; stamp S13b/S14a, burn S14b → S15b)
+
+The Nov 13 run burned **S13b** (`c45d6bb`) and **S14a** (`4e4c104`) but
+exited before stamping them; both audited against code this run before
+stamping — S13b: live per-request citation resolution in
+`backend/core/config_citation.py` + services router, `config: Optional[str]`
+in schema, 'no config on disk' fallback rendered in Home; S14a: 3-probe
+200ms-capped median probes in `backend/core/latency.py`, `/api/latency/` +
+history endpoints, `latency_samples` in the prune set, 45-test suite re-run
+green, live endpoints answering.
+
+Queue head **S14b** (Oct 31, light): Signal Flow renders the measured hop ms
+per resident instead of promising 'local'. ~2 weeks behind today's calendar
+row (M2 · v0.5), so this run burns oldest-first: **S14b → S14c → S15a →
+S15b** (four real slices, max allowed).
