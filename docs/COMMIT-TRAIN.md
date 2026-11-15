@@ -37,6 +37,11 @@ One row per calendar slice from ROADMAP.md. Statuses:
 | Sun Nov 1 | S14c · latency probe error states + fallback copy | SHIPPED | 4350027 | Nov 14 |
 | Mon Nov 2 | S15a · "build your own scanner" guide: skeleton from `core/` | SHIPPED | dc49ff0 | Nov 14 |
 | Tue Nov 3 | S15b · guide code excerpts (machine, ss, modules, diff) | SHIPPED | 5ab6579 | Nov 14 |
+| Wed Nov 4 | S15c · guide review + linked from Lesson 3 | SHIPPED | 1d733a8 | Nov 15 |
+| Thu Nov 5 | S16a · Changes feed filter chips (type · entity) | SHIPPED | 818ce6c | Nov 15 |
+| Fri Nov 6 | **G1 · Trust soak checkpoint** | HELD — not burnable: unit enable awaits root; test suite age 4d < 2wk | — | Nov 15 |
+| Sat Nov 7 (light) | S16b · change events link to affected module pages | SHIPPED | 441a10b | Nov 15 |
+| Sun Nov 8 (light) | S17a · contrast audit: tokens vs AA in all three themes | SHIPPED | d8307c0 | Nov 15 |
 
 ## Audit — Nov 8 (first ledger run)
 
@@ -153,3 +158,39 @@ residents, diff — shortened, never rewritten). Suite 45 green, smoke
 20/20, home 200, hygiene clean at every commit. Queue head: **S15c**
 (guide review + linked from Lesson 3), then S16a → G1 → S16b → S17a–c →
 S22 → S23 → S24 → M2 (queue now ~11 calendar rows behind).
+
+## Run — Nov 15 (ninth run; burn S15c → S17a, G1 held honestly)
+
+Queue head **S15c**, ~11 calendar rows behind today (Nov 15 = soak/buffer).
+Burned four rows oldest-first and skipped nothing else: **S15c**
+(`1d733a8`, guide review — caught three copy lies against the shipped
+file: "under 400 lines" was 413; an annotation comment in the machine
+excerpt existed nowhere in `core/__init__.py`, breaking the page's own
+"never rewritten" promise; step 4 advertised reboot/uptime diffing that
+`detect_changes()` deliberately does not do until S35 — all excerpts now
+verbatim trims; Lesson 3 takeaway links `/guide`), **S16a** (`818ce6c`,
+two-axis filter chips on the Changes feed — type · entity, buttons with
+aria-pressed, chips derived from values the feed actually holds, 24h
+pills intentionally unfiltered), **S16b** (`441a10b`, resident events now
+link to `/modules/<id>`; listener events stay plain — no page, no link),
+**S17a** (`d8307c0`, WCAG AA audit across all three themes: nine failing
+pairs fixed at the token level, two tempting "fixes" refused because the
+measured value passed — academic danger 4.79, academic purple 5.90;
+method + before/after table in docs/CONTRAST-AUDIT.md, automated version
+queued as S32).
+
+**G1 (Nov 6) is HELD, not burned.** Its terms are "2 weeks of systemd +
+tests holding" — neither half is true yet: the S10a unit still awaits one
+interactive root session to enable (this host grants no passwordless
+sudo), and the pytest suite turned 4 days old on Nov 15. Writing a
+"checkpoint passed" commit would have been the exact fake the train
+rules forbid, so the gate stays open in the queue and the soak clock is
+recorded here instead: scanner continuously recording through 506
+archived hours, healthz ok at 24.6s staleness, tmux session up since
+Nov 13, suite 45 green, smoke 20/20 before and after every slice this
+run. G1 fires either when root enables the unit + 2 weeks pass, or is
+downgraded by Carlos to "tests-only soak" once the suite reaches 14 days
+(Nov 25).
+
+Queue head after this run: **S17b** (focus rings + keyboard nav), then
+S17c → S22 → S23 → S24 → M2 (G1 held) — queue ~10 calendar rows behind.
