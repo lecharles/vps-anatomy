@@ -394,6 +394,9 @@ a.card:hover { text-decoration: none; border-color: var(--hairline-2); transform
 .feed-item .f-body { flex: 1; min-width: 0; }
 .feed-item .f-desc { color: var(--text); font-size: 13px; }
 .feed-item .f-meta { color: var(--text-faint); font: 500 10.5px var(--font-mono); margin-top: 2px; }
+/* S16b — resident events reach their module page through this link;
+   inherit the meta line's size, carry the accent color. */
+.feed-item .f-link { color: var(--primary-bright); text-decoration: underline; text-underline-offset: 2px; }
 .feed-item .f-type { font: 600 9.5px var(--font-mono); text-transform: uppercase; letter-spacing: 0.07em; padding: 2px 7px; border-radius: 4px; white-space: nowrap; }
 .f-type.started, .f-type.module_started { color: var(--success); background: var(--success-tint); }
 .f-type.stopped, .f-type.module_stopped { color: var(--danger); background: var(--danger-tint); }

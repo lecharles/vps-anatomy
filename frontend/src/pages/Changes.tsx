@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useApi, relTime } from '../hooks/useApi'
 
 type Change = {
@@ -103,7 +104,16 @@ export default function Changes() {
                 <span className="f-dot" style={{ background: (TYPE_CLASS[c.change_type] ?? '') === 'started' ? 'var(--success)' : (TYPE_CLASS[c.change_type] ?? '') === 'stopped' ? 'var(--danger)' : 'var(--warning)' }} />
                 <div className="f-body">
                   <div className="f-desc">{c.description}</div>
-                  <div className="f-meta">{relTime(c.timestamp)} · {c.entity_type}/{c.entity_id}</div>
+                  {/* S16b — a resident event carries you to that resident's
+                      page; a listener event has no page to promise, so it
+                      stays plain text. Link where a page exists, say so
+                      where one does not. */}
+                  <div className="f-meta">
+                    {relTime(c.timestamp)} · {c.entity_type}/
+                    {c.entity_type === 'module' ? (
+                      <Link className="f-link" to={`/modules/${c.entity_id}`}>{c.entity_id}</Link>
+                    ) : c.entity_id}
+                  </div>
                 </div>
                 <span className={`f-type ${TYPE_CLASS[c.change_type] ?? 'updated'}`}>{TYPE_LABEL[c.change_type] ?? c.change_type}</span>
               </div>

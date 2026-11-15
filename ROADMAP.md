@@ -79,7 +79,7 @@ Unassigned days are buffer/soak. Weekends marked (light) are small work.
 | Wed Nov 4 | S15c · guide review + linked from Lesson 3 — done |
 | Thu Nov 5 | S16a · Changes feed filter chips (type · entity) — done |
 | Fri Nov 6 | **G1 · Trust soak checkpoint** — 2 weeks of systemd + tests holding |
-| Sat Nov 7 (light) | S16b · change events link to affected module pages |
+| Sat Nov 7 (light) | S16b · change events link to affected module pages — done |
 | Sun Nov 8 (light) | S17a · contrast audit: tokens vs AA in all three themes |
 | Mon Nov 9 | S17b · focus rings + keyboard nav between lessons |
 | Tue Nov 10 | S17c · reader semantics pass (headings, landmarks) |
