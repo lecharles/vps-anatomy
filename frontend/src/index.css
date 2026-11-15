@@ -17,7 +17,7 @@
   --text: #D0D6E0;
   --text-bright: #ECEDEF;
   --text-muted: #8A8F98;
-  --text-faint: #62666D;
+  --text-faint: #7C8089;   /* S17a: was #62666D — 3.3:1 on panel, failed AA for small text */
 
   --primary: #5E6AD2;        /* signal blue-violet: identity + interactive */
   --primary-bright: #7C74F2;
@@ -59,15 +59,15 @@
   --text: #26282B;
   --text-bright: #1A1B1E;
   --text-muted: #6A6E76;
-  --text-faint: #979BA2;
+  --text-faint: #6C7078;   /* S17a: was #979BA2 — 2.8:1, worst offender in the audit */
 
   --primary: #4750B0;
   --primary-bright: #5A50D6;
-  --success: #1E9B55;
-  --danger: #D53A44;
-  --warning: #AE770E;
+  --success: #126E3A;      /* S17a: was #1E9B55 — 3.6:1 on white */
+  --danger: #B92E38;       /* S17a: was #D53A44 — 3.8:1 on the danger tint */
+  --warning: #8F6208;      /* S17a: was #AE770E — 4.2:1 on the warning tint */
   --info: #2569C4;
-  --purple: #6C5CE0;
+  --purple: #5A4AC8;       /* S17a: was #6C5CE0 — 4.0:1 on the purple tint */
   --teal: #0B7C72;
   --coral: #D5583B;
 
@@ -92,15 +92,15 @@
   --text: #2B2926;
   --text-bright: #1C1A17;
   --text-muted: #6B675F;
-  --text-faint: #9A958B;
+  --text-faint: #747068;   /* S17a: was #9A958B — 2.9:1 */
 
   --primary: #8C1515;
   --primary-bright: #A6423A;
-  --success: #1E9B55;
-  --danger: #C22B36;
-  --warning: #AE770E;
+  --success: #126E3A;      /* S17a: was #1E9B55 — 3.15:1 on the success tint */
+  --danger: #C22B36;       /* S17a audit: passes AA unchanged (5.45 panel / 4.79 tint) */
+  --warning: #8F6208;      /* S17a: was #AE770E — 3.41:1 on the warning tint */
   --info: #2569C4;
-  --purple: #7A3E9D;
+  --purple: #7A3E9D;       /* S17a audit: passes AA unchanged (6.70 panel / 5.90 tint) */
   --teal: #0B7C72;
   --coral: #BC4A2C;
 
