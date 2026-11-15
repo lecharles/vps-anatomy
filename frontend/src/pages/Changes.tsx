@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useApi, relTime } from '../hooks/useApi'
 
 type Change = {
@@ -15,6 +16,9 @@ const TYPE_LABEL: Record<string, string> = {
   module_started: 'live', module_stopped: 'stopped',
   module_updated: 'update', machine_changed: 'change',
 }
+const ENTITY_LABEL: Record<string, string> = {
+  service: 'listeners', module: 'residents', machine: 'machine',
+}
 
 function dayLabel(iso: string): string {
   const d = new Date(iso.endsWith('Z') ? iso : iso + 'Z')
@@ -29,18 +33,38 @@ function dayLabel(iso: string): string {
 export default function Changes() {
   const { data: changes, error } = useApi<Change[]>('/api/changes/?limit=100', 10000)
   const list = changes ?? []
+  const [typeFilter, setTypeFilter] = useState<string | null>(null)
+  const [entityFilter, setEntityFilter] = useState<string | null>(null)
 
+  // S16a — chips exist only for values the feed actually holds: the page
+  // never offers a button that leads to an empty list.
+  const types = Array.from(new Set(list.map((c) => c.change_type)))
+  const entities = Array.from(new Set(list.map((c) => c.entity_type)))
+
+  const visible = list.filter((c) =>
+    (typeFilter === null || c.change_type === typeFilter) &&
+    (entityFilter === null || c.entity_type === entityFilter))
+  const filtered = typeFilter !== null || entityFilter !== null
+
+  // the 24h counters describe the machine, not the current filter —
+  // they stay over the full list on purpose.
   const last24 = list.filter((c) => Date.now() - new Date(c.timestamp + (c.timestamp.endsWith('Z') ? '' : 'Z')).getTime() < 86400000)
   const ups = last24.filter((c) => (TYPE_CLASS[c.change_type] ?? '') === 'started').length
   const downs = last24.filter((c) => (TYPE_CLASS[c.change_type] ?? '') === 'stopped').length
 
   const groups: { day: string; items: Change[] }[] = []
-  for (const c of list) {
+  for (const c of visible) {
     const day = dayLabel(c.timestamp)
     const g = groups[groups.length - 1]
     if (g && g.day === day) g.items.push(c)
     else groups.push({ day, items: [c] })
   }
+
+  const chip = (label: string, active: boolean, onClick: () => void) => (
+    <button className={`fchip${active ? ' on' : ''}`} aria-pressed={active} onClick={onClick}>
+      {label}
+    </button>
+  )
 
   return (
     <div>
@@ -55,6 +79,20 @@ export default function Changes() {
         <div className="pill"><div className="v r">−{downs}</div><div className="k">Stopped · 24h</div></div>
         <div className="pill"><div className="v p">{groups.length}</div><div className="k">Active days</div></div>
       </div>
+
+      {(types.length > 0 || entities.length > 0) && (
+        <div className="filters" role="group" aria-label="Filter the feed">
+          <span className="filters-k">type</span>
+          {chip('all', typeFilter === null, () => setTypeFilter(null))}
+          {types.map((t) => chip(TYPE_LABEL[t] ?? t, typeFilter === t,
+            () => setTypeFilter((f) => (f === t ? null : t))))}
+          <span className="filters-k">entity</span>
+          {chip('all', entityFilter === null, () => setEntityFilter(null))}
+          {entities.map((e) => chip(ENTITY_LABEL[e] ?? e, entityFilter === e,
+            () => setEntityFilter((f) => (f === e ? null : e))))}
+          {filtered && <span className="filters-count">{visible.length} of {list.length} events</span>}
+        </div>
+      )}
 
       {groups.map((g) => (
         <section key={g.day}>
@@ -74,6 +112,11 @@ export default function Changes() {
         </section>
       ))}
 
+      {filtered && visible.length === 0 && (
+        <div className="feed" style={{ marginTop: 18 }}>
+          <div className="empty">No event matches this combination — the machine simply did not do that. Clear a chip to widen the view.</div>
+        </div>
+      )}
       {list.length === 0 && !error && (
         <div className="feed" style={{ marginTop: 18 }}>
           <div className="empty"><span className="pulse" />The scanner is watching. A quiet machine is a healthy machine — events will appear here when anything starts, stops or changes.</div>

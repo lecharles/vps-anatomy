@@ -372,6 +372,21 @@ a.card:hover { text-decoration: none; border-color: var(--hairline-2); transform
 .seq .lane-box { fill: var(--surface-elevated); stroke: var(--hairline-2); rx: 6; }
 
 /* ---------- Changes feed ---------- */
+/* S16a — filter chips: two axes (event type, entity kind). Buttons, not
+   divs, so keyboard and screen readers reach them; aria-pressed carries
+   the state. Active = bright text on primary tint, AA-safe in all three
+   themes (the pair the S17a audit keeps honest). */
+.filters { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 14px 0 4px; }
+.filters-k { font: 600 10px var(--font-mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-left: 8px; }
+.filters-k:first-child { margin-left: 0; }
+.fchip {
+  font: 500 11.5px var(--font-mono); letter-spacing: 0.02em;
+  border: 1px solid var(--hairline-2); border-radius: 999px; padding: 3px 11px;
+  color: var(--text-muted); background: var(--surface); cursor: pointer;
+}
+.fchip:hover { color: var(--text-bright); border-color: var(--text-muted); }
+.fchip.on { color: var(--text-bright); background: var(--primary-tint); border-color: var(--primary-bright); }
+.filters-count { font: 500 11px var(--font-mono); color: var(--text-muted); margin-left: 10px; }
 .feed { border: 1px solid var(--hairline); border-radius: var(--radius-card); background: var(--panel); }
 .feed-item { display: flex; gap: 11px; padding: 11px 16px; border-bottom: 1px solid var(--hairline); align-items: baseline; }
 .feed-item:last-child { border-bottom: 0; }

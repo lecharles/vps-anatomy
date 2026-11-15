@@ -77,7 +77,7 @@ Unassigned days are buffer/soak. Weekends marked (light) are small work.
 | Mon Nov 2 | S15a · "build your own scanner" guide: skeleton from `core/` — done |
 | Tue Nov 3 | S15b · guide code excerpts (machine, ss, modules, diff) — done |
 | Wed Nov 4 | S15c · guide review + linked from Lesson 3 — done |
-| Thu Nov 5 | S16a · Changes feed filter chips (type · entity) |
+| Thu Nov 5 | S16a · Changes feed filter chips (type · entity) — done |
 | Fri Nov 6 | **G1 · Trust soak checkpoint** — 2 weeks of systemd + tests holding |
 | Sat Nov 7 (light) | S16b · change events link to affected module pages |
 | Sun Nov 8 (light) | S17a · contrast audit: tokens vs AA in all three themes |
