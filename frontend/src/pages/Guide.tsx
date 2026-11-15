@@ -5,10 +5,13 @@ import { Fragment } from 'react'
 // every field independently fallible.
 // S15b — the four load-bearing functions now appear as real excerpts,
 // trimmed from backend/core/__init__.py exactly as shipped.
+// S15c — review pass: every excerpt line is now verbatim from the shipped
+// file (inserted annotations removed, docstrings restored word-for-word),
+// the line count reads the truth (413, not "under 400"), and step 4 only
+// claims what detect_changes() actually does — reboot diffs are S35's job.
 const EXCERPTS = {
   machine: `def scan_machine() -> dict:
-    """Collect machine facts natively; each field
-       independently falls back."""
+    """Collect machine facts natively; each field independently falls back."""
     uname = os.uname()
     hostname = uname.nodename or "unknown"
     os_name = _os_release() or f"{uname.sysname} {uname.release}"
@@ -19,13 +22,13 @@ const EXCERPTS = {
                     ram_gb = round(int(line.split()[1]) / 1024 / 1024, 1)
                     break
     except Exception:
-        pass                     # this field reads 0.0 — stated, not hidden
+        pass
     ...
     return {"hostname": hostname, "os": os_name, "arch": arch,
-            "cpus": cpus, "ram_gb": ram_gb, "uptime_days": uptime_days, ...}`,
+            "cpus": cpus, "ram_gb": ram_gb, ..., "uptime_days": uptime_days, ...}`,
 
   sockets: `def scan_services() -> list:
-    """Parse 'ss -tlnp' defensively; the users field position varies."""
+    """Parse \`ss -tlnp\` defensively; the users field position varies."""
     out = _probe(["ss", "-tlnp"])
     if not out:
         return []
@@ -46,28 +49,36 @@ const EXCERPTS = {
 
   residents: `def scan_modules() -> list:
     """Status of configured residents. Spec format (host_modules.json):
-    [{"module_id": "...", "probe": {"pgrep": pat}
-                    | {"port": N} | {"docker": sub}}]"""
+    [{"module_id": "...", "name": "...", "role": "...",
+      "probe": {"pgrep": "pattern"} | {"port": N} | {"docker": "substr"}}]
+    """
     specs = _load_json("host_modules.json") or DEFAULT_MODULES
+    ...
     modules = []
     for spec in specs:
         probe = spec.get("probe", {})
         status = "stopped"
+        data = {}
         if "pgrep" in probe:
             status = "live" if _pgrep_running(probe["pgrep"]) else "stopped"
         if "port" in probe:
-            status = "live" if _port_open(int(probe["port"])) else "stopped"
+            up = _port_open(int(probe["port"]))
+            status = "live" if up else "stopped"
+            ...
         if "docker" in probe:
             matched = [c for c in containers() if probe["docker"] in c]
             status = "live" if matched else "stopped"
+            ...
         modules.append({"module_id": spec["module_id"],
                         "name": spec["name"], "status": status, ...})
     return modules`,
 
   diff: `def detect_changes(db, machine, services, modules):
-    """Diff this scan against the previous one and record
-       what moved. First-ever scan is a baseline: it records
-       nothing so a restart does not flood the feed."""
+    """Diff this scan against the previous one and record what moved.
+
+    First-ever scan is a baseline: it records nothing so a restart does not
+    flood the feed with 'service started' noise.
+    """
     latest_ts = db.query(ServiceState.timestamp) ... .first()
     latest_mod_ts = db.query(ModuleState.timestamp) ... .first()
 
@@ -119,7 +130,7 @@ const STEPS: { n: string; title: string; body: string; ref: string; excerpt?: st
   {
     n: '4',
     title: 'Diff against yesterday',
-    body: 'A snapshot tells you what is; a diff tells you what happened. Before writing, compare this scan against the previous one and record only what moved: service appeared/vanished, resident flipped state, uptime reset (a reboot). The first-ever scan records nothing — a baseline is not an event — or every restart floods the feed with noise.',
+    body: 'A snapshot tells you what is; a diff tells you what happened. Before writing, compare this scan against the previous one and record only what moved: a listener appeared, a listener vanished, a resident flipped live/stopped. The first-ever scan records nothing — a baseline is not an event — or every restart floods the feed with noise. (Reboot detection is deliberately not in this diff yet — a feed that omits a future event beats one that pretends.)',
     ref: 'core.detect_changes()',
     excerpt: EXCERPTS.diff,
   },
@@ -136,7 +147,7 @@ export default function Guide() {
     <div>
       <div className="page-head">
         <h1>Build your own scanner</h1>
-        <p className="sub">This dashboard's whole domain logic is five functions in one file — under 400 lines that read like a checklist. Here is the skeleton, generic by construction: it teaches the shape of the thing, and none of it can leak your machine.</p>
+        <p className="sub">This dashboard's whole domain logic is five functions in one file — 413 lines that read like a checklist. Here is the skeleton, generic by construction: it teaches the shape of the thing, and none of it can leak your machine.</p>
       </div>
 
       <section>

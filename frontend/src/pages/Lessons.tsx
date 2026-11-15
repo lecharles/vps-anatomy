@@ -107,7 +107,7 @@ export default function Lessons() {
           (databases, queues, workflow engines) into containers; <strong>cron</strong> wakes jobs on a schedule —
           like the dashboards that regenerate hourly.
         </p>
-        <div className="takeaway"><b>Takeaway</b> Ask "what's listening, and on which interface?" — the answer is a near-complete map of any server. That question is literally this app's scanner.</div>
+        <div className="takeaway"><b>Takeaway</b> Ask "what's listening, and on which interface?" — the answer is a near-complete map of any server. That question is literally this app's scanner, and <a href="/guide">the build-your-own guide</a> walks its five functions step by step.</div>
       </article>
 
       <article className="lesson" id="lesson-4">
