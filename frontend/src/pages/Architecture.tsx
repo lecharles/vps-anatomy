@@ -84,46 +84,59 @@ export default function Architecture() {
   const modHourly = (modTrend ?? []).map((t): TrendPoint => ({ hour: t.hour, value: t.modules_live }))
   const modPoints = period === 'day' ? modHourly : rollupDaily(modHourly)
   const ports = new Set((services ?? []).map((s) => s.port))
-  const mod = (id: string) => (modules ?? []).find((m) => m.module_id === id)?.status === 'live'
+  // S23 — a node is only 'measured' when the scan data behind it has
+  // actually arrived. While a poll is pending its live prop is
+  // undefined: no dot, no count, no claim. mod() answers only once
+  // /api/modules/ has answered; ports.has() only once /api/services/ has.
+  const mod = (id: string) => (modules === null ? undefined :
+    (modules ?? []).find((mm) => mm.module_id === id)?.status === 'live')
+
+  // Per-tier honest counter: of the nodes this tier can measure, how
+  // many are live right now. A tier that measures nothing (Storage)
+  // says nothing.
+  const measure = (nodes: NodeDef[], loaded: boolean) => {
+    if (!loaded) return 'scanning…'
+    const meas = nodes.filter((n) => n.live !== undefined)
+    if (meas.length === 0) return undefined
+    return `${meas.filter((n) => n.live).length} of ${meas.length} measured live`
+  }
 
   const apps: NodeDef[] = (services ?? [])
     .filter((s) => s.port >= 3000 && s.port <= 9999 && ![3306, 5432, 6379, 9090, 9200].includes(s.port))
     .sort((a, b) => a.port - b.port)
     .slice(0, 6)
     .map((s) => ({ name: s.name, sub: `:${s.port}`, accent: 'i', live: ports.has(s.port) }))
-  if (apps.length === 0) apps.push({ name: services ? 'none in range' : 'scanning…', accent: 'i', live: false })
+  // S23: the pending/empty placeholders carry live=undefined — before
+  // this slice 'scanning…' wore a red dot, a fake claim on a diagram
+  // that promises dots only for measurements.
+  if (apps.length === 0) apps.push({ name: services ? 'none in range' : 'scanning…', accent: 'i' })
+
+  const access: NodeDef[] = [
+    { name: 'Telegram', sub: 'Bot API · users', accent: 'x' },
+    { name: 'Browser', sub: 'you, right now', accent: 'x' },
+    { name: 'SSH :22', sub: 'operator', accent: 'x', live: services ? ports.has(22) : undefined },
+    { name: 'Model APIs', sub: 'remote inference', accent: 'x' },
+  ]
+  const agents: NodeDef[] = [
+    { name: 'Hermes', sub: 'gateway · memory · skills', accent: 's', live: mod('hermes') },
+    { name: 'OpenClaw', sub: 'assistant runtime', accent: 's', live: mod('openclaw') },
+    { name: 'OpenCode', sub: 'shared coding engine', accent: 's', live: mod('opencode') },
+    { name: 'Pi', sub: 'minimal lane', accent: 's' },
+  ]
+  const runtime: NodeDef[] = [
+    { name: 'systemd', sub: 'services + user units', accent: 'w' },
+    { name: 'Docker', sub: 'containers', accent: 'w', live: mod('docker') },
+    { name: 'Cron', sub: 'schedules', accent: 'w', live: mod('cron') },
+    { name: 'Ollama', sub: ':11434 local models', accent: 'w', live: mod('ollama') },
+  ]
 
   const tiers: { label: string; right?: string; nodes: NodeDef[] }[] = [
-    {
-      label: 'Access — outside world',
-      nodes: [
-        { name: 'Telegram', sub: 'Bot API · users', accent: 'x' },
-        { name: 'Browser', sub: 'you, right now', accent: 'x' },
-        { name: 'SSH :22', sub: 'operator', accent: 'x', live: ports.has(22) },
-        { name: 'Model APIs', sub: 'remote inference', accent: 'x' },
-      ],
-    },
-    {
-      label: 'Agents',
-      nodes: [
-        { name: 'Hermes', sub: 'gateway · memory · skills', accent: 's', live: mod('hermes') },
-        { name: 'OpenClaw', sub: 'assistant runtime', accent: 's', live: mod('openclaw') },
-        { name: 'OpenCode', sub: 'shared coding engine', accent: 's', live: mod('opencode') },
-        { name: 'Pi', sub: 'minimal lane', accent: 's' },
-      ],
-    },
-    {
-      label: 'Runtime — keeps everything alive',
-      nodes: [
-        { name: 'systemd', sub: 'services + user units', accent: 'w' },
-        { name: 'Docker', sub: 'containers', accent: 'w', live: mod('docker') },
-        { name: 'Cron', sub: 'schedules', accent: 'w', live: mod('cron') },
-        { name: 'Ollama', sub: ':11434 local models', accent: 'w', live: mod('ollama') },
-      ],
-    },
+    { label: 'Access — outside world', nodes: access, right: measure(access, services !== null) },
+    { label: 'Agents', nodes: agents, right: measure(agents, modules !== null) },
+    { label: 'Runtime — keeps everything alive', nodes: runtime, right: measure(runtime, modules !== null) },
     {
       label: 'Apps — HTTP surfaces',
-      right: services ? `${services.length} listeners live` : 'scanning…',
+      right: services ? `${services.length} listeners live · ${apps.length} shown` : 'scanning…',
       nodes: apps,
     },
     {
@@ -144,7 +157,9 @@ export default function Architecture() {
     <div>
       <div className="page-head">
         <h1>Architecture</h1>
-        <p className="sub">Five tiers, top to bottom. Dots show what is listening right now, read from the scanner.</p>
+        <p className="sub">Five tiers, top to bottom. Dots and per-tier counts show what the scanner measured
+          live at the last scan — a tier states a number only for what it can actually measure, and the
+          Storage tier measures nothing.</p>
       </div>
 
       <div className="diagram" style={{ marginTop: 18 }}>

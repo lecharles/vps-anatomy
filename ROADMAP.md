@@ -84,7 +84,7 @@ Unassigned days are buffer/soak. Weekends marked (light) are small work.
 | Mon Nov 9 | S17b · focus rings + keyboard nav between lessons — done |
 | Tue Nov 10 | S17c · reader semantics pass (headings, landmarks) — done |
 | Wed Nov 11 | S22 · Lesson 5 refresh with probe + trends data cited — done |
-| Thu Nov 12 | S23 · Architecture tier live counts (services/modules per tier) |
+| Thu Nov 12 | S23 · Architecture tier live counts (services/modules per tier) — done |
 | Fri Nov 13 | S24 · module detail mini-sparkline per resident |
 | Sat Nov 14 (light) | **M2 · tag v0.5 (Trust complete)** |
 | Sun Nov 15 | soak / buffer |
