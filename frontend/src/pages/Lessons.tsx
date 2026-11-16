@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { useApi } from '../hooks/useApi'
 
 type Machine = {
@@ -22,21 +23,44 @@ function LiveChip({ n, title }: { n: number | null; title: string }) {
   )
 }
 
+// S17b — keyboard nav between lessons. Each lesson article is a tab
+// stop; arrows jump card to card, Home/End jump to the ends. Only the
+// article itself swallows the keypress (e.target check) so links,
+// chips and any future input inside a lesson keep their own arrows.
+// Focus moves with the ring the CSS gives every tabbable element,
+// never a silent scroll — the reader always knows where they landed.
 export default function Lessons() {
   const { data: m } = useApi<Machine>('/api/machine/')
   const { data: svcs } = useApi<Service[]>('/api/services/', 30000)
   const services = svcs // null until the first poll answers
   const count = (pred: (s: Service) => boolean) =>
     services === null ? null : services.filter(pred).length
+  const cards = useRef<Record<number, HTMLElement | null>>({})
+  const jump = (e: React.KeyboardEvent<HTMLElement>, self: number) => {
+    if (e.target !== e.currentTarget) return
+    let to: number | null = null
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') to = Math.min(self + 1, 5)
+    else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') to = Math.max(self - 1, 0)
+    else if (e.key === 'Home') to = 0
+    else if (e.key === 'End') to = 5
+    if (to === null) return
+    e.preventDefault()
+    cards.current[to]?.focus()
+  }
   return (
     <div>
       <div className="page-head">
         <h1>The Course</h1>
         <p className="sub">Six lessons, general to specific, about one real server. The numbers you see are
           pulled from the live scanner while you read — this course updates itself.</p>
+        <p className="kbd-hint">
+          <span className="kbd">Tab</span> reaches each lesson · <span className="kbd">↑ ↓</span> jump between them ·{' '}
+          <span className="kbd">Home</span>/<span className="kbd">End</span> the first and last
+        </p>
       </div>
 
-      <article className="lesson" id="lesson-1">
+      <article className="lesson" id="lesson-1" tabIndex={0}
+        ref={(el) => { cards.current[0] = el }} onKeyDown={(e) => jump(e, 0)}>
         <div className="lesson-no">Lesson 1 · Hardware</div>
         <h2>What is this server?</h2>
         <p className="thesis">Before agents, services or ports — there is a computer. Everything else in this course is a program running on it.</p>
@@ -62,7 +86,8 @@ export default function Lessons() {
         <div className="takeaway"><b>Takeaway</b> An AI server is still a computer first: cores, RAM, disk, uptime. Everything later in this course inherits those limits.</div>
       </article>
 
-      <article className="lesson" id="lesson-2">
+      <article className="lesson" id="lesson-2" tabIndex={0}
+        ref={(el) => { cards.current[1] = el }} onKeyDown={(e) => jump(e, 1)}>
         <div className="lesson-no">Lesson 2 · Agents</div>
         <h2>Agents</h2>
         <p className="thesis">Agents are programs that read, decide, and act on this server like an operator would — through terminals, files and APIs.</p>
@@ -84,7 +109,8 @@ export default function Lessons() {
         <div className="takeaway"><b>Takeaway</b> An agent = model + tools + persistent context + credentials. The model runs remotely over an API; the tools, context and files are local.</div>
       </article>
 
-      <article className="lesson" id="lesson-3">
+      <article className="lesson" id="lesson-3" tabIndex={0}
+        ref={(el) => { cards.current[2] = el }} onKeyDown={(e) => jump(e, 2)}>
         <div className="lesson-no">Lesson 3 · Ports & Services</div>
         <h2>Services, ports and protocols</h2>
         <p className="thesis">Every program that talks to the outside world opens a TCP port. On a headless server, ports are the entire surface.</p>
@@ -110,7 +136,8 @@ export default function Lessons() {
         <div className="takeaway"><b>Takeaway</b> Ask "what's listening, and on which interface?" — the answer is a near-complete map of any server. That question is literally this app's scanner, and <a href="/guide">the build-your-own guide</a> walks its five functions step by step.</div>
       </article>
 
-      <article className="lesson" id="lesson-4">
+      <article className="lesson" id="lesson-4" tabIndex={0}
+        ref={(el) => { cards.current[3] = el }} onKeyDown={(e) => jump(e, 3)}>
         <div className="lesson-no">Lesson 4 · Permissions</div>
         <h2>Who can do what</h2>
         <p className="thesis">When AI agents have shell access, Unix permissions become the actual security model.</p>
@@ -128,7 +155,8 @@ export default function Lessons() {
         <div className="takeaway"><b>Takeaway</b> There is no "inside" on a headless server except Unix users, containers and bind addresses. Those are the boundaries; everything runs within them.</div>
       </article>
 
-      <article className="lesson" id="lesson-5">
+      <article className="lesson" id="lesson-5" tabIndex={0}
+        ref={(el) => { cards.current[4] = el }} onKeyDown={(e) => jump(e, 4)}>
         <div className="lesson-no">Lesson 5 · Signal</div>
         <h2>How messages move</h2>
         <p className="thesis">One message, end to end, through every part of the server.</p>
@@ -147,7 +175,8 @@ export default function Lessons() {
         <div className="takeaway"><b>Takeaway</b> An agent's model calls are remote HTTP; its tools and files are local. The signal path is where the two meet.</div>
       </article>
 
-      <article className="lesson" id="lesson-6">
+      <article className="lesson" id="lesson-6" tabIndex={0}
+        ref={(el) => { cards.current[5] = el }} onKeyDown={(e) => jump(e, 5)}>
         <div className="lesson-no">Lesson 6 · Storage</div>
         <h2>How data persists</h2>
         <p className="thesis">Signal is a moment; data is what accumulates from repeated moments. Nothing an agent "remembers" exists until it is written to disk.</p>
