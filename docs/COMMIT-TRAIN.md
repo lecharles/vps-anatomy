@@ -39,9 +39,13 @@ One row per calendar slice from ROADMAP.md. Statuses:
 | Tue Nov 3 | S15b · guide code excerpts (machine, ss, modules, diff) | SHIPPED | 5ab6579 | Nov 14 |
 | Wed Nov 4 | S15c · guide review + linked from Lesson 3 | SHIPPED | 1d733a8 | Nov 15 |
 | Thu Nov 5 | S16a · Changes feed filter chips (type · entity) | SHIPPED | 818ce6c | Nov 15 |
-| Fri Nov 6 | **G1 · Trust soak checkpoint** | HELD — not burnable: unit enable awaits root; test suite age 4d < 2wk | — | Nov 15 |
+| Fri Nov 6 | **G1 · Trust soak checkpoint** | HELD — not burnable: unit enable awaits root; test suite age 5d < 2wk as of Nov 16 | — | Nov 15 |
 | Sat Nov 7 (light) | S16b · change events link to affected module pages | SHIPPED | 441a10b | Nov 15 |
 | Sun Nov 8 (light) | S17a · contrast audit: tokens vs AA in all three themes | SHIPPED | d8307c0 | Nov 15 |
+| Mon Nov 9 | S17b · focus rings + keyboard nav between lessons | SHIPPED | 23f3254 | Nov 16 |
+| Tue Nov 10 | S17c · reader semantics pass (headings, landmarks) | SHIPPED | 48ce3b6 | Nov 16 |
+| Wed Nov 11 | S22 · Lesson 5 refresh with probe + trends data cited | SHIPPED | 5e7a4e6 | Nov 16 |
+| Thu Nov 12 | S23 · Architecture tier live counts (services/modules per tier) | SHIPPED | 44f3bb0 | Nov 16 |
 
 ## Audit — Nov 8 (first ledger run)
 
@@ -194,3 +198,49 @@ downgraded by Carlos to "tests-only soak" once the suite reaches 14 days
 
 Queue head after this run: **S17b** (focus rings + keyboard nav), then
 S17c → S22 → S23 → S24 → M2 (G1 held) — queue ~10 calendar rows behind.
+
+## Run — Nov 16 (tenth run; burn S17b → S17c → S22 → S23)
+
+Queue head **S17b** (Nov 9), ~10 calendar rows behind today (Nov 16 =
+S25's row). Burned four real slices oldest-first. Pre-burn audit: none
+of the four had covering code — no `:focus-visible` anywhere in the
+tree, top bar was a div, Modules cards jumped h1→h3, Lesson 5 quoted
+only adjectives, Architecture tiers counted nothing — so no new rows
+were marked EVIDENCED; all four burned as genuine work:
+
+- **S17b** (`23f3254`): one `:focus-visible` ring for the whole app on
+  the AA-cleared primary-bright token; lesson articles became tab
+  stops with arrow/Home/End roving focus (the article only eats a key
+  when it itself holds focus), hint line in the page head.
+- **S17c** (`48ce3b6`): header/nav[Primary]/main/footer landmarks,
+  skip link as first tab stop, Modules cards h3→h2, Changes day
+  labels + both Signal Flow labels + Data Flow and Guide section
+  labels promoted from styled divs to h2.eyebrow, lesson articles
+  bound aria-labelledby to their headings.
+- **S22** (`5e7a4e6`): Lesson 5 cites the live probe block
+  (/api/latency/ — median + slowest answered hop, N of M probes) and
+  the 24h listener record (/api/trends/), with steady/moving/vacuum
+  copy branches and stated gaps; a first-draft static "sub-
+  millisecond" claim was killed in review before commit.
+- **S23** (`44f3bb0`): per-tier right-aligned counts computed only
+  from measurable nodes ('N of 3 measured live'; unmeasured members
+  excluded from the denominator; Storage states nothing); two pending-
+  poll red dots eliminated — undefined live means no dot, no claim.
+  Tallies hand-verified against the live API before commit.
+
+**G1 still HELD**: suite is 5 days old (needs 14), systemd enable
+still awaits one interactive root session. Soak clock: scanner
+continuous, 530 full archived hours, smoke 20/20 and hygiene clean at
+every commit this run (4 slices + this ledger stamp).
+
+**Housekeeping**: AGENTS.md (host-local agent directives, carries
+personal names — must never enter public history) was found untracked
+and is now gitignored; it is not and will not be committed.
+
+Queue head after this run: **S24** (Nov 13), then M2 — whose
+prerequisites (Trust complete) are the same halves G1 is holding, so
+M2 will be evaluated in queue order and held unless genuinely ready.
+After M2's slot: S25 (Nov 16's row), then the light Nov 17 row S26.
+Queue ~3 calendar rows behind; next run burns S24 → M2-evaluation →
+S25 and reaches the current date, then ships that day's row + 1–2
+light items per run.

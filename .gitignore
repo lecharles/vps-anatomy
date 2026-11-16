@@ -21,3 +21,6 @@ backend/service_catalog.json
 data/
 *.log
 backend/host_modules.json
+
+# host-local agent directives (carry personal names + lane instructions; never public)
+AGENTS.md
