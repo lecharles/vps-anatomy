@@ -13,6 +13,19 @@ type Machine = {
 // live copy beats stale.
 type Service = { port: number; bind: string; name: string; owner: string; public: boolean; status: string }
 
+// S22 applies the same rule to Lesson 5: the message path is quoted with
+// the probe block the scanner just measured (/api/latency/) and the
+// hour-by-hour listener record (/api/trends/). Numbers, not adjectives.
+type LatSample = { port: number; connect_ms: number | null; ok: boolean; probes: number; hits: number; timestamp: string }
+type TrendHour = { hour: string; services_listening: number | null }
+
+function median(xs: number[]): number | null {
+  if (xs.length === 0) return null
+  const s = [...xs].sort((a, b) => a - b)
+  const mid = Math.floor(s.length / 2)
+  return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2
+}
+
 function LiveChip({ n, title }: { n: number | null; title: string }) {
   if (n === null) return null
   return (
@@ -32,9 +45,26 @@ function LiveChip({ n, title }: { n: number | null; title: string }) {
 export default function Lessons() {
   const { data: m } = useApi<Machine>('/api/machine/')
   const { data: svcs } = useApi<Service[]>('/api/services/', 30000)
+  const { data: lat } = useApi<LatSample[]>('/api/latency/', 30000)
+  const { data: day } = useApi<TrendHour[]>('/api/trends/?hours=24&metrics=services', 60000)
   const services = svcs // null until the first poll answers
   const count = (pred: (s: Service) => boolean) =>
     services === null ? null : services.filter(pred).length
+  // S22 — the numbers Lesson 5 quotes: answered probes and the median
+  // of the answered handshakes (median, because one outlier wake-up
+  // must not move a figure on a public page), and the honest min/max
+  // of the last 24 recorded hours. A null means 'not polled yet' and
+  // renders as a stated gap, never as a zero.
+  const hopMs = (lat ?? [])
+    .filter((s) => s.ok && s.connect_ms != null)
+    .map((s) => s.connect_ms as number)
+  const medHop = median(hopMs)
+  const slowHop = hopMs.length ? Math.max(...hopMs) : null
+  const probes = (lat ?? []).reduce((a, s) => a + s.probes, 0)
+  const hits = (lat ?? []).reduce((a, s) => a + s.hits, 0)
+  const held = (day ?? [])
+    .map((d) => d.services_listening)
+    .filter((v): v is number => v != null)
   const cards = useRef<Record<number, HTMLElement | null>>({})
   const jump = (e: React.KeyboardEvent<HTMLElement>, self: number) => {
     if (e.target !== e.currentTarget) return
@@ -169,10 +199,47 @@ export default function Lessons() {
           <li>The final reply travels back the same path and lands in the chat.</li>
         </ul>
         <p>
-          Note the split: model calls are remote, but tools, memory and files are local — and their effects are real.
-          The Signal Flow page draws this loop.
+          The local half of that sentence is metered, not asserted: every listening port on this machine
+          gets a loopback handshake probe from the scanner itself — three probes, a stated ceiling, the
+          median of what answers.{' '}
+          {lat === null ? (
+            <span className="muted">first probe block pending — the numbers land with the next scan.</span>
+          ) : hopMs.length === 0 ? (
+            <span className="muted">nothing has answered the probe yet — a stated gap, never a fake zero.</span>
+          ) : (
+            <>
+              This scan answered <b>{hits} of {probes}</b> probes; the median answered hop took{' '}
+              <b>{medHop!.toFixed(2)} ms</b> and the slowest <b>{slowHop!.toFixed(2)} ms</b>. None of
+              these hops leaves the machine — the number is the adjective. Live source:{' '}
+              <a className="kbd" href="/api/latency/">/api/latency/</a>
+            </>
+          )}
         </p>
-        <div className="takeaway"><b>Takeaway</b> An agent's model calls are remote HTTP; its tools and files are local. The signal path is where the two meet.</div>
+        <p>
+          And the path is not a demo — it runs whether anyone is reading or not.{' '}
+          {held.length === 0 ? (
+            <span className="muted">the 24-hour rollup is still filling.</span>
+          ) : (
+            <>
+              {Math.min(...held) === Math.max(...held) ? (
+                <>It held exactly <b>{held[0]}</b> listeners in every one of the <b>{held.length}</b>{' '}
+                recorded hours of the last day — a steady machine is the point of a machine.</>
+              ) : (
+                <>The recorder held between <b>{Math.min(...held)} and {Math.max(...held)}</b> listeners
+                in each of the <b>{held.length}</b> recorded hours of the last day — the services that
+                stand ready to take a message to sleep.</>
+              )}{' '}
+              Source:{' '}
+              <a className="kbd" href="/api/trends/?hours=24&metrics=services">/api/trends/ · services</a>
+            </>
+          )}
+        </p>
+        <p>
+          Note the split: model calls are remote, but tools, memory and files are local — and their effects
+          are real, at the measured speeds above. <a href="/signal-flow">The Signal Flow page</a> draws
+          this loop hop by hop, with the same probe numbers on every row.
+        </p>
+        <div className="takeaway"><b>Takeaway</b> An agent's model calls are remote HTTP; its tools and files are local. The signal path is where the two meet — and the local half of it is measured, hour after hour, by this very scanner.</div>
       </article>
 
       <article className="lesson" id="lesson-6" aria-labelledby="lesson-6-h" tabIndex={0}
