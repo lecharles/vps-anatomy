@@ -11,14 +11,19 @@ import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
 import ThemeToggle from './components/ThemeToggle'
 
 function Shell({ children }: { children: React.ReactNode }) {
+  // S17c — reader semantics: real landmarks instead of decorative divs.
+  // header / nav[name] / main / footer now speak to a screen reader's
+  // landmark list; the skip link is the first tab stop on every page,
+  // invisible until a keyboard user lands on it.
   return (
     <>
-      <div className="topbar">
+      <a className="skip-link" href="#main-content">Skip to content</a>
+      <header className="topbar">
         <div className="topbar-inner">
           <NavLink to="/" className="brand">
             <span className="mark" /> VPS Anatomy
           </NavLink>
-          <nav className="main-nav">
+          <nav className="main-nav" aria-label="Primary">
             {([
               ['/', 'Home', true],
               ['/lessons', 'Lessons', false],
@@ -38,8 +43,8 @@ function Shell({ children }: { children: React.ReactNode }) {
           </nav>
           <ThemeToggle />
         </div>
-      </div>
-      <main className="content wrap">{children}</main>
+      </header>
+      <main className="content wrap" id="main-content" tabIndex={-1}>{children}</main>
       <footer className="site">
         <div className="wrap">
           <p className="f-line">VPS Anatomy · an educational reader for a live AI-agent machine.</p>

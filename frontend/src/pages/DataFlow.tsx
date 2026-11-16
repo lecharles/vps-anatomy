@@ -78,7 +78,7 @@ export default function DataFlow() {
       </div>
 
       <section>
-        <div className="eyebrow">What each crossing writes</div>
+        <h2 className="eyebrow">What each crossing writes</h2>
         <div className="rows">
           <div className="row"><span className="name mono" style={{ fontSize: 12 }}>Gateway → Agent</span><span className="detail">the lane's conversation file gains a turn. Append-only: history is never rewritten.</span></div>
           <div className="row"><span className="name mono" style={{ fontSize: 12 }}>Agent ↔ Model API</span><span className="detail">tokens in, tokens out — logged with exact counts. That log is what usage dashboards read.</span></div>

@@ -148,6 +148,21 @@ code, .mono { font-family: var(--font-mono); }
    offset so the ring reads around the card's own hairline border. */
 .lesson:focus-visible { outline-offset: 4px; }
 
+/* ---------- Skip link (S17c) ----------
+   First tab stop on every page: parked off-screen, drops in only for
+   whoever reaches it by keyboard. It targets <main id="main-content">;
+   that container gets no ring on focus — it is a jump target, not an
+   interactive control, and the link itself is the visible thing. */
+.skip-link {
+  position: fixed; top: 8px; left: 8px; z-index: 100;
+  transform: translateY(-200%);
+  background: var(--panel); color: var(--primary-bright);
+  border: 1px solid var(--primary-bright); border-radius: 6px;
+  padding: 8px 14px; font-size: 12.5px; text-decoration: none;
+}
+.skip-link:focus { transform: none; }
+main.content:focus { outline: none; }
+
 .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 20px; }
 
 /* ---------- Top bar ---------- */
@@ -279,7 +294,10 @@ section > p.sec-sub { color: var(--text-muted); margin-bottom: 14px; }
   transition: border-color 0.12s ease, transform 0.12s ease;
 }
 a.card:hover { text-decoration: none; border-color: var(--hairline-2); transform: translateY(-1px); }
-.card h3 { font-size: 14.5px; font-weight: 620; color: var(--text-bright); display: flex; align-items: center; gap: 8px; }
+/* S17c: Modules cards sit directly under the page h1 — they are h2s,
+   not h3s; Home's L1–L4 cards stay h3 because they live under an h2
+   section. Selector covers both so the visual identity does not move. */
+.card h2, .card h3 { font-size: 14.5px; font-weight: 620; color: var(--text-bright); display: flex; align-items: center; gap: 8px; }
 .card p.desc { margin-top: 6px; color: var(--text-muted); font-size: 12.5px; }
 .card .card-foot { margin-top: 10px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .num-tag { font: 600 10.5px var(--font-mono); color: var(--primary-bright); background: var(--primary-tint); border-radius: 5px; padding: 2px 7px; letter-spacing: 0.04em; }

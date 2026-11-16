@@ -59,10 +59,10 @@ export default function Lessons() {
         </p>
       </div>
 
-      <article className="lesson" id="lesson-1" tabIndex={0}
+      <article className="lesson" id="lesson-1" aria-labelledby="lesson-1-h" tabIndex={0}
         ref={(el) => { cards.current[0] = el }} onKeyDown={(e) => jump(e, 0)}>
         <div className="lesson-no">Lesson 1 · Hardware</div>
-        <h2>What is this server?</h2>
+        <h2 id="lesson-1-h">What is this server?</h2>
         <p className="thesis">Before agents, services or ports — there is a computer. Everything else in this course is a program running on it.</p>
         <p>
           This server is <span className="kbd">{m?.hostname ?? 'unnamed'}</span>, a rented VPS at IP{' '}
@@ -86,10 +86,10 @@ export default function Lessons() {
         <div className="takeaway"><b>Takeaway</b> An AI server is still a computer first: cores, RAM, disk, uptime. Everything later in this course inherits those limits.</div>
       </article>
 
-      <article className="lesson" id="lesson-2" tabIndex={0}
+      <article className="lesson" id="lesson-2" aria-labelledby="lesson-2-h" tabIndex={0}
         ref={(el) => { cards.current[1] = el }} onKeyDown={(e) => jump(e, 1)}>
         <div className="lesson-no">Lesson 2 · Agents</div>
-        <h2>Agents</h2>
+        <h2 id="lesson-2-h">Agents</h2>
         <p className="thesis">Agents are programs that read, decide, and act on this server like an operator would — through terminals, files and APIs.</p>
         <p>
           Four of them do the work. Each is a runtime with real credentials on this server, able to run commands,
@@ -109,10 +109,10 @@ export default function Lessons() {
         <div className="takeaway"><b>Takeaway</b> An agent = model + tools + persistent context + credentials. The model runs remotely over an API; the tools, context and files are local.</div>
       </article>
 
-      <article className="lesson" id="lesson-3" tabIndex={0}
+      <article className="lesson" id="lesson-3" aria-labelledby="lesson-3-h" tabIndex={0}
         ref={(el) => { cards.current[2] = el }} onKeyDown={(e) => jump(e, 2)}>
         <div className="lesson-no">Lesson 3 · Ports & Services</div>
-        <h2>Services, ports and protocols</h2>
+        <h2 id="lesson-3-h">Services, ports and protocols</h2>
         <p className="thesis">Every program that talks to the outside world opens a TCP port. On a headless server, ports are the entire surface.</p>
         <p>
           A port is a numbered socket on one IP address. Each running service claims one and answers HTTP
@@ -136,10 +136,10 @@ export default function Lessons() {
         <div className="takeaway"><b>Takeaway</b> Ask "what's listening, and on which interface?" — the answer is a near-complete map of any server. That question is literally this app's scanner, and <a href="/guide">the build-your-own guide</a> walks its five functions step by step.</div>
       </article>
 
-      <article className="lesson" id="lesson-4" tabIndex={0}
+      <article className="lesson" id="lesson-4" aria-labelledby="lesson-4-h" tabIndex={0}
         ref={(el) => { cards.current[3] = el }} onKeyDown={(e) => jump(e, 3)}>
         <div className="lesson-no">Lesson 4 · Permissions</div>
-        <h2>Who can do what</h2>
+        <h2 id="lesson-4-h">Who can do what</h2>
         <p className="thesis">When AI agents have shell access, Unix permissions become the actual security model.</p>
         <p>Three boundary layers stack here:</p>
         <ul>
@@ -155,10 +155,10 @@ export default function Lessons() {
         <div className="takeaway"><b>Takeaway</b> There is no "inside" on a headless server except Unix users, containers and bind addresses. Those are the boundaries; everything runs within them.</div>
       </article>
 
-      <article className="lesson" id="lesson-5" tabIndex={0}
+      <article className="lesson" id="lesson-5" aria-labelledby="lesson-5-h" tabIndex={0}
         ref={(el) => { cards.current[4] = el }} onKeyDown={(e) => jump(e, 4)}>
         <div className="lesson-no">Lesson 5 · Signal</div>
-        <h2>How messages move</h2>
+        <h2 id="lesson-5-h">How messages move</h2>
         <p className="thesis">One message, end to end, through every part of the server.</p>
         <p>When a Telegram message arrives, the path is fixed and short:</p>
         <ul>
@@ -175,10 +175,10 @@ export default function Lessons() {
         <div className="takeaway"><b>Takeaway</b> An agent's model calls are remote HTTP; its tools and files are local. The signal path is where the two meet.</div>
       </article>
 
-      <article className="lesson" id="lesson-6" tabIndex={0}
+      <article className="lesson" id="lesson-6" aria-labelledby="lesson-6-h" tabIndex={0}
         ref={(el) => { cards.current[5] = el }} onKeyDown={(e) => jump(e, 5)}>
         <div className="lesson-no">Lesson 6 · Storage</div>
-        <h2>How data persists</h2>
+        <h2 id="lesson-6-h">How data persists</h2>
         <p className="thesis">Signal is a moment; data is what accumulates from repeated moments. Nothing an agent "remembers" exists until it is written to disk.</p>
         <p>State lives in six kinds of stores:</p>
         <ul>

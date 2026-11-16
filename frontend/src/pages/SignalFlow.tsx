@@ -147,7 +147,7 @@ export default function SignalFlow() {
 
       {(hopStatus === 'ok' || hopStatus === 'no-answer') && (
         <section>
-          <div className="eyebrow">Every local hop, timed</div>
+          <h2 className="eyebrow">Every local hop, timed</h2>
           <div className="rows">
             {(hops ?? []).map((h) => (
               <div className="row" key={h.port}>
@@ -172,7 +172,7 @@ export default function SignalFlow() {
       )}
 
       <section>
-        <div className="eyebrow">Hop by hop</div>
+        <h2 className="eyebrow">Hop by hop</h2>
         <div className="rows">
           <div className="row"><span className="name mono" style={{ color: 'var(--primary-bright)' }}>01 → 02</span><span className="detail">Telegram delivers an update to the gateway process. The gateway is a long-running loop; a message starts it working.</span></div>
           <div className="row"><span className="name mono" style={{ color: 'var(--primary-bright)' }}>02 → 03</span><span className="detail">The lane's context is assembled: recent turns, memory files, skills, file paths. Context is retrieved from disk, not invented.</span></div>

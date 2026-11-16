@@ -151,7 +151,7 @@ export default function Guide() {
       </div>
 
       <section>
-        <div className="eyebrow">Shape of the project</div>
+        <h2 className="eyebrow">Shape of the project</h2>
         <pre className="mono" style={{ fontSize: 12, lineHeight: 1.7, overflowX: 'auto' }}>
           {TREE}
         </pre>
@@ -162,7 +162,7 @@ export default function Guide() {
       </section>
 
       <section>
-        <div className="eyebrow">The five questions, in order</div>
+        <h2 className="eyebrow">The five questions, in order</h2>
         <p className="sub" style={{ marginBottom: 12 }}>
           Four of them appear as real excerpts, trimmed from{' '}
           <span className="kbd">backend/core/__init__.py</span> — shortened for reading,
@@ -194,7 +194,7 @@ export default function Guide() {
       </section>
 
       <section>
-        <div className="eyebrow">Contract every step keeps</div>
+        <h2 className="eyebrow">Contract every step keeps</h2>
         <div className="rows">
           <div className="row"><span className="name">Pure out</span><span className="detail">Each scan function returns plain dicts/lists — no ORM, no framework. The database writer is a separate function, so the scanner is testable with nothing but fixtures.</span></div>
           <div className="row"><span className="name">Fail stated</span><span className="detail">A missing fact is written as zero/'unknown'/None — and the reader UI says so in words. Silence is how stale data passes for truth.</span></div>

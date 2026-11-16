@@ -37,10 +37,10 @@ export default function Modules() {
           const info = MODULE_INFO[mm.module_id] ?? MODULE_INFO._default
           return (
             <a className="card" key={mm.module_id} href={`/modules/${mm.module_id}`}>
-              <h3>
+              <h2>
                 <span className={mm.status === 'live' ? 'dot g' : 'dot r'} />
                 {mm.name}
-              </h3>
+              </h2>
               <p className="desc">{info.oneLine}</p>
               <div className="card-foot">
                 <span className={mm.status === 'live' ? 'chip live' : 'chip stopped'}>{mm.status}</span>

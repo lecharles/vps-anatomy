@@ -97,7 +97,7 @@ export default function Changes() {
 
       {groups.map((g) => (
         <section key={g.day}>
-          <div className="eyebrow">{g.day} · {g.items.length} event{g.items.length === 1 ? '' : 's'}</div>
+          <h2 className="eyebrow">{g.day} · {g.items.length} event{g.items.length === 1 ? '' : 's'}</h2>
           <div className="feed">
             {g.items.map((c) => (
               <div className="feed-item" key={c.id}>
