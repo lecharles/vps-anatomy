@@ -11,7 +11,40 @@ from typing import List
 
 router = APIRouter(prefix="/api/modules", tags=["modules"])
 
-@router.get("/", response_model=List[ModuleStateSchema], summary="All residents with live status")
+# S26 — synthetic residents: one live with its probe fact, one down.
+EXAMPLE_ROWS = [
+    {
+        "id": 61102,
+        "timestamp": "2026-01-15T09:30:00.123456",
+        "module_id": "model-server",
+        "name": "Model server",
+        "status": "live",
+        "data": {"port": 11434},
+    },
+    {
+        "id": 61103,
+        "timestamp": "2026-01-15T09:30:00.123456",
+        "module_id": "scheduler",
+        "name": "Scheduler service",
+        "status": "stopped",
+        "data": {},
+    },
+]
+
+@router.get(
+    "/",
+    response_model=List[ModuleStateSchema],
+    summary="All residents with live status",
+    responses={200: {
+        "description": (
+            "One row per configured resident from the newest scan. "
+            "`data` holds whatever cheap probe answered (port, "
+            "container fragment); an empty object means the probe was "
+            "a process-pattern check with nothing extra to report."
+        ),
+        "content": {"application/json": {"example": EXAMPLE_ROWS}},
+    }},
+)
 def get_latest_modules(db: Session = Depends(get_db)):
     """Get latest module states"""
     # Get latest timestamp
@@ -21,7 +54,15 @@ def get_latest_modules(db: Session = Depends(get_db)):
     
     return db.query(ModuleState).filter(ModuleState.timestamp == latest[0]).all()
 
-@router.get("/{module_id}", response_model=ModuleStateSchema, summary="One resident's latest state")
+@router.get(
+    "/{module_id}",
+    response_model=ModuleStateSchema,
+    summary="One resident's latest state",
+    responses={200: {
+        "description": "The newest row for this resident.",
+        "content": {"application/json": {"example": EXAMPLE_ROWS[0]}},
+    }},
+)
 def get_module(module_id: str, db: Session = Depends(get_db)):
     """Get latest state for a specific module"""
     module = db.query(ModuleState).filter(
@@ -29,7 +70,18 @@ def get_module(module_id: str, db: Session = Depends(get_db)):
     ).order_by(ModuleState.timestamp.desc()).first()
     return module
 
-@router.get("/{module_id}/history", response_model=List[ModuleStateSchema], summary="One resident's scan history")
+@router.get(
+    "/{module_id}/history",
+    response_model=List[ModuleStateSchema],
+    summary="One resident's scan history",
+    responses={200: {
+        "description": (
+            "The newest `limit` raw rows for this resident, newest "
+            "first — one per 30s scan inside the retention window."
+        ),
+        "content": {"application/json": {"example": EXAMPLE_ROWS}},
+    }},
+)
 def get_module_history(module_id: str, limit: int = 100, db: Session = Depends(get_db)):
     """Get module state history"""
     return db.query(ModuleState).filter(
@@ -46,6 +98,18 @@ HOUR_FMT = "%Y-%m-%dT%H:00:00Z"
     "/{module_id}/sparkline",
     response_model=List[ModuleHour],
     summary="One resident's hourly liveness record",
+    responses={200: {
+        "description": (
+            "One point per recorded UTC hour, oldest first. The middle "
+            "hour of the example spent a third of its probes down — a "
+            "visible dip in the sparkline, not a hidden average."
+        ),
+        "content": {"application/json": {"example": [
+            {"hour": "2026-01-15T08:00:00Z", "scans": 119, "live": 119},
+            {"hour": "2026-01-15T09:00:00Z", "scans": 120, "live": 80},
+            {"hour": "2026-01-15T10:00:00Z", "scans": 42, "live": 42},
+        ]}},
+    }},
 )
 def get_module_sparkline(
     module_id: str,

@@ -30,9 +30,18 @@ check "api trends"         "$BASE/api/trends/?hours=2&metrics=services,modules,r
 check "api trends metric"  "$BASE/api/trends/?hours=2&metrics=ram" '"ram_gb_avg"'
 check "api trends month"   "$BASE/api/trends/?hours=720&metrics=services" '"hour"'
 check "trends swagger docs" "$BASE/openapi.json" 'Dashboard convention'
+check "openapi examples (S26)" "$BASE/openapi.json" 'anatomy-demo'
 check "lessons route"      "$BASE/lessons"     '<div id="root"'
 check "data-flow route"    "$BASE/data-flow"   '<div id="root"'
 check "guide route"        "$BASE/guide"       '<div id="root"'
+
+# sparkline must answer for a real resident — id read live, never named here (S24)
+first_mod=$(curl -fsS --max-time 5 "$BASE/api/modules/" 2>/dev/null | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d[0]["module_id"] if d else "")' 2>/dev/null || echo "")
+if [ -n "$first_mod" ]; then
+  check "api module sparkline" "$BASE/api/modules/$first_mod/sparkline?hours=24" '"hour".*"scans".*"live"'
+else
+  echo "FAIL api module sparkline (no residents to ask)"; fail=$((fail+1))
+fi
 
 # trends must reject unknown metrics rather than quietly return nothing
 code=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/api/trends/?metrics=bogus" --max-time 5)

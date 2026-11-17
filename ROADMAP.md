@@ -89,7 +89,7 @@ Unassigned days are buffer/soak. Weekends marked (light) are small work.
 | Sat Nov 14 (light) | **M2 · tag v0.5 (Trust complete)** |
 | Sun Nov 15 | soak / buffer |
 | Mon Nov 16 | S25 · docs audit: README claims vs behavior, fix deltas — done |
-| Tue Nov 17 | S26 · OpenAPI cleanup: examples per endpoint |
+| Tue Nov 17 | S26 · OpenAPI cleanup: examples per endpoint — done |
 | Wed Nov 18 | S27 · trends CSV export endpoint |
 | Thu Nov 19 | S28 · tiny client-side lesson search |
 | Fri Nov 20 | S29 · prev/next lesson navigation |

@@ -31,6 +31,10 @@ lab notebook: each endpoint is a lens on one layer of the system.
 - **health** — liveness of the app and of the scan loop behind it.
 
 Scans run every 30 seconds. Timestamps are UTC, written by the scanner.
+
+Every example payload in this reference is **synthetic** — the shape a
+demo machine produces, never a snapshot of the host serving this page.
+Live host facts reach a browser only through the endpoints themselves.
 """
 
 @asynccontextmanager
@@ -44,7 +48,10 @@ async def lifespan(_app: FastAPI):
 
 app = FastAPI(
     title="VPS Anatomy API",
-    version="0.3.0",
+    # Bumped with the train, not with the tag: the last release is v0.4
+    # and this self-claim had been left behind at 0.3.0 — an example
+    # reference that lies about itself is worse than no example.
+    version="0.4.0",
     description=OPENAPI_DESCRIPTION,
     docs_url=None,   # replaced by the themed page below
     redoc_url=None,
@@ -96,6 +103,31 @@ HEALTHY_MAX_AGE_S = 120
         "the database has no scans yet (`no-scans`). Safe for boot checks, "
         "uptime probes, and CI smoke."
     ),
+    responses={
+        200: {
+            "description": "The scan loop is writing.",
+            "content": {"application/json": {"example": {
+                "status": "ok",
+                "version": "0.4.0",
+                "seconds_since_last_scan": 12.3,
+            }}},
+        },
+        503: {
+            "description": (
+                "`stale` carries the age of the newest scan; `no-scans` "
+                "answers on a database the scanner has never written — "
+                "the age is null there because no scan exists to age."
+            ),
+            "content": {"application/json": {"examples": {
+                "stale": {"value": {
+                    "status": "stale", "seconds_since_last_scan": 412.7,
+                }},
+                "no-scans": {"value": {
+                    "status": "no-scans", "seconds_since_last_scan": None,
+                }},
+            }}},
+        },
+    },
 )
 def healthz(db: Session = Depends(get_db)):
     latest = db.query(func.max(MachineState.timestamp)).scalar()
@@ -121,4 +153,4 @@ mount_spa(app, "static")
 
 @app.get("/api", include_in_schema=False)
 async def api_root():
-    return {"message": "VPS Anatomy API", "version": "0.3.0", "docs": "/docs", "schema": "/openapi.json"}
+    return {"message": "VPS Anatomy API", "version": app.version, "docs": "/docs", "schema": "/openapi.json"}
