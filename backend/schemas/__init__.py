@@ -59,6 +59,18 @@ class ModuleState(BaseModel):
     class Config:
         from_attributes = True
 
+class ModuleHour(BaseModel):
+    """S24 — one UTC hour of ONE resident's liveness record.
+
+    `live / scans` is the share of that hour's probes that found the
+    resident live. An hour with no probes is absent from the series —
+    never a zero (same contract as /api/trends).
+    """
+    hour: str
+    scans: int
+    live: int
+
+
 class HourlyTrend(BaseModel):
     hour: str
     scans: int
