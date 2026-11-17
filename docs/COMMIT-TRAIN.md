@@ -46,6 +46,10 @@ One row per calendar slice from ROADMAP.md. Statuses:
 | Tue Nov 10 | S17c · reader semantics pass (headings, landmarks) | SHIPPED | 48ce3b6 | Nov 16 |
 | Wed Nov 11 | S22 · Lesson 5 refresh with probe + trends data cited | SHIPPED | 5e7a4e6 | Nov 16 |
 | Thu Nov 12 | S23 · Architecture tier live counts (services/modules per tier) | SHIPPED | 44f3bb0 | Nov 16 |
+| Fri Nov 13 | S24 · module detail mini-sparkline per resident | SHIPPED | 2644a73 | Nov 17 |
+| Sat Nov 14 (light) | **M2 · tag v0.5 (Trust complete)** | HELD — same halves as G1: suite is 6 days old (needs 14), systemd enable still awaits one interactive root session; fires when they're true | — | Nov 17 |
+| Mon Nov 16 | S25 · docs audit: README claims vs behavior, fix deltas | SHIPPED | ff009d2 | Nov 17 |
+| Tue Nov 17 | S26 · OpenAPI cleanup: examples per endpoint | SHIPPED | e27fd2c | Nov 17 |
 
 ## Audit — Nov 8 (first ledger run)
 
@@ -244,3 +248,60 @@ After M2's slot: S25 (Nov 16's row), then the light Nov 17 row S26.
 Queue ~3 calendar rows behind; next run burns S24 → M2-evaluation →
 S25 and reaches the current date, then ships that day's row + 1–2
 light items per run.
+
+## Run — Nov 17 (eleventh run; burn S24 → S25 → S26 — queue caught the calendar)
+
+Queue head was **S24** (Nov 13), ~3 calendar rows behind. Burned in queue
+order — **S24** (`2644a73`), M2-evaluation (**HELD**, below), **S25**
+(`ff009d2`), **S26** (`e27fd2c`, today's row) — three real slices plus
+this stamp, and for the first time since the stall the queue has reached
+the current date. No new rows marked EVIDENCED: the pre-burn audit found
+no covering code for S24–S26 (ModuleDetail had no time series, the
+README's "five endpoints" claim was stale, twelve of fourteen operations
+had no example), and everything evidenced through S23 is already stamped.
+
+- **S24**: `/api/modules/{id}/sparkline` (hourly scans-vs-live buckets,
+  unprobed hours absent, 422 on bad windows) + a mini-sparkline on every
+  resident page — bar height = live share of the hour, red stub = whole
+  hour down, faint tick = gap in the record. Six new regression tests
+  (suite 45 → 51).
+- **S25**: README audited against shipped behavior; five deltas fixed —
+  the scanner's read list (cores/RAM-totals/disk-usage, not "CPU"),
+  endpoint count (five → eight, including S24's), two undocumented live
+  endpoints, two missing `core/` files in the layout tree, and the
+  hand-rolled rebuild snippet replaced by `scripts/deploy-static.sh`.
+  Also stated plainly: the machine row carries the host's own hostname
+  and public IP at runtime, which is exactly why they never appear in
+  committed content.
+- **S26**: examples on all 14 operations, each shaped against the real
+  code (a paraphrased change-event description was corrected against
+  `detect_changes` in review); healthz documents both 503 flavors; the
+  version string 0.3.0 → 0.4.0, single-sourced so `/api` and the schema
+  can't drift. Smoke grew two checks (22/22): an example marker and the
+  sparkline route — the resident id is read live inside the script,
+  never named in it.
+
+**M2 HELD, honestly.** Its terms are "Trust complete" — the same two
+halves G1 holds: the pytest suite turned 6 days old on Nov 17 (needs 14)
+and the S10a unit is still `not-found` under systemd (enable awaits one
+interactive root session; this host grants no passwordless sudo). v0.5
+gets tagged when those are true — earliest Nov 25, the same date as the
+G1 tests-only decision.
+
+**Ops note for future runs:** the app's multiplexer session runs the
+launcher as the pane's command — a `C-c` stops uvicorn *and* takes the
+pane with it, so a backend restart means recreating the detached
+session pointed at `launch-8093.sh`, not re-sending the command.
+Encountered and recovered cleanly this run; scanner writing within
+seconds, healthz ok.
+
+**Gates**: hygiene clean and smoke green (20/20 → 22/22) at every
+commit; suite 51 passed; home 200; uvicorn restarted after the backend
+slices; frontend built via `npm run build` and deployed for S24 only
+(S25/S26 touched no frontend source).
+
+Queue head after this run: **S27** (Wed Nov 18, trends CSV export —
+backend-only, safe without root), then S28–S30, S31–S33, G2 (Nov 27).
+From here the train runs at cadence: one day's row per run, light rows
+kept light; G1/M2 re-evaluated daily and fire on their evidence,
+earliest Nov 25.
