@@ -25,7 +25,8 @@ lab notebook: each endpoint is a lens on one layer of the system.
 - **services** — TCP listeners, labeled by the port catalog.
 - **modules** — the residents: agents, runtimes, containers, scheduler.
 - **changes** — the diff between successive scans.
-- **trends** — hourly rollups of the recorded history, for charts.
+- **trends** — hourly rollups of the recorded history, for charts —
+  and as a CSV file at `/api/trends/export`, one computation, two faces.
 - **latency** — loopback handshake times for the ports this scan found:
   the machine measuring its own cheapest hops, in milliseconds.
 - **health** — liveness of the app and of the scan loop behind it.

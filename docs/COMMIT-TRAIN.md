@@ -305,3 +305,40 @@ backend-only, safe without root), then S28–S30, S31–S33, G2 (Nov 27).
 From here the train runs at cadence: one day's row per run, light rows
 kept light; G1/M2 re-evaluated daily and fire on their evidence,
 earliest Nov 25.
+
+## Run — Nov 18 (twelfth run; cadence day one — ship the row, keep it honest)
+
+Queue head was **S27** (Wed Nov 18) — the first run at calendar cadence,
+no backfill owed. Burned the row as one real slice (**S27**, `076aa2e`),
+plus a one-line honest touch in this commit (the schema blurb's `trends`
+bullet now names the CSV face; a description that omits a just-shipped
+format is the drift S25 audited out of the README). No new rows marked
+EVIDENCED: the pre-burn audit found no covering code for S27 before
+today, and everything through S26 is already stamped.
+
+- **S27**: `/api/trends/export` — the hourly rollup as a `text/csv`
+  attachment. One computation, two serializations: JSON and CSV routes
+  call the same `_rollup` (body moved out of `get_trends` untouched),
+  so a chart and a downloaded file cannot disagree. Canonical column
+  order from `SELECTABLE` (byte-identical files for identical queries);
+  unselected metric = no column; unrecorded value = empty field, never
+  a fake zero; empty window = header-only file. 422 validation
+  inherited — errors answer JSON, never a bad CSV. Six regression tests
+  pin the mirror contract (suite 51 → 57); smoke grows two checks
+  (22 → 24): export body + export 422. README API table grew its row.
+
+**M2 stays HELD, honestly**: suite is 7 days old (needs 14; earliest
+tag Nov 25) and `vps-anatomy.service` is still `not-found` under
+systemd — enable awaits one interactive root session, re-checked this
+run. G1 likewise held on the same evidence.
+
+**Gates**: hygiene clean at both commits; backend restarted via a
+recreated detached `8093` session (launcher-pane mechanics, per the
+Nov 17 ops note) — scanner writing within seconds, healthz ok; smoke
+24/24 twice (after restart, and after the ledger commit's main.py
+touch); home 200; suite 57 green. No frontend source changed — no
+build, none needed.
+
+Queue head after this run: **S28** (Thu Nov 19, tiny client-side
+lesson search — frontend, `npm run build` + deploy-static), then S29
+(Nov 20), S30 (Nov 21, light), buffer Nov 22, S31–S33, G2 Nov 27.
