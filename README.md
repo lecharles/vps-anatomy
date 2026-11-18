@@ -75,6 +75,7 @@ draws its own SVG sequence diagram; nothing here is a mock.
 | GET | `/api/changes/by-type/{type}?limit=` | the change log narrowed to one event type |
 | GET | `/api/changes/?limit=` | the change log |
 | GET | `/api/trends/?hours=&metrics=` | hourly rollups — distinct listeners, live residents, RAM/disk means; `metrics` picks series (`services,modules,ram,disk`) |
+| GET | `/api/trends/export?hours=&metrics=` | the same rollup as a `text/csv` attachment — one computation, two serializations; unselected metrics get no column, unknown names still answer 422 |
 | GET | `/api/latency/` | newest scan's loopback handshake medians, per port, in ms |
 | GET | `/api/latency/history?port=` | hop-latency history, newest first |
 | GET | `/healthz` | liveness — 200 while the scanner is writing, 503 when stale (see `scripts/boot-check.sh`) |

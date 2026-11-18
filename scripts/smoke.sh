@@ -29,6 +29,7 @@ check "api changes"        "$BASE/api/changes/" '\[|\]'
 check "api trends"         "$BASE/api/trends/?hours=2&metrics=services,modules,ram,disk" '"hour"'
 check "api trends metric"  "$BASE/api/trends/?hours=2&metrics=ram" '"ram_gb_avg"'
 check "api trends month"   "$BASE/api/trends/?hours=720&metrics=services" '"hour"'
+check "api trends csv (S27)" "$BASE/api/trends/export?hours=2&metrics=services,ram" '^hour,scans,services_listening,ram_gb_avg'
 check "trends swagger docs" "$BASE/openapi.json" 'Dashboard convention'
 check "openapi examples (S26)" "$BASE/openapi.json" 'anatomy-demo'
 check "lessons route"      "$BASE/lessons"     '<div id="root"'
@@ -47,6 +48,11 @@ fi
 code=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/api/trends/?metrics=bogus" --max-time 5)
 if [ "$code" = "422" ]; then echo "PASS trends metric validation (422)"; pass=$((pass+1));
 else echo "FAIL trends metric validation (got $code, want 422)"; fail=$((fail+1)); fi
+
+# the CSV face must inherit the same validation — JSON error, never a bad file
+code=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/api/trends/export?metrics=bogus" --max-time 5)
+if [ "$code" = "422" ]; then echo "PASS trends csv validation (422)"; pass=$((pass+1));
+else echo "FAIL trends csv validation (got $code, want 422)"; fail=$((fail+1)); fi
 
 # sanity: a scan must have happened
 n=$(curl -fsS --max-time 5 "$BASE/api/services/" 2>/dev/null | python3 -c 'import json,sys; print(len(json.load(sys.stdin)))' 2>/dev/null || echo 0)
