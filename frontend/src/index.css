@@ -469,6 +469,19 @@ a.card:hover { text-decoration: none; border-color: var(--hairline-2); transform
 }
 .search-clear:hover { color: var(--text-bright); border-color: var(--text-muted); }
 
+/* ---------- Lesson prev/next (S29) ---------- */
+/* The visible form of the S17b arrow-key nav: same names, same order,
+   real hash links so middle-click and reader tools see a target. */
+.lesson-nav {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+  margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--hairline-2);
+}
+.lesson-nav .lnav-side { flex: 1; min-width: 0; }
+.lesson-nav .lnav-side:last-child { text-align: right; }
+.lesson-nav a { font: 500 12px var(--font-mono); color: var(--primary-bright); text-decoration: underline; text-underline-offset: 2px; }
+.lesson-nav a:hover { color: var(--text-bright); }
+.lesson-nav .lnav-mid { font: 500 10.5px var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; }
+
 /* ---------- See also / footer ---------- */
 .seealso { margin-top: 22px; color: var(--text-faint); font-size: 12.5px; }
 footer.site {

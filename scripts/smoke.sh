@@ -63,6 +63,13 @@ else
   echo "FAIL lesson search shipped (no bundle or no input in it)"; fail=$((fail+1))
 fi
 
+# the lesson prev/next rows (S29) must be in the same served bundle
+if [ -n "$bundle" ] && curl -fsS --max-time 8 "$BASE$bundle" 2>/dev/null | grep -q 'lesson-nav'; then
+  echo "PASS lesson nav shipped (bundle carries prev/next)"; pass=$((pass+1))
+else
+  echo "FAIL lesson nav shipped (no bundle or no nav in it)"; fail=$((fail+1))
+fi
+
 # sanity: a scan must have happened
 n=$(curl -fsS --max-time 5 "$BASE/api/services/" 2>/dev/null | python3 -c 'import json,sys; print(len(json.load(sys.stdin)))' 2>/dev/null || echo 0)
 if [ "${n:-0}" -gt 0 ]; then echo "PASS scanner fresh ($n listeners recorded)"; pass=$((pass+1));

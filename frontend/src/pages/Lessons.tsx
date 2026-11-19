@@ -82,6 +82,36 @@ export default function Lessons() {
     norm === '' || (cards.current[i]?.textContent ?? '').toLowerCase().includes(norm)
   const visible: number[] = []
   for (let i = 0; i < 6; i++) if (shown(i)) visible.push(i)
+  // S29 — prev/next between lessons, search-aware like the arrow keys:
+  // the neighbor of a lesson is its neighbor among the VISIBLE ones, so
+  // a filtered page never hands the reader a link that goes nowhere.
+  // Position reads against the visible count for the same reason — in
+  // search results, '3 of 6' would be a lie.
+  const navFor = (i: number) => {
+    const pos = visible.indexOf(i)
+    return {
+      prev: pos > 0 ? visible[pos - 1] : null,
+      next: pos >= 0 && pos < visible.length - 1 ? visible[pos + 1] : null,
+      pos,
+    }
+  }
+  // A plain render helper, not a component — an inner component identity
+  // would remount on every keystroke and drop focus from these links.
+  const navRow = (self: number) => {
+    const { prev, next, pos } = navFor(self)
+    if (pos === -1 || (prev === null && next === null)) return null
+    return (
+      <nav className="lesson-nav" aria-label={`Lesson ${self + 1} navigation`}>
+        <span className="lnav-side">
+          {prev !== null && <a href={`#lesson-${prev + 1}`}>← {LESSON_NAMES[prev]}</a>}
+        </span>
+        <span className="lnav-mid faint">{pos + 1} of {visible.length}</span>
+        <span className="lnav-side">
+          {next !== null && <a href={`#lesson-${next + 1}`}>{LESSON_NAMES[next]} →</a>}
+        </span>
+      </nav>
+    )
+  }
   // S17b — keyboard nav between lessons, now search-aware: arrows walk
   // the VISIBLE set, so a filtered page never focuses a hidden article
   // (a display:none element cannot hold focus — the jump would silently
@@ -161,6 +191,7 @@ export default function Lessons() {
           The interesting part is what people build on top — which is Lessons 2 through 5.
         </p>
         <div className="takeaway"><b>Takeaway</b> An AI server is still a computer first: cores, RAM, disk, uptime. Everything later in this course inherits those limits.</div>
+        {navRow(0)}
       </article>
 
       <article className="lesson" id="lesson-2" aria-labelledby="lesson-2-h" tabIndex={0} hidden={!shown(1)}
@@ -184,6 +215,7 @@ export default function Lessons() {
           Lesson 4's permission model makes possible.
         </p>
         <div className="takeaway"><b>Takeaway</b> An agent = model + tools + persistent context + credentials. The model runs remotely over an API; the tools, context and files are local.</div>
+        {navRow(1)}
       </article>
 
       <article className="lesson" id="lesson-3" aria-labelledby="lesson-3-h" tabIndex={0} hidden={!shown(2)}
@@ -211,6 +243,7 @@ export default function Lessons() {
           like the dashboards that regenerate hourly.
         </p>
         <div className="takeaway"><b>Takeaway</b> Ask "what's listening, and on which interface?" — the answer is a near-complete map of any server. That question is literally this app's scanner, and <a href="/guide">the build-your-own guide</a> walks its five functions step by step.</div>
+        {navRow(2)}
       </article>
 
       <article className="lesson" id="lesson-4" aria-labelledby="lesson-4-h" tabIndex={0} hidden={!shown(3)}
@@ -230,6 +263,7 @@ export default function Lessons() {
           agents' private ports bind local on purpose — the public surface is smaller than the full set of listeners.
         </p>
         <div className="takeaway"><b>Takeaway</b> There is no "inside" on a headless server except Unix users, containers and bind addresses. Those are the boundaries; everything runs within them.</div>
+        {navRow(3)}
       </article>
 
       <article className="lesson" id="lesson-5" aria-labelledby="lesson-5-h" tabIndex={0} hidden={!shown(4)}
@@ -287,6 +321,7 @@ export default function Lessons() {
           this loop hop by hop, with the same probe numbers on every row.
         </p>
         <div className="takeaway"><b>Takeaway</b> An agent's model calls are remote HTTP; its tools and files are local. The signal path is where the two meet — and the local half of it is measured, hour after hour, by this very scanner.</div>
+        {navRow(4)}
       </article>
 
       <article className="lesson" id="lesson-6" aria-labelledby="lesson-6-h" tabIndex={0} hidden={!shown(5)}
@@ -308,6 +343,7 @@ export default function Lessons() {
           each step writes to a store, and the next session reads those stores back.
         </p>
         <div className="takeaway"><b>Takeaway</b> "State = what's on disk." Reboots don't erase what was committed, logged or written.</div>
+        {navRow(5)}
       </article>
 
       {/* Stated gap, the house style: a search with no answer says so and
