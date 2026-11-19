@@ -50,6 +50,9 @@ One row per calendar slice from ROADMAP.md. Statuses:
 | Sat Nov 14 (light) | **M2 · tag v0.5 (Trust complete)** | HELD — same halves as G1: suite is 6 days old (needs 14), systemd enable still awaits one interactive root session; fires when they're true | — | Nov 17 |
 | Mon Nov 16 | S25 · docs audit: README claims vs behavior, fix deltas | SHIPPED | ff009d2 | Nov 17 |
 | Tue Nov 17 | S26 · OpenAPI cleanup: examples per endpoint | SHIPPED | e27fd2c | Nov 17 |
+| Wed Nov 18 | S27 · trends CSV export endpoint | SHIPPED | 076aa2e | Nov 18 |
+| Thu Nov 19 | S28 · tiny client-side lesson search | SHIPPED | 93f5c3b | Nov 19 |
+| Fri Nov 20 | S29 · prev/next lesson navigation | SHIPPED (burned early, Nov 19) | 48f375f | Nov 19 |
 
 ## Audit — Nov 8 (first ledger run)
 
@@ -342,3 +345,53 @@ build, none needed.
 Queue head after this run: **S28** (Thu Nov 19, tiny client-side
 lesson search — frontend, `npm run build` + deploy-static), then S29
 (Nov 20), S30 (Nov 21, light), buffer Nov 22, S31–S33, G2 Nov 27.
+
+## Run — Nov 19 (thirteenth run; burn S28 → S29, one day ahead of the calendar)
+
+Queue head was **S28** (today's row). Burned it, then the light row
+behind it — **S29** (Nov 20) — as the day's bonus, keeping the run at
+cadence-plus-one: **S28** (`93f5c3b`), **S29** (`48f375f`), plus this
+stamp. No new rows marked EVIDENCED: the pre-burn audit found no
+covering code for either (Lessons.tsx had no input, no prev/next rows).
+
+- **S28**: the course page's search filters the six lesson articles by
+  their own rendered text — the index IS the page, read from the same
+  card refs the keyboard nav uses, so there is no corpus to maintain and
+  the live numbers the lessons quote are themselves findable. Count in
+  a polite live region; zero matches is a stated answer (no-hits panel
+  names what the course covers + a clear button); Escape clears; the
+  S17b arrows now walk the visible set so a filtered page can't
+  dead-jump to a hidden article.
+- **S29**: every lesson ends with prev/next links + a position count —
+  the visible face of the arrow-key nav, equally search-aware: neighbors
+  are neighbors-among-the-shown and the counter reads against the match
+  set ('2 of 4' under a search, never a stale 'of 6'). Real `#lesson-N`
+  hrefs; `<nav aria-label>` per row; lesson names shared with S28's
+  no-hits copy via ONE `LESSON_NAMES` line.
+
+**Ledger fix folded into this stamp:** the Nov 18 run's stamp
+(`e33f53d`) said it stamped S27 — and the ROADMAP tick proves the burn —
+but the S27 row never actually entered the table above. It is in now
+(`076aa2e`, Nov 18), with S28/S29 behind it: the table once again
+matches the log.
+
+**M2/G1 stay HELD, honestly**: re-checked this run — the pytest suite is
+8 days old (started Nov 11 with S11a; needs 14), and
+`systemctl is-enabled vps-anatomy.service` still answers `not-found`
+(enable awaits one interactive root session). Earliest fire: Nov 25.
+
+**Gates**: hygiene clean at all three commits; both slices frontend-only
+— no backend touched, no uvicorn restart (none needed; healthz stayed
+ok); `npm run build` + `scripts/deploy-static.sh` per slice; smoke
+24 → 25 → 26 green; home + /lessons 200; suite 57 green (one
+test_latency flake on the first run — a race with the live scanner;
+passed in isolation and on re-run twice). One smoke re-run needed after
+S29's deploy: the check raced the assets directory's rm-and-replace, a
+transient of the deploy script's own window, not a code fault — noted
+for future runs.
+
+Queue head after this run: **S30** (Sat Nov 21, light — `?theme=`
+deep-link shared by site + docs), then buffer Nov 22, S31 (Nov 23),
+S32, S33, G2 · v0.6 (Nov 27). The train now runs one day AHEAD of the
+calendar; keep the surplus at one row — burn S30 tomorrow, or hold it
+if S30 turns out to need the docs page and a careful eye.

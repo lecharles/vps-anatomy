@@ -91,8 +91,8 @@ Unassigned days are buffer/soak. Weekends marked (light) are small work.
 | Mon Nov 16 | S25 · docs audit: README claims vs behavior, fix deltas — done |
 | Tue Nov 17 | S26 · OpenAPI cleanup: examples per endpoint — done |
 | Wed Nov 18 | S27 · trends CSV export endpoint — done |
-| Thu Nov 19 | S28 · tiny client-side lesson search |
-| Fri Nov 20 | S29 · prev/next lesson navigation |
+| Thu Nov 19 | S28 · tiny client-side lesson search — done |
+| Fri Nov 20 | S29 · prev/next lesson navigation — done (burned Nov 19, early) |
 | Sat Nov 21 (light) | S30 · `?theme=` deep-link shared by site + docs |
 | Sun Nov 22 | buffer |
 | Mon Nov 23 | S31 · bundle size + gzip report; first optimization |
