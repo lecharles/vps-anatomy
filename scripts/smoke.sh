@@ -54,6 +54,15 @@ code=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/api/trends/export?metrics=b
 if [ "$code" = "422" ]; then echo "PASS trends csv validation (422)"; pass=$((pass+1));
 else echo "FAIL trends csv validation (got $code, want 422)"; fail=$((fail+1)); fi
 
+# the lesson search box (S28) must be in the served bundle — asset name
+# is hashed, so it is read live from the page, never named here
+bundle=$(curl -fsS --max-time 5 "$BASE/" 2>/dev/null | grep -oE '/assets/index-[A-Za-z0-9_-]+\.js' | head -1)
+if [ -n "$bundle" ] && curl -fsS --max-time 8 "$BASE$bundle" 2>/dev/null | grep -q 'lesson-q'; then
+  echo "PASS lesson search shipped (bundle carries the input)"; pass=$((pass+1))
+else
+  echo "FAIL lesson search shipped (no bundle or no input in it)"; fail=$((fail+1))
+fi
+
 # sanity: a scan must have happened
 n=$(curl -fsS --max-time 5 "$BASE/api/services/" 2>/dev/null | python3 -c 'import json,sys; print(len(json.load(sys.stdin)))' 2>/dev/null || echo 0)
 if [ "${n:-0}" -gt 0 ]; then echo "PASS scanner fresh ($n listeners recorded)"; pass=$((pass+1));

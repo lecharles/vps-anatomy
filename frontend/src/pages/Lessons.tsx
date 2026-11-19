@@ -1,5 +1,13 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useApi } from '../hooks/useApi'
+
+// S28 — tiny client-side lesson search. The index IS the rendered page:
+// each lesson's textContent is read from its article, so copy edits can
+// never drift out of a hand-maintained search corpus, and the live
+// numbers this course quotes (S13a, S22) are themselves findable.
+// One input, one filtered list, one stated result — no fuzzy ranking,
+// no network call, no invented relevance.
+const LESSON_NAMES = ['Hardware', 'Agents', 'Ports & Services', 'Permissions', 'Signal', 'Storage']
 
 type Machine = {
   hostname: string; os: string; arch: string; cpus: number; ram_gb: number
@@ -66,14 +74,30 @@ export default function Lessons() {
     .map((d) => d.services_listening)
     .filter((v): v is number => v != null)
   const cards = useRef<Record<number, HTMLElement | null>>({})
+  const [query, setQuery] = useState('')
+  const norm = query.trim().toLowerCase()
+  // An empty query is not a search: every lesson shows. A non-empty one
+  // reads the article's own rendered text — the same words the reader sees.
+  const shown = (i: number) =>
+    norm === '' || (cards.current[i]?.textContent ?? '').toLowerCase().includes(norm)
+  const visible: number[] = []
+  for (let i = 0; i < 6; i++) if (shown(i)) visible.push(i)
+  // S17b — keyboard nav between lessons, now search-aware: arrows walk
+  // the VISIBLE set, so a filtered page never focuses a hidden article
+  // (a display:none element cannot hold focus — the jump would silently
+  // die). Only the article itself swallows the keypress (e.target check)
+  // so links, chips and the search input keep their own keys. Focus
+  // moves with the ring the CSS gives every tabbable element.
   const jump = (e: React.KeyboardEvent<HTMLElement>, self: number) => {
     if (e.target !== e.currentTarget) return
+    const pos = visible.indexOf(self)
+    if (pos === -1) return
     let to: number | null = null
-    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') to = Math.min(self + 1, 5)
-    else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') to = Math.max(self - 1, 0)
-    else if (e.key === 'Home') to = 0
-    else if (e.key === 'End') to = 5
-    if (to === null) return
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') to = visible[Math.min(pos + 1, visible.length - 1)]
+    else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') to = visible[Math.max(pos - 1, 0)]
+    else if (e.key === 'Home') to = visible[0]
+    else if (e.key === 'End') to = visible[visible.length - 1]
+    if (to === null || to === undefined) return
     e.preventDefault()
     cards.current[to]?.focus()
   }
@@ -84,12 +108,35 @@ export default function Lessons() {
         <p className="sub">Six lessons, general to specific, about one real server. The numbers you see are
           pulled from the live scanner while you read — this course updates itself.</p>
         <p className="kbd-hint">
-          <span className="kbd">Tab</span> reaches each lesson · <span className="kbd">↑ ↓</span> jump between them ·{' '}
-          <span className="kbd">Home</span>/<span className="kbd">End</span> the first and last
+          <span className="kbd">Tab</span> reaches search and each visible lesson · <span className="kbd">↑ ↓</span> jump between them ·{' '}
+          <span className="kbd">Home</span>/<span className="kbd">End</span> the first and last · <span className="kbd">Esc</span> clears the search
         </p>
+        <div className="lesson-search">
+          <label htmlFor="lesson-q">Search</label>
+          <input
+            id="lesson-q"
+            type="search"
+            autoComplete="off"
+            placeholder="all six lessons, plain substring — try “ports”"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                e.preventDefault()
+                setQuery('')
+              }
+            }}
+            aria-describedby="lesson-q-count"
+          />
+          <span id="lesson-q-count" className="search-count" aria-live="polite">
+            {norm === ''
+              ? 'six lessons, all shown'
+              : `${visible.length} of 6 ${visible.length === 1 ? 'lesson' : 'lessons'} contain “${query.trim()}”`}
+          </span>
+        </div>
       </div>
 
-      <article className="lesson" id="lesson-1" aria-labelledby="lesson-1-h" tabIndex={0}
+      <article className="lesson" id="lesson-1" aria-labelledby="lesson-1-h" tabIndex={0} hidden={!shown(0)}
         ref={(el) => { cards.current[0] = el }} onKeyDown={(e) => jump(e, 0)}>
         <div className="lesson-no">Lesson 1 · Hardware</div>
         <h2 id="lesson-1-h">What is this server?</h2>
@@ -116,7 +163,7 @@ export default function Lessons() {
         <div className="takeaway"><b>Takeaway</b> An AI server is still a computer first: cores, RAM, disk, uptime. Everything later in this course inherits those limits.</div>
       </article>
 
-      <article className="lesson" id="lesson-2" aria-labelledby="lesson-2-h" tabIndex={0}
+      <article className="lesson" id="lesson-2" aria-labelledby="lesson-2-h" tabIndex={0} hidden={!shown(1)}
         ref={(el) => { cards.current[1] = el }} onKeyDown={(e) => jump(e, 1)}>
         <div className="lesson-no">Lesson 2 · Agents</div>
         <h2 id="lesson-2-h">Agents</h2>
@@ -139,7 +186,7 @@ export default function Lessons() {
         <div className="takeaway"><b>Takeaway</b> An agent = model + tools + persistent context + credentials. The model runs remotely over an API; the tools, context and files are local.</div>
       </article>
 
-      <article className="lesson" id="lesson-3" aria-labelledby="lesson-3-h" tabIndex={0}
+      <article className="lesson" id="lesson-3" aria-labelledby="lesson-3-h" tabIndex={0} hidden={!shown(2)}
         ref={(el) => { cards.current[2] = el }} onKeyDown={(e) => jump(e, 2)}>
         <div className="lesson-no">Lesson 3 · Ports & Services</div>
         <h2 id="lesson-3-h">Services, ports and protocols</h2>
@@ -166,7 +213,7 @@ export default function Lessons() {
         <div className="takeaway"><b>Takeaway</b> Ask "what's listening, and on which interface?" — the answer is a near-complete map of any server. That question is literally this app's scanner, and <a href="/guide">the build-your-own guide</a> walks its five functions step by step.</div>
       </article>
 
-      <article className="lesson" id="lesson-4" aria-labelledby="lesson-4-h" tabIndex={0}
+      <article className="lesson" id="lesson-4" aria-labelledby="lesson-4-h" tabIndex={0} hidden={!shown(3)}
         ref={(el) => { cards.current[3] = el }} onKeyDown={(e) => jump(e, 3)}>
         <div className="lesson-no">Lesson 4 · Permissions</div>
         <h2 id="lesson-4-h">Who can do what</h2>
@@ -185,7 +232,7 @@ export default function Lessons() {
         <div className="takeaway"><b>Takeaway</b> There is no "inside" on a headless server except Unix users, containers and bind addresses. Those are the boundaries; everything runs within them.</div>
       </article>
 
-      <article className="lesson" id="lesson-5" aria-labelledby="lesson-5-h" tabIndex={0}
+      <article className="lesson" id="lesson-5" aria-labelledby="lesson-5-h" tabIndex={0} hidden={!shown(4)}
         ref={(el) => { cards.current[4] = el }} onKeyDown={(e) => jump(e, 4)}>
         <div className="lesson-no">Lesson 5 · Signal</div>
         <h2 id="lesson-5-h">How messages move</h2>
@@ -242,7 +289,7 @@ export default function Lessons() {
         <div className="takeaway"><b>Takeaway</b> An agent's model calls are remote HTTP; its tools and files are local. The signal path is where the two meet — and the local half of it is measured, hour after hour, by this very scanner.</div>
       </article>
 
-      <article className="lesson" id="lesson-6" aria-labelledby="lesson-6-h" tabIndex={0}
+      <article className="lesson" id="lesson-6" aria-labelledby="lesson-6-h" tabIndex={0} hidden={!shown(5)}
         ref={(el) => { cards.current[5] = el }} onKeyDown={(e) => jump(e, 5)}>
         <div className="lesson-no">Lesson 6 · Storage</div>
         <h2 id="lesson-6-h">How data persists</h2>
@@ -262,6 +309,16 @@ export default function Lessons() {
         </p>
         <div className="takeaway"><b>Takeaway</b> "State = what's on disk." Reboots don't erase what was committed, logged or written.</div>
       </article>
+
+      {/* Stated gap, the house style: a search with no answer says so and
+          offers the way out — never an empty page that looks broken. */}
+      {norm !== '' && visible.length === 0 && (
+        <div className="lesson-no-hits">
+          <p>No lesson text contains “{query.trim()}”. The six lessons cover{' '}
+            {LESSON_NAMES.join(', ').toLowerCase()}.</p>
+          <button className="search-clear" onClick={() => { setQuery(''); }}>Clear the search</button>
+        </div>
+      )}
     </div>
   )
 }

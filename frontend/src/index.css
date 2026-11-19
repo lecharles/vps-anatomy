@@ -443,6 +443,32 @@ a.card:hover { text-decoration: none; border-color: var(--hairline-2); transform
 .empty .pulse { width: 9px; height: 9px; border-radius: 50%; background: var(--success); display: inline-block; margin-right: 8px; animation: pulse 1.6s ease-in-out infinite; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
 
+/* ---------- Lesson search (S28) ---------- */
+/* One input, one live count. Colors are the same AA-cleared pairs the
+   S17a audit kept honest (muted labels on surface, bright text). */
+.search-count { font: 500 11px var(--font-mono); color: var(--text-muted); }
+.lesson-search { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.lesson-search > label { font: 600 10px var(--font-mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
+.lesson-search input[type='search'] {
+  font: inherit; font-size: 13px; color: var(--text-bright);
+  background: var(--surface); border: 1px solid var(--hairline-2); border-radius: 999px;
+  padding: 5px 14px; width: 300px; max-width: 100%;
+}
+.lesson-search input[type='search']::placeholder { color: var(--text-faint); }
+.lesson-search input[type='search']:hover { border-color: var(--text-muted); }
+.lesson-no-hits {
+  border: 1px dashed var(--hairline-2); border-radius: var(--radius-card);
+  padding: 18px 20px; margin: 14px 0; color: var(--text-muted); font-size: 13px;
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+}
+.lesson-no-hits p { margin: 0; max-width: 560px; }
+.search-clear {
+  font: 500 11.5px var(--font-mono); letter-spacing: 0.02em;
+  border: 1px solid var(--hairline-2); border-radius: 999px; padding: 3px 11px;
+  color: var(--text-muted); background: var(--surface); cursor: pointer;
+}
+.search-clear:hover { color: var(--text-bright); border-color: var(--text-muted); }
+
 /* ---------- See also / footer ---------- */
 .seealso { margin-top: 22px; color: var(--text-faint); font-size: 12.5px; }
 footer.site {
