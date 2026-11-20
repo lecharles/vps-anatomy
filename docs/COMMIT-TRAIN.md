@@ -53,6 +53,7 @@ One row per calendar slice from ROADMAP.md. Statuses:
 | Wed Nov 18 | S27 · trends CSV export endpoint | SHIPPED | 076aa2e | Nov 18 |
 | Thu Nov 19 | S28 · tiny client-side lesson search | SHIPPED | 93f5c3b | Nov 19 |
 | Fri Nov 20 | S29 · prev/next lesson navigation | SHIPPED (burned early, Nov 19) | 48f375f | Nov 19 |
+| Sat Nov 21 | S30 · `?theme=` deep-link shared by site + docs | SHIPPED (burned early, Nov 20) | 302d380 | Nov 20 |
 
 ## Audit — Nov 8 (first ledger run)
 
@@ -395,3 +396,52 @@ deep-link shared by site + docs), then buffer Nov 22, S31 (Nov 23),
 S32, S33, G2 · v0.6 (Nov 27). The train now runs one day AHEAD of the
 calendar; keep the surplus at one row — burn S30 tomorrow, or hold it
 if S30 turns out to need the docs page and a careful eye.
+
+## Run — Nov 20 (fourteenth run; burn S30 early, surplus kept at one row)
+
+Queue head was **S30** (Sat Nov 21) — today's own row (S29) had been
+burned yesterday as the cadence-plus-one bonus, so this run burned the
+next light row to keep the surplus at exactly one: **S30** (`302d380`),
+plus this stamp. No new rows marked EVIDENCED — the pre-burn audit
+found no covering code (no `?theme=` reader anywhere in useTheme.ts or
+docs.html), and everything through S29 is stamped.
+
+- **S30**: `?theme=<name>` deep-links both surfaces under one contract —
+  URL wins over the saved choice; each page accepts only values it can
+  draw; the address bar is rewritten whenever a visible param names a
+  look the page isn't painting (docs has no academic mirror since S6b —
+  it lands and says vps, never a silent promise broken). Toggle writes
+  the param via replaceState; deep links persist into the shared
+  `vps.theme` key, plain visits write nothing (a side-tab docs open
+  can't clobber an app visitor's saved choice — caught in review, the
+  first draft wrote the normalized fallback unconditionally). Reads are
+  single-sourced on each face: ONE `currentTheme()` behind main.tsx's
+  pre-paint call and the toggle's hook; ONE `pickDocsTheme()` behind the
+  docs pre-paint pass and its buttons. Smoke grows two checks (26 →
+  28), one per face, the hashed bundle read live as ever.
+
+**Review lesson kept for future runs**: the first smoke pattern pinned
+double quotes (`searchParams.set("theme")`) and FAILED against the
+served bundle — esbuild emits backtick literals. The pattern now
+accepts either quote style. Pin string-greps to bytes actually served,
+not to the source's quote style.
+
+**M2/G1 stay HELD, honestly**: re-checked this run — the suite is 9
+days old (started Nov 11 with S11a; needs 14) and
+`systemctl is-enabled vps-anatomy.service` still answers `not-found`
+(enable awaits one interactive root session). Earliest fire: Nov 25.
+
+**Gates**: hygiene clean at both commits; pure-static run — no python
+touched, no uvicorn restart (docs.html is a FileResponse re-read per
+request; the new bundle went live through deploy-static, verified by
+served-bytes checks); `npm run build` clean (tsc -b); smoke 27/1 →
+fixed → 28/28 green; home and /docs 200 (incl. `?theme=` variants);
+suite 57 green.
+
+Queue head after this run: buffer (Sun Nov 22 — nothing to burn, but
+the run still owes its daily push: S31 is the next real row), then
+S31 (Mon Nov 23, bundle-size + gzip report + first optimization —
+NOTE: the optimization must keep the smoke's live-read asset grep
+working), S32, S33, G2 · v0.6 (Nov 27). The train stays one day AHEAD;
+burning S31 tomorrow keeps the machine moving without widening the
+surplus past one row after Nov 22's buffer.
