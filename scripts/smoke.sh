@@ -70,6 +70,21 @@ else
   echo "FAIL lesson nav shipped (no bundle or no nav in it)"; fail=$((fail+1))
 fi
 
+# the ?theme= deep link (S30) must reach the browser on BOTH faces it
+# promises: the docs page carries the param reader verbatim (it is served
+# as-is, single quotes and all), the app carries the URL writer inside
+# the live-read bundle (minified, double quotes)
+if curl -fsS --max-time 5 "$BASE/docs" 2>/dev/null | grep -qF "URLSearchParams(location.search).get('theme')"; then
+  echo "PASS docs theme param (S30)"; pass=$((pass+1))
+else
+  echo "FAIL docs theme param (S30)"; fail=$((fail+1))
+fi
+if [ -n "$bundle" ] && curl -fsS --max-time 8 "$BASE$bundle" 2>/dev/null | grep -qE 'searchParams\.set\(["`]theme'; then
+  echo "PASS app theme param sync (S30)"; pass=$((pass+1))
+else
+  echo "FAIL app theme param sync (S30)"; fail=$((fail+1))
+fi
+
 # sanity: a scan must have happened
 n=$(curl -fsS --max-time 5 "$BASE/api/services/" 2>/dev/null | python3 -c 'import json,sys; print(len(json.load(sys.stdin)))' 2>/dev/null || echo 0)
 if [ "${n:-0}" -gt 0 ]; then echo "PASS scanner fresh ($n listeners recorded)"; pass=$((pass+1));

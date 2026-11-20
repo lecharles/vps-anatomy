@@ -11,12 +11,23 @@
   // 'default' = the stock Swagger UI look with no overrides at all.
   // Persisted in the same key as the app ('vps.theme'); the app maps
   // 'default' to its own vps look.
-  (function () {
-    var t = localStorage.getItem('vps.theme') || 'vps';
-    if (t === 'stanford' || t === 'academic') t = 'vps'; // old values no longer offered here
-    if (t === 'default') document.getElementById('docs-css').setAttribute('disabled', '');
-    if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
-  })();
+  // S30 — ?theme= deep-links this page under the same contract the site
+  // uses: the URL wins over the saved choice, but only values this page
+  // offers. The app's 'academic' look has no docs mirror (S6b chose the
+  // stock UI instead), so it lands on vps — the same fallback the saved
+  // key already gets for it. One function answers both questions (before
+  // paint and after) so the page can never disagree with itself.
+  function pickDocsTheme() {
+    var t = new URLSearchParams(location.search).get('theme');
+    if (t !== 'vps' && t !== 'light' && t !== 'default') {
+      t = localStorage.getItem('vps.theme') || 'vps';
+    }
+    if (t === 'stanford' || t === 'academic') t = 'vps';
+    return t;
+  }
+  var docsTheme = pickDocsTheme();
+  if (docsTheme === 'default') document.getElementById('docs-css').setAttribute('disabled', '');
+  if (docsTheme === 'light') document.documentElement.setAttribute('data-theme', 'light');
 </script>
 </head>
 <body>
@@ -52,15 +63,30 @@
     document.querySelectorAll('[data-set-theme]').forEach((b) =>
       b.classList.toggle('on', b.getAttribute('data-set-theme') === t));
   }
+  function syncThemeParam(t) {
+    var u = new URL(location.href);
+    u.searchParams.set('theme', t);
+    history.replaceState(history.state, '', u);
+  }
   document.querySelectorAll('[data-set-theme]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const t = btn.getAttribute('data-set-theme');
       localStorage.setItem('vps.theme', t);
+      syncThemeParam(t); // S30: the bar names what the page now draws — share it
       applyDocsTheme(t);
     });
   });
-  let cur = localStorage.getItem('vps.theme') || 'vps';
-  if (cur === 'stanford' || cur === 'academic') cur = 'vps';
+  var cur = docsTheme; // the same read the pre-paint pass made — one pick, no drift
+  if (new URLSearchParams(location.search).has('theme')) {
+    // A deep link is a deliberate choice: persist it to the shared key so
+    // the site lands the same way, and rewrite the bar when the param
+    // named something this page can't draw (academic lands on vps — the
+    // bar then says vps, because the bar must match the paint). Without a
+    // param nothing is written, so an app visitor's saved choice survives
+    // opening docs in a side tab untouched.
+    localStorage.setItem('vps.theme', cur);
+    syncThemeParam(cur);
+  }
   applyDocsTheme(cur);
 </script>
 </body>
