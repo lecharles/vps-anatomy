@@ -95,7 +95,7 @@ Unassigned days are buffer/soak. Weekends marked (light) are small work.
 | Fri Nov 20 | S29 · prev/next lesson navigation — done (burned Nov 19, early) |
 | Sat Nov 21 (light) | S30 · `?theme=` deep-link shared by site + docs — done (burned Nov 20, early) |
 | Sun Nov 22 | buffer |
-| Mon Nov 23 | S31 · bundle size + gzip report; first optimization |
+| Mon Nov 23 | S31 · bundle size + gzip report; first optimization — done (burned Nov 21, early) |
 | Tue Nov 24 | S32 · automated a11y check script (no tokens) |
 | Wed Nov 25 | S33 · mobile layout pass (375px) |
 | Thu Nov 26 | Thanksgiving — buffer |

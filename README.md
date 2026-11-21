@@ -117,6 +117,10 @@ bash scripts/deploy-static.sh
 `scripts/deploy-static.sh` syncs `frontend/dist/` into `backend/static/`,
 which FastAPI serves — one origin, no CORS in production.
 
+To see what a visitor's browser actually downloads (raw vs gzip wire bytes,
+with budgets), run `bash scripts/bundle-report.sh` against the app. Static
+bodies over 1 KB are gzipped when the client asks for it.
+
 To run the test suite:
 
 ```bash

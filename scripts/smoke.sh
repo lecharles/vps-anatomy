@@ -82,7 +82,20 @@ fi
 if [ -n "$bundle" ] && curl -fsS --max-time 8 "$BASE$bundle" 2>/dev/null | grep -qE 'searchParams\.set\(["`]theme'; then
   echo "PASS app theme param sync (S30)"; pass=$((pass+1))
 else
-  echo "FAIL app theme param sync (S30)"; fail=$((fail+1))
+  echo "FAIL app theme param sync (S30)"
+  fail=$((fail+1))
+fi
+
+# the main bundle must arrive COMPRESSED when the browser asks (S31): the
+# wire bytes, not the file bytes, are what visitors download. Declared gzip
+# WITHOUT --compressed: if size_download stays at full size, the server
+# ignored the offer — plain GETs (the greps above) must still stay plain.
+wire=$(curl -fsS --max-time 8 -o /dev/null -w '%{size_download}' -H 'Accept-Encoding: gzip' "$BASE$bundle" 2>/dev/null || echo "")
+raw=$(curl -fsS --max-time 8 -o /dev/null -w '%{size_download}' "$BASE$bundle" 2>/dev/null || echo "")
+if [ -n "$wire" ] && [ -n "$raw" ] && [ "$wire" -lt "$raw" ]; then
+  echo "PASS bundle compressed on the wire (S31)"; pass=$((pass+1))
+else
+  echo "FAIL bundle compressed on the wire (S31)"; fail=$((fail+1))
 fi
 
 # sanity: a scan must have happened

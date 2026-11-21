@@ -3,6 +3,7 @@ from datetime import datetime
 import os
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from routers import machine, services, modules, changes, trends, latency
 from sqlalchemy import func
@@ -75,6 +76,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Wire compression (S31, the first optimization): the minified JS bundle is
+# ~3x smaller gzipped, and until now the server handed every browser the raw
+# bytes. Bodies over 1 KB are compressed when the client declares gzip;
+# clients that ask for nothing (like the smoke greps) receive the same plain
+# bytes as before.
+app.add_middleware(GZipMiddleware, minimum_size=1024)
 
 app.include_router(machine.router)
 app.include_router(services.router)
