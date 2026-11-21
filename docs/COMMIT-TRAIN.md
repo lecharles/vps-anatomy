@@ -54,6 +54,7 @@ One row per calendar slice from ROADMAP.md. Statuses:
 | Thu Nov 19 | S28 · tiny client-side lesson search | SHIPPED | 93f5c3b | Nov 19 |
 | Fri Nov 20 | S29 · prev/next lesson navigation | SHIPPED (burned early, Nov 19) | 48f375f | Nov 19 |
 | Sat Nov 21 | S30 · `?theme=` deep-link shared by site + docs | SHIPPED (burned early, Nov 20) | 302d380 | Nov 20 |
+| Mon Nov 23 | S31 · bundle size + gzip report; first optimization | SHIPPED (burned early, Nov 21) | e3a2e4c | Nov 21 |
 
 ## Audit — Nov 8 (first ledger run)
 
@@ -445,3 +446,46 @@ NOTE: the optimization must keep the smoke's live-read asset grep
 working), S32, S33, G2 · v0.6 (Nov 27). The train stays one day AHEAD;
 burning S31 tomorrow keeps the machine moving without widening the
 surplus past one row after Nov 22's buffer.
+
+## Run — Nov 21 (fifteenth run; burn S31 early — the buffer-before-Monday plan as written)
+
+Queue head was **S31** (Mon Nov 23). Today's own calendar row (S30) had been
+burned Nov 20, and the Nov 20 note's plan was explicit — burn S31 tomorrow so
+the train keeps moving through the Sun Nov 22 buffer without widening the
+surplus afterward. Burned it as one real slice (**S31**, `e3a2e4c`), plus this
+stamp. No new rows marked EVIDENCED: the pre-burn audit searched `scripts/`
+for any size/gzip tooling and found none — nothing predated the burn.
+
+- **S31**: two halves, one complaint. The report (`scripts/bundle-report.sh`)
+  measures what the browser ACTUALLY receives: asset names read live from the
+  served page, each fetched plain and again with a gzip declaration, curl
+  never told to decompress so the download count is the wire count — and an
+  uncompressed response is booked at its raw size, refusing to advertise a
+  ratio no visitor got. Budgets (JS/CSS/total gz) make it pass/fail, not
+  decoration. The optimization is the server honoring the offer: GZip on the
+  app (minimum_size 1024). Before/after, same script, same live server:
+  **318.4 KB → 98.7 KB first paint; the JS 300.9 → 94.6 (-69%), the CSS 17.4
+  → 4.1 (-77%)**. Smoke grows one check (28 → 29): the live-read bundle must
+  arrive smaller under a gzip offer than without it — byte comparison, no
+  header parsing, no named assets. The standing grep checks needed no
+  changes: clients that declare nothing still get plain bytes.
+
+**M2/G1 stay HELD, honestly**: re-checked this run — the suite is 10 days old
+(started Nov 11 with S11a; needs 14) and `systemctl is-enabled
+vps-anatomy.service` still answers `not-found` (enable awaits one interactive
+root session). Earliest fire: Nov 25 — the same day the queue reaches S33, so
+the Nov 25 run carries a gate decision plus a slice.
+
+**Gates**: hygiene clean at both commits; backend changed — restarted via a
+recreated detached `8093` session (launcher-pane mechanics, per the Nov 17
+ops note), scanner writing 2.3s after start; smoke 29/29; home 200 (and
+docs/openapi 200 inside the suite of checks); suite 57 green; bundle-report
+within budget post-restart. Frontend source untouched — no build.
+
+Queue head after this run: **S32** (Tue Nov 24, automated a11y check — the
+S17a audit's method, scripted; it can read the token table from CSS, no
+browser needed, zero tokens). Sun Nov 22 is a calendar buffer: the daily push
+is still owed, and the honest light work there is a soak-and-audit stamp —
+re-run the gates, re-check M2/G1, record the clock; no invented busywork.
+Then S32, S33 (Nov 25, mobile layout pass), the M2/G1 decision (Nov 25), G2 ·
+v0.6 (Nov 27).
