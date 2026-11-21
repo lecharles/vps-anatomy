@@ -10,7 +10,10 @@ check() { # name, url, predicate(on body)
   local body code
   body=$(curl -fsS --max-time 8 "$url" 2>/dev/null) && code=0 || code=1
   if [ $code -ne 0 ]; then echo "FAIL $name (no response)"; fail=$((fail+1)); return; fi
-  if [ -n "$pred" ] && ! echo "$body" | head -c 200000 | grep -qE "$pred"; then
+  if [ -n "$pred" ] && ! grep -qE "$pred" <<< "${body:0:200000}"; then
+    # here-string, not pipe: under pipefail a live `curl|head|grep -q`
+    # pipeline reports curl's SIGPIPE death when grep matches and quits
+    # early — the race that flaked the Nov 19 and Nov 21 runs
     echo "FAIL $name (body missing: $pred)"; fail=$((fail+1)); return
   fi
   echo "PASS $name"; pass=$((pass+1))
@@ -54,17 +57,27 @@ code=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/api/trends/export?metrics=b
 if [ "$code" = "422" ]; then echo "PASS trends csv validation (422)"; pass=$((pass+1));
 else echo "FAIL trends csv validation (got $code, want 422)"; fail=$((fail+1)); fi
 
-# the lesson search box (S28) must be in the served bundle — asset name
-# is hashed, so it is read live from the page, never named here
+# the lesson search box (S28), prev/next rows (S29) and theme writer (S30)
+# must be in the served bundle — asset name is hashed, so it is read live
+# from the page, never named here. One download to a temp file; the greps
+# read the FILE, never a live pipe (see check() — grep -q + pipefail turns
+# curl's SIGPIPE into a false FAIL mid-transfer).
 bundle=$(curl -fsS --max-time 5 "$BASE/" 2>/dev/null | grep -oE '/assets/index-[A-Za-z0-9_-]+\.js' | head -1)
-if [ -n "$bundle" ] && curl -fsS --max-time 8 "$BASE$bundle" 2>/dev/null | grep -q 'lesson-q'; then
+bundle_file=""
+if [ -n "$bundle" ]; then
+  bundle_file=$(mktemp)
+  curl -fsS --max-time 10 "$BASE$bundle" -o "$bundle_file" 2>/dev/null || bundle_file=""
+fi
+trap '[ -n "$bundle_file" ] && rm -f "$bundle_file"' EXIT
+
+if [ -n "$bundle_file" ] && grep -q 'lesson-q' "$bundle_file"; then
   echo "PASS lesson search shipped (bundle carries the input)"; pass=$((pass+1))
 else
   echo "FAIL lesson search shipped (no bundle or no input in it)"; fail=$((fail+1))
 fi
 
 # the lesson prev/next rows (S29) must be in the same served bundle
-if [ -n "$bundle" ] && curl -fsS --max-time 8 "$BASE$bundle" 2>/dev/null | grep -q 'lesson-nav'; then
+if [ -n "$bundle_file" ] && grep -q 'lesson-nav' "$bundle_file"; then
   echo "PASS lesson nav shipped (bundle carries prev/next)"; pass=$((pass+1))
 else
   echo "FAIL lesson nav shipped (no bundle or no nav in it)"; fail=$((fail+1))
@@ -73,13 +86,18 @@ fi
 # the ?theme= deep link (S30) must reach the browser on BOTH faces it
 # promises: the docs page carries the param reader verbatim (it is served
 # as-is, single quotes and all), the app carries the URL writer inside
-# the live-read bundle (minified, double quotes)
-if curl -fsS --max-time 5 "$BASE/docs" 2>/dev/null | grep -qF "URLSearchParams(location.search).get('theme')"; then
+# the live-read bundle (minified, double quotes) — both grepped on files,
+# never live pipes
+docs_file=$(mktemp)
+trap 'rm -f "$docs_file" ${bundle_file:+"$bundle_file"}' EXIT
+if curl -fsS --max-time 5 "$BASE/docs" -o "$docs_file" 2>/dev/null \
+   && grep -qF "URLSearchParams(location.search).get('theme')" "$docs_file"; then
   echo "PASS docs theme param (S30)"; pass=$((pass+1))
 else
-  echo "FAIL docs theme param (S30)"; fail=$((fail+1))
+  echo "FAIL docs theme param (S30)"
+  fail=$((fail+1))
 fi
-if [ -n "$bundle" ] && curl -fsS --max-time 8 "$BASE$bundle" 2>/dev/null | grep -qE 'searchParams\.set\(["`]theme'; then
+if [ -n "$bundle_file" ] && grep -qE 'searchParams\.set\(["`]theme' "$bundle_file"; then
   echo "PASS app theme param sync (S30)"; pass=$((pass+1))
 else
   echo "FAIL app theme param sync (S30)"

@@ -470,6 +470,18 @@ for any size/gzip tooling and found none — nothing predated the burn.
   header parsing, no named assets. The standing grep checks needed no
   changes: clients that declare nothing still get plain bytes.
 
+**Caught in review, fixed same run** (`fixup after e3a2e4c`): the final gate
+run flaked 28/1 — `lesson-nav shipped` failed against a bundle that manual
+curls proved served. The bug was the gate's own plumbing: `curl | grep -q`
+pipelines under `pipefail` report curl's SIGPIPE death when grep matches and
+quits early — a race against a 300 KB response, so the same check could pass
+and fail seconds apart. This had bitten before and been misread as deploy
+noise (Nov 19's "flake", Nov 20's pattern). Smoke now downloads the bundle
+and the docs page ONCE to temp files and greps the files; `check()` truncates
+via here-string, not a live pipe. Six consecutive 29/29 runs after the fix.
+Lesson for future runs: a `curl|grep -q` under pipefail is a coin flip on
+large bodies — grep bytes on disk, never bytes mid-pipe.
+
 **M2/G1 stay HELD, honestly**: re-checked this run — the suite is 10 days old
 (started Nov 11 with S11a; needs 14) and `systemctl is-enabled
 vps-anatomy.service` still answers `not-found` (enable awaits one interactive
